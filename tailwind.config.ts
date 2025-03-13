@@ -1,6 +1,6 @@
 
 import type { Config } from "tailwindcss";
-
+import tailwindcssAnimate from 'tailwindcss-animate';
 export default {
 	darkMode: ["class"],
 	content: [
@@ -76,7 +76,7 @@ export default {
           900: '#161c2e',
           950: '#0f111c',
         },
-        accent: {
+        customAccent: {
           blue: '#0EA5E9', // Ocean Blue accent
           teal: '#0D9488',
         },
@@ -126,5 +126,5 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [tailwindcssAnimate],
 } satisfies Config;
