@@ -21,7 +21,7 @@ const Index = () => {
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 px-4 sm:px-6 lg:px-8 text-white">
         {/* Background gradient with overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-navy-800 via-navy-700 to-accent-blue/90 z-0"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-navy-800 via-navy-700 to-accent-blue/90 z-0"></div>
         
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-10 z-0" 
@@ -32,7 +32,7 @@ const Index = () => {
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 animate-fade-up">
-              <div className="inline-block bg-white/10 backdrop-blur-sm px-4 py-1 rounded-full text-sm font-medium text-accent-blue mb-2">
+              <div className="inline-block bg-white/10 backdrop-blur-xs px-4 py-1 rounded-full text-sm font-medium text-accent-blue mb-2">
                 AI-Powered Sales Coaching
               </div>
               <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-tight">
@@ -74,7 +74,7 @@ const Index = () => {
       {/* Features Section */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white relative overflow-hidden">
         {/* Background pattern */}
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-gray-50 to-white"></div>
+        <div className="absolute top-0 left-0 right-0 h-32 bg-linear-to-b from-gray-50 to-white"></div>
         <div className="absolute inset-0 flex items-center justify-center opacity-5">
           <div className="w-full h-full" style={{ 
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
@@ -105,7 +105,7 @@ const Index = () => {
                   Upload transcripts in multiple formats and get insights in seconds. No complicated setup required.
                 </p>
               </div>
-              <div className="h-2 bg-gradient-to-r from-blue-500 to-blue-600"></div>
+              <div className="h-2 bg-linear-to-r from-blue-500 to-blue-600"></div>
             </div>
 
             {/* Feature 2 */}
@@ -119,7 +119,7 @@ const Index = () => {
                   Get comprehensive metrics on talk time, questions asked, objections handled, and customer sentiment.
                 </p>
               </div>
-              <div className="h-2 bg-gradient-to-r from-teal-500 to-teal-600"></div>
+              <div className="h-2 bg-linear-to-r from-teal-500 to-teal-600"></div>
             </div>
 
             {/* Feature 3 */}
@@ -133,7 +133,7 @@ const Index = () => {
                   Your sales data stays private. We use enterprise-grade encryption to protect all your information.
                 </p>
               </div>
-              <div className="h-2 bg-gradient-to-r from-purple-500 to-purple-600"></div>
+              <div className="h-2 bg-linear-to-r from-purple-500 to-purple-600"></div>
             </div>
           </div>
         </div>
@@ -142,8 +142,8 @@ const Index = () => {
       {/* How It Works */}
       <section id="how-it-works" className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50 relative overflow-hidden">
         {/* Background elements */}
-        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-bl from-accent-blue/10 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-accent-teal/10 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-linear-to-bl accent-blue/10 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-linear-to-tr accent-teal/10 to-transparent rounded-full blur-3xl"></div>
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center mb-16">
@@ -159,8 +159,8 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 relative">
             {/* Step 1 */}
             <div className="relative z-10 flex flex-col items-center text-center">
-              <div className="h-16 w-16 bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-2xl flex items-center justify-center mb-6 font-semibold text-lg shadow-lg shadow-blue-200 transform transition-transform duration-300 hover:scale-110">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+              <div className="h-16 w-16 bg-linear-to-br from-blue-500 to-blue-700 text-white rounded-2xl flex items-center justify-center mb-6 font-semibold text-lg shadow-lg shadow-blue-200 transform transition-transform duration-300 hover:scale-110">
+                <div className="h-12 w-12 rounded-xl bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center">
                   <Upload className="h-6 w-6" />
                 </div>
               </div>
@@ -175,8 +175,8 @@ const Index = () => {
             
             {/* Step 2 */}
             <div className="relative z-10 flex flex-col items-center text-center">
-              <div className="h-16 w-16 bg-gradient-to-br from-accent-teal to-teal-700 text-white rounded-2xl flex items-center justify-center mb-6 font-semibold text-lg shadow-lg shadow-teal-200 transform transition-transform duration-300 hover:scale-110">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center">
+              <div className="h-16 w-16 bg-linear-to-br from-accent-teal to-teal-700 text-white rounded-2xl flex items-center justify-center mb-6 font-semibold text-lg shadow-lg shadow-teal-200 transform transition-transform duration-300 hover:scale-110">
+                <div className="h-12 w-12 rounded-xl bg-linear-to-br from-teal-400 to-teal-600 flex items-center justify-center">
                   <BarChart2 className="h-6 w-6" />
                 </div>
               </div>
@@ -191,8 +191,8 @@ const Index = () => {
             
             {/* Step 3 */}
             <div className="relative z-10 flex flex-col items-center text-center">
-              <div className="h-16 w-16 bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-2xl flex items-center justify-center mb-6 font-semibold text-lg shadow-lg shadow-purple-200 transform transition-transform duration-300 hover:scale-110">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+              <div className="h-16 w-16 bg-linear-to-br from-purple-500 to-purple-700 text-white rounded-2xl flex items-center justify-center mb-6 font-semibold text-lg shadow-lg shadow-purple-200 transform transition-transform duration-300 hover:scale-110">
+                <div className="h-12 w-12 rounded-xl bg-linear-to-br from-purple-400 to-purple-600 flex items-center justify-center">
                   <ArrowRight className="h-6 w-6" />
                 </div>
               </div>
@@ -216,7 +216,7 @@ const Index = () => {
 
       {/* Lead Magnet */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-navy-800 via-navy-700 to-navy-900"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-navy-800 via-navy-700 to-navy-900"></div>
         
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-10" 
@@ -240,27 +240,27 @@ const Index = () => {
                 Paste a section of your sales call where a customer raised an objection, and see how our AI can help you handle it better.
               </p>
               <div className="space-y-4">
-                <div className="flex items-center gap-3 bg-white/5 backdrop-blur-sm p-3 rounded-lg">
-                  <div className="h-8 w-8 rounded-full bg-accent-blue/20 flex-shrink-0 flex items-center justify-center">
+                <div className="flex items-center gap-3 bg-white/5 backdrop-blur-xs p-3 rounded-lg">
+                  <div className="h-8 w-8 rounded-full bg-accent-blue/20 shrink-0 flex items-center justify-center">
                     <CheckCircle className="h-4 w-4 text-accent-blue" />
                   </div>
                   <p className="text-white font-medium">Identify objection type and underlying concerns</p>
                 </div>
-                <div className="flex items-center gap-3 bg-white/5 backdrop-blur-sm p-3 rounded-lg">
-                  <div className="h-8 w-8 rounded-full bg-accent-blue/20 flex-shrink-0 flex items-center justify-center">
+                <div className="flex items-center gap-3 bg-white/5 backdrop-blur-xs p-3 rounded-lg">
+                  <div className="h-8 w-8 rounded-full bg-accent-blue/20 shrink-0 flex items-center justify-center">
                     <CheckCircle className="h-4 w-4 text-accent-blue" />
                   </div>
                   <p className="text-white font-medium">Get suggested responses that actually work</p>
                 </div>
-                <div className="flex items-center gap-3 bg-white/5 backdrop-blur-sm p-3 rounded-lg">
-                  <div className="h-8 w-8 rounded-full bg-accent-blue/20 flex-shrink-0 flex items-center justify-center">
+                <div className="flex items-center gap-3 bg-white/5 backdrop-blur-xs p-3 rounded-lg">
+                  <div className="h-8 w-8 rounded-full bg-accent-blue/20 shrink-0 flex items-center justify-center">
                     <CheckCircle className="h-4 w-4 text-accent-blue" />
                   </div>
                   <p className="text-white font-medium">Improve your objection handling skills instantly</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-xl relative">
+            <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-8 shadow-xl relative">
               <div className="absolute -top-4 -right-4 bg-accent-blue text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg">
                 100% Free
               </div>

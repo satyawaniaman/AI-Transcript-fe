@@ -25,7 +25,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
     <div className={`${
       highlighted 
         ? 'border-accent-blue shadow-lg scale-105 z-10' 
-        : 'border-gray-200 shadow-sm'
+        : 'border-gray-200 shadow-xs'
       } 
       bg-white rounded-xl border p-8 flex flex-col`}
     >
@@ -40,10 +40,10 @@ const PricingCard: React.FC<PricingCardProps> = ({
         </div>
       </div>
       
-      <ul className="space-y-3 mb-8 flex-grow">
+      <ul className="space-y-3 mb-8 grow">
         {features.map((feature, index) => (
           <li key={index} className="flex">
-            <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+            <Check className="h-5 w-5 text-green-500 mr-2 shrink-0" />
             <span className="text-gray-600">{feature}</span>
           </li>
         ))}

@@ -2,7 +2,7 @@
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from 'tailwindcss-animate';
 export default {
-	darkMode: ["class"],
+	darkMode: "class",
 	content: [
 		"./pages/**/*.{ts,tsx}",
 		"./components/**/*.{ts,tsx}",
@@ -20,6 +20,8 @@ export default {
 		},
 		extend: {
 			colors: {
+				'accent-blue': '#0EA5E9', // Ocean Blue accent
+        		'accent-teal': '#0D9488', // Teal accent
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
@@ -40,10 +42,6 @@ export default {
 				muted: {
 					DEFAULT: 'hsl(var(--muted))',
 					foreground: 'hsl(var(--muted-foreground))'
-				},
-				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
@@ -75,10 +73,6 @@ export default {
           800: '#1a1f2c', // Dark Navy (our primary dark color)
           900: '#161c2e',
           950: '#0f111c',
-        },
-        customAccent: {
-          blue: '#0EA5E9', // Ocean Blue accent
-          teal: '#0D9488',
         },
 			},
 			borderRadius: {

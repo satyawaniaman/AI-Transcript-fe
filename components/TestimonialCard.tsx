@@ -11,7 +11,7 @@ interface TestimonialCardProps {
 
 const TestimonialCard: React.FC<TestimonialCardProps> = ({ quote, name, title, rating }) => {
   return (
-    <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+    <div className="bg-white p-8 rounded-xl shadow-xs border border-gray-100 hover:shadow-md transition-shadow">
       <div className="flex mb-4">
         {Array.from({ length: 5 }).map((_, i) => (
           <Star
