@@ -7,7 +7,7 @@ import {
   Briefcase,
   Users
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link  from 'next/link';
 
 interface AnalysisObjection {
   id: string;
@@ -125,7 +125,7 @@ const ObjectionsList: React.FC<ObjectionsListProps> = ({ objections = defaultObj
         return (
           <Link 
             key={typedObjection.id} 
-            to={typedObjection.link}
+            href={typedObjection.link}
             className="block"
           >
             <div className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">

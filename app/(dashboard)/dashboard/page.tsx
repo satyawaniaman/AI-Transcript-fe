@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -14,7 +15,6 @@ import {
   PlusCircle, 
   Upload, 
 } from 'lucide-react';
-import DashboardLayout from '@/components/DashboardLayout';
 import SentimentChart from '@/components/SentimentChart';
 import ObjectionsList from '@/components/ObjectionsList';
 import RecentTranscriptsList from '@/components/RecentTranscriptsList';
@@ -22,7 +22,7 @@ import { Toaster, toast } from 'react-hot-toast';
 
 const Dashboard = () => {
   return (
-    <DashboardLayout>
+    <>
       <Toaster />
       <div className="flex justify-between items-center mb-6">
         <div>
@@ -229,7 +229,7 @@ const Dashboard = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </DashboardLayout>
+    </>
   );
 };
 

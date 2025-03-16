@@ -1,7 +1,8 @@
+"use client";
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
-import Link  from 'next/Link';
+import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -52,7 +53,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           {/* Sidebar header */}
           <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-navy-700">
             <Link href="/" className="flex items-center">
-              <span className="text-xl font-bold text-white">SalesCoach<span className="text-accent-blue">.guru</span></span>
+              <span className="text-xl font-bold text-white">SalesCoach<span className="text-accent">.guru</span></span>
             </Link>
           </div>
           
@@ -132,7 +133,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           {/* Logo */}
           <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-navy-700">
             <Link href="/" className="flex items-center">
-              <span className="text-xl font-bold text-white">SalesCoach<span className="text-accent-blue">.guru</span></span>
+              <span className="text-xl font-bold text-white">SalesCoach<span className="text-accent">.guru</span></span>
             </Link>
           </div>
           
@@ -140,7 +141,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div className="mt-5 flex-1 h-0 overflow-y-auto">
             <nav className="px-2 space-y-1">
               {navigation.map((item) => {
-                const isActive = location.pathname === item.href;
+                const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.name}
@@ -202,7 +203,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div className="flex-1 flex justify-between items-center px-4">
             <div className="flex-1 flex">
               <Link href="/" className="flex items-center">
-                <span className="text-xl font-bold text-navy-800">SalesCoach<span className="text-accent-blue">.guru</span></span>
+                <span className="text-xl font-bold text-navy-800">SalesCoach<span className="text-accent">.guru</span></span>
               </Link>
             </div>
             <div className="ml-4 flex items-center md:ml-6">

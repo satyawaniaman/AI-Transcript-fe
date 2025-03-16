@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link  from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { FileText, ExternalLink } from 'lucide-react';
 
@@ -80,8 +80,8 @@ const RecentTranscriptsList = () => {
               </td>
               <td className="py-3 px-4">
                 <Link 
-                  to={`/transcripts/${transcript.id}`} 
-                  className="text-accent-blue hover:text-accent-blue/90 font-medium flex items-center"
+                  href={`/transcripts/${transcript.id}`} 
+                  className="text-accent-blue hover:text-d-blue/90 font-medium flex items-center"
                 >
                   View
                   <ExternalLink className="h-3 w-3 ml-1" />

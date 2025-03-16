@@ -1,8 +1,6 @@
 import React from 'react';
 import Link  from 'next/link';
 import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import { Textarea } from "@/components/ui/textarea";
 import { ArrowRight, BarChart2, CheckCircle, PlayCircle, Shield, Upload } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -21,7 +19,7 @@ const Index = () => {
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 px-4 sm:px-6 lg:px-8 text-white">
         {/* Background gradient with overlay */}
-        <div className="absolute inset-0 bg-linear-to-br from-navy-800 via-navy-700 to-accent-blue/90 z-0"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-navy-800 via-navy-700 to-accent/90 z-0"></div>
         
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-10 z-0" 
@@ -32,17 +30,17 @@ const Index = () => {
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 animate-fade-up">
-              <div className="inline-block bg-white/10 backdrop-blur-xs px-4 py-1 rounded-full text-sm font-medium text-accent-blue mb-2">
+              <div className="inline-block bg-white/10 backdrop-blur-xs px-4 py-1 rounded-full text-sm font-medium text-accent mb-2">
                 AI-Powered Sales Coaching
               </div>
               <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-tight">
-                Transform Your Sales Calls Into <span className="text-accent-blue">Coaching Insights</span>
+                Transform Your Sales Calls Into <span className="text-accent">Coaching Insights</span>
               </h1>
               <p className="text-xl text-gray-200 max-w-xl">
                 Upload your sales call transcripts and get personalized coaching, objection handling advice, and performance metrics in seconds.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button asChild size="lg" className="bg-accent-blue hover:bg-accent-blue/90 text-white font-medium">
+                <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-white font-medium">
                   <Link href="/signup">Start for Free</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="bg-white/10 hover:bg-white/20 border-white/20 text-white font-medium">
@@ -53,13 +51,13 @@ const Index = () => {
                 </Button>
               </div>
               <p className="text-sm text-gray-300 flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-accent-blue" />
+                <CheckCircle className="h-4 w-4 text-accent" />
                 No credit card required for 14-day trial
               </p>
             </div>
             <div className="hidden lg:flex justify-center items-center">
               <div className="relative w-full max-w-md">
-                <div className="absolute -left-6 -top-6 w-24 h-24 bg-accent-blue/20 rounded-full z-0 animate-pulse" style={{ animationDuration: '4s' }}></div>
+                <div className="absolute -left-6 -top-6 w-24 h-24 bg-accent/20 rounded-full z-0 animate-pulse" style={{ animationDuration: '4s' }}></div>
                 <div className="absolute -right-10 -bottom-4 w-32 h-32 bg-accent-teal/20 rounded-full z-0 animate-pulse" style={{ animationDuration: '6s' }}></div>
                 <HeroIllustration />
               </div>
@@ -84,7 +82,7 @@ const Index = () => {
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center mb-16">
-            <span className="bg-accent-blue/10 text-accent-blue px-4 py-2 rounded-full text-sm font-semibold mb-4 inline-block">
+            <span className="bg-accent/10 text-accent px-4 py-2 rounded-full text-sm font-semibold mb-4 inline-block">
               Key Features
             </span>
             <h2 className="text-4xl font-bold text-navy-800 mb-4">Powerful Sales Coaching at Your Fingertips</h2>
@@ -142,7 +140,7 @@ const Index = () => {
       {/* How It Works */}
       <section id="how-it-works" className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50 relative overflow-hidden">
         {/* Background elements */}
-        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-linear-to-bl accent-blue/10 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-linear-to-bl accent/10 to-transparent rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-linear-to-tr accent-teal/10 to-transparent rounded-full blur-3xl"></div>
         
         <div className="container mx-auto max-w-7xl relative z-10">
@@ -225,14 +223,14 @@ const Index = () => {
              }}></div>
              
         {/* Blurred circles */}
-        <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-accent-blue opacity-20 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-accent opacity-20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-accent-teal opacity-20 rounded-full blur-3xl"></div>
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="text-white">
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/10 text-accent-blue text-sm font-medium mb-6">
-                <div className="w-2 h-2 rounded-full bg-accent-blue mr-2 animate-pulse"></div>
+              <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/10 text-accent text-sm font-medium mb-6">
+                <div className="w-2 h-2 rounded-full bg-accent mr-2 animate-pulse"></div>
                 Free Tool
               </div>
               <h2 className="text-4xl font-bold mb-6 leading-tight">Try Our Free Sales Objection Analyzer</h2>
@@ -241,27 +239,27 @@ const Index = () => {
               </p>
               <div className="space-y-4">
                 <div className="flex items-center gap-3 bg-white/5 backdrop-blur-xs p-3 rounded-lg">
-                  <div className="h-8 w-8 rounded-full bg-accent-blue/20 shrink-0 flex items-center justify-center">
-                    <CheckCircle className="h-4 w-4 text-accent-blue" />
+                  <div className="h-8 w-8 rounded-full bg-accent/20 shrink-0 flex items-center justify-center">
+                    <CheckCircle className="h-4 w-4 text-accent" />
                   </div>
                   <p className="text-white font-medium">Identify objection type and underlying concerns</p>
                 </div>
                 <div className="flex items-center gap-3 bg-white/5 backdrop-blur-xs p-3 rounded-lg">
-                  <div className="h-8 w-8 rounded-full bg-accent-blue/20 shrink-0 flex items-center justify-center">
-                    <CheckCircle className="h-4 w-4 text-accent-blue" />
+                  <div className="h-8 w-8 rounded-full bg-accent/20 shrink-0 flex items-center justify-center">
+                    <CheckCircle className="h-4 w-4 text-accent" />
                   </div>
                   <p className="text-white font-medium">Get suggested responses that actually work</p>
                 </div>
                 <div className="flex items-center gap-3 bg-white/5 backdrop-blur-xs p-3 rounded-lg">
-                  <div className="h-8 w-8 rounded-full bg-accent-blue/20 shrink-0 flex items-center justify-center">
-                    <CheckCircle className="h-4 w-4 text-accent-blue" />
+                  <div className="h-8 w-8 rounded-full bg-accent/20 shrink-0 flex items-center justify-center">
+                    <CheckCircle className="h-4 w-4 text-accent" />
                   </div>
                   <p className="text-white font-medium">Improve your objection handling skills instantly</p>
                 </div>
               </div>
             </div>
             <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-8 shadow-xl relative">
-              <div className="absolute -top-4 -right-4 bg-accent-blue text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg">
+              <div className="absolute -top-4 -right-4 bg-accent text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg">
                 100% Free
               </div>
               <LeadMagnetForm />
