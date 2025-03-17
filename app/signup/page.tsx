@@ -22,7 +22,7 @@ const Signup = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <div className="flex-grow flex items-center justify-center px-4 py-12">
+      <div className="grow flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
           <div className="mb-6">
             <Button
@@ -105,7 +105,7 @@ const Signup = () => {
           
           <p className="mt-6 text-center text-sm text-gray-600">
             Already have an account?{' '}
-            <Link href="/login" className="text-accent-blue font-medium hover:underline">
+            <Link href="/login" className="text-[#0284c7] font-medium hover:underline">
               Log in
             </Link>
           </p>

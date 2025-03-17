@@ -72,7 +72,7 @@ const LeadMagnetForm = () => {
           
           <Button 
             type="submit" 
-            className="w-full bg-accent-blue hover:bg-accent-blue/90"
+            className="w-full bg-[#0284c7] hover:bg-[#0284c7]/90"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -97,7 +97,7 @@ const LeadMagnetForm = () => {
           <div className="text-sm">
             <p>Want more insights like this? Sign up for a free trial!</p>
           </div>
-          <Button asChild className="w-full bg-accent-blue hover:bg-accent-blue/90">
+          <Button asChild className="w-full bg-[#0284c7] hover:bg-[#0284c7]/90">
             <Link href="/signup">
               Sign Up for Free Trial
               <ArrowRight className="ml-2 h-4 w-4" />

@@ -26,7 +26,7 @@ const Privacy = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-blue-50 to-slate-100">
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-indigo-50 via-blue-50 to-slate-100">
       <Navbar />
       
       <motion.div
@@ -36,7 +36,7 @@ const Privacy = () => {
         className="flex-1"
       >
         <div className="container mx-auto px-4 py-12">
-          <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-8">
+          <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-xs p-8">
             <motion.div variants={itemVariants} className="mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-4">Privacy Policy</h1>
               <p className="text-gray-600">

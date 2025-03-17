@@ -94,7 +94,7 @@ const ObjectionsList: React.FC<ObjectionsListProps> = ({ objections = defaultObj
           <div key={objection.id || index} className="border rounded-lg p-4">
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-start">
-                <div className="rounded-full bg-blue-100 text-blue-700 h-8 w-8 flex items-center justify-center mr-3 flex-shrink-0">
+                <div className="rounded-full bg-blue-100 text-blue-700 h-8 w-8 flex items-center justify-center mr-3 shrink-0">
                   <span className="text-sm font-medium">{index + 1}</span>
                 </div>
                 <div>
@@ -129,10 +129,10 @@ const ObjectionsList: React.FC<ObjectionsListProps> = ({ objections = defaultObj
             className="block"
           >
             <div className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
-              <div className={`${typedObjection.color} h-10 w-10 rounded-full flex items-center justify-center mr-4 flex-shrink-0`}>
+              <div className={`${typedObjection.color} h-10 w-10 rounded-full flex items-center justify-center mr-4 shrink-0`}>
                 <typedObjection.icon className="h-5 w-5" />
               </div>
-              <div className="flex-grow min-w-0">
+              <div className="grow min-w-0">
                 <div className="flex justify-between items-center mb-1">
                   <p className="font-medium text-navy-800">{typedObjection.type}</p>
                   <span className="text-sm bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full">
@@ -141,7 +141,7 @@ const ObjectionsList: React.FC<ObjectionsListProps> = ({ objections = defaultObj
                 </div>
                 <p className="text-sm text-gray-600 truncate">{typedObjection.example}</p>
               </div>
-              <ChevronRight className="h-5 w-5 text-gray-400 ml-2 flex-shrink-0" />
+              <ChevronRight className="h-5 w-5 text-gray-400 ml-2 shrink-0" />
             </div>
           </Link>
         );

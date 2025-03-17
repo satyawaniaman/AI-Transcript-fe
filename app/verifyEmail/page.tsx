@@ -49,7 +49,7 @@ const VerifyEmail = () => {
   };
   
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-blue-50 to-slate-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-50 via-blue-50 to-slate-100 p-4">
       <motion.div
         className="bg-white w-full max-w-md rounded-xl shadow-lg p-8"
         initial="hidden"

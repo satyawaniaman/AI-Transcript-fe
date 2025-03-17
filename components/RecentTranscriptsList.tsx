@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Link  from 'next/link';
 import { Badge } from '@/components/ui/badge';
@@ -81,7 +80,7 @@ const RecentTranscriptsList = () => {
               <td className="py-3 px-4">
                 <Link 
                   href={`/transcripts/${transcript.id}`} 
-                  className="text-accent-blue hover:text-d-blue/90 font-medium flex items-center"
+                  className="text-[#0284c7] hover:text-[#0284c7]/90 font-medium flex items-center"
                 >
                   View
                   <ExternalLink className="h-3 w-3 ml-1" />
