@@ -1,5 +1,16 @@
 "use client";
 
+// Helper function to ensure resolved is always less than total by a random percentage
+const getResolvedValue = (
+  total: number,
+  minPercentage = 0.3,
+  maxPercentage = 0.9
+) => {
+  const percentage =
+    minPercentage + Math.random() * (maxPercentage - minPercentage);
+  return Math.min(total - 1, Math.floor(total * percentage));
+};
+
 import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
@@ -25,6 +36,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+// Define types for our data structure
+type ChartDataItem = {
+  date: string;
+  total: number;
+  resolved: number;
+};
+
+type CategoryKey =
+  | "all"
+  | "price"
+  | "timing"
+  | "trust"
+  | "competition"
+  | "stakeholders"
+  | "other";
+
+type CategoryDataType = {
+  [key in CategoryKey]: ChartDataItem[];
+};
+
+// Base chart data
 const chartData = [
   { date: "2024-04-01", total: 222, resolved: 150 },
   { date: "2024-04-02", total: 97, resolved: 180 },
@@ -119,66 +152,293 @@ const chartData = [
   { date: "2024-06-30", total: 446, resolved: 400 },
 ];
 
+// Create category-specific mock data with distinct patterns
+const createCategoryData = () => {
+  // Price objections: High volume, seasonal pattern with peaks in mid-month
+  const price = chartData.map((item, index) => {
+    const date = new Date(item.date);
+    const dayOfMonth = date.getDate();
+    // Create a mid-month peak pattern
+    const multiplier = dayOfMonth > 10 && dayOfMonth < 20 ? 0.5 : 0.3;
+    // Add seasonal variation with higher numbers in May
+    const monthFactor = date.getMonth() === 4 ? 1.3 : 1;
+    const total = Math.floor(item.total * multiplier * monthFactor * 0.5);
+    return {
+      date: item.date,
+      total: total,
+      resolved: getResolvedValue(total, 0.55, 0.75),
+    };
+  });
+
+  // Timing objections: Spiky pattern with specific peaks
+  const timing = chartData.map((item, index) => {
+    const date = new Date(item.date);
+    const dayOfMonth = date.getDate();
+    const isSpike = dayOfMonth % 10 <= 2;
+    const multiplier = isSpike ? 0.45 : 0.15;
+    const total = Math.floor(item.total * multiplier * 0.5);
+    return {
+      date: item.date,
+      total: total,
+      resolved: getResolvedValue(total, 0.6, 0.85),
+    };
+  });
+
+  // Trust/Risk objections: Steady but concerning trend with increasing numbers
+  const trust = chartData.map((item, index) => {
+    const date = new Date(item.date);
+    const monthIndex = date.getMonth() - 3; // Starting from April (0) to June (2)
+    const trendFactor = 0.15 + monthIndex * 0.05;
+    const total = Math.floor(item.total * trendFactor * 0.5);
+
+    // Decreasing resolution rate over time showing worsening situation
+    const dayProgress = index / chartData.length; // 0 to 1 over the period
+    const maxResolution = 0.65 - dayProgress * 0.2;
+
+    return {
+      date: item.date,
+      total: total,
+      resolved: getResolvedValue(total, 0.35, maxResolution),
+    };
+  });
+
+  // Competition objections: Cyclical with weekly pattern
+  const competition = chartData.map((item, index) => {
+    const date = new Date(item.date);
+    const dayOfWeek = date.getDay();
+    // Higher on weekdays (Mon-Fri), lower on weekends
+    const multiplier = dayOfWeek > 0 && dayOfWeek < 6 ? 0.25 : 0.1;
+    const total = Math.floor(item.total * multiplier * 0.5);
+
+    // Better resolution earlier in the week
+    const minResolution = dayOfWeek <= 3 ? 0.6 : 0.5;
+    const maxResolution = dayOfWeek <= 3 ? 0.8 : 0.7;
+
+    return {
+      date: item.date,
+      total: total,
+      resolved: getResolvedValue(total, minResolution, maxResolution),
+    };
+  });
+
+  // Stakeholder objections: Low volume but with specific event-based spikes
+  const stakeholders = chartData.map((item, index) => {
+    const date = new Date(item.date);
+    const dayOfMonth = date.getDate();
+    const monthIndex = date.getMonth();
+
+    // Specific events (meetings, quarter-end, etc.)
+    const isQuarterEnd = monthIndex === 5 && dayOfMonth >= 25; // End of Q2 (June)
+    const isMonthEnd = dayOfMonth >= 28;
+    const isMonthStart = dayOfMonth <= 3;
+
+    let multiplier = 0.08; // Base rate
+    if (isQuarterEnd) multiplier = 0.3;
+    else if (isMonthEnd) multiplier = 0.2;
+    else if (isMonthStart) multiplier = 0.15;
+
+    const total = Math.floor(item.total * multiplier * 0.5);
+
+    // Lower resolution during busy periods
+    let minResolution = 0.4;
+    let maxResolution = 0.6;
+    if (isQuarterEnd) {
+      minResolution = 0.3;
+      maxResolution = 0.5;
+    } else if (isMonthEnd) {
+      minResolution = 0.35;
+      maxResolution = 0.55;
+    }
+
+    return {
+      date: item.date,
+      total: total,
+      resolved: getResolvedValue(total, minResolution, maxResolution),
+    };
+  });
+
+  // Other objections: Random pattern with gradual improvement in resolution rate
+  const other = chartData.map((item, index) => {
+    const randomFactor = 0.15 + Math.random() * 0.1;
+    const total = Math.floor(item.total * randomFactor * 0.5);
+
+    // Gradually improving resolution rate
+    const dayProgress = index / chartData.length; // 0 to 1 over the entire period
+    const minResolution = 0.3 + dayProgress * 0.2;
+    const maxResolution = 0.5 + dayProgress * 0.25;
+
+    return {
+      date: item.date,
+      total: total,
+      resolved: getResolvedValue(total, minResolution, maxResolution),
+    };
+  });
+
+  // Now create the "all" category by summing all other categories
+  const all = chartData.map((item, index) => {
+    const sumTotal =
+      price[index].total +
+      timing[index].total +
+      trust[index].total +
+      competition[index].total +
+      stakeholders[index].total +
+      other[index].total;
+
+    const sumResolved =
+      price[index].resolved +
+      timing[index].resolved +
+      trust[index].resolved +
+      competition[index].resolved +
+      stakeholders[index].resolved +
+      other[index].resolved;
+
+    return {
+      date: item.date,
+      total: sumTotal,
+      resolved: sumResolved,
+    };
+  });
+
+  return {
+    all,
+    price,
+    timing,
+    trust,
+    competition,
+    stakeholders,
+    other,
+  };
+};
+
+const categoryData: CategoryDataType = createCategoryData();
+
 const chartConfig = {
   objectionss: {
     label: "Objections",
   },
   total: {
-    label: "total",
+    label: "Total",
     color: "hsl(var(--chart-1))",
   },
   resolved: {
-    label: "resolved",
+    label: "Resolved",
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 
-export function ObjectionChart() {
-  const [timeRange, setTimeRange] = React.useState("90d");
+// Category label mapping
+const categoryLabels: Record<CategoryKey, string> = {
+  all: "All Categories",
+  price: "Price",
+  timing: "Timing",
+  trust: "Trust/Risk",
+  competition: "Competition",
+  stakeholders: "Stakeholders",
+  other: "Other",
+};
 
-  const filteredData = chartData.filter((item) => {
-    const date = new Date(item.date);
-    const referenceDate = new Date("2024-06-30");
-    let daysToSubtract = 90;
-    if (timeRange === "30d") {
-      daysToSubtract = 30;
-    } else if (timeRange === "7d") {
-      daysToSubtract = 7;
-    }
-    const startDate = new Date(referenceDate);
-    startDate.setDate(startDate.getDate() - daysToSubtract);
-    return date >= startDate;
-  });
+export function ObjectionChart() {
+  const [timeRange, setTimeRange] = React.useState<"90d" | "30d" | "7d">("90d");
+  const [category, setCategory] = React.useState<CategoryKey>("all");
+
+  // Filter data based on selected time range
+  const filterByTimeRange = (data: ChartDataItem[]): ChartDataItem[] => {
+    return data.filter((item) => {
+      const date = new Date(item.date);
+      const referenceDate = new Date("2024-06-30");
+      let daysToSubtract = 90;
+      if (timeRange === "30d") {
+        daysToSubtract = 30;
+      } else if (timeRange === "7d") {
+        daysToSubtract = 7;
+      }
+      const startDate = new Date(referenceDate);
+      startDate.setDate(startDate.getDate() - daysToSubtract);
+      return date >= startDate;
+    });
+  };
+
+  // Get data filtered by both category and time range
+  const filteredData = filterByTimeRange(categoryData[category]);
+
+  // Update description text based on selections
+  const getDescription = () => {
+    let timeDescription = "the last 3 months";
+    if (timeRange === "30d") timeDescription = "the last 30 days";
+    if (timeRange === "7d") timeDescription = "the last 7 days";
+
+    return `Showing ${
+      category === "all" ? "all" : categoryLabels[category]
+    } objections for ${timeDescription}`;
+  };
 
   return (
     <Card>
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
           <CardTitle>Objection Trends Over Time</CardTitle>
-          <CardDescription>
-            Showing total objections and resolved objections for the last 3
-            months
-          </CardDescription>
+          <CardDescription>{getDescription()}</CardDescription>
         </div>
-        <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger
-            className="w-[160px] rounded-lg sm:ml-auto"
-            aria-label="Select a value"
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Select
+            value={category}
+            onValueChange={(value: string) => setCategory(value as CategoryKey)}
           >
-            <SelectValue placeholder="Last 3 months" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            <SelectItem value="90d" className="rounded-lg">
-              Last 3 months
-            </SelectItem>
-            <SelectItem value="30d" className="rounded-lg">
-              Last 30 days
-            </SelectItem>
-            <SelectItem value="7d" className="rounded-lg">
-              Last 7 days
-            </SelectItem>
-          </SelectContent>
-        </Select>
+            <SelectTrigger
+              className="w-[160px] rounded-lg"
+              aria-label="Select a category"
+            >
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              <SelectItem value="all" className="rounded-lg">
+                All Categories
+              </SelectItem>
+              <SelectItem value="price" className="rounded-lg">
+                Price
+              </SelectItem>
+              <SelectItem value="timing" className="rounded-lg">
+                Timing
+              </SelectItem>
+              <SelectItem value="trust" className="rounded-lg">
+                Trust/Risk
+              </SelectItem>
+              <SelectItem value="competition" className="rounded-lg">
+                Competition
+              </SelectItem>
+              <SelectItem value="stakeholders" className="rounded-lg">
+                Stakeholders
+              </SelectItem>
+              <SelectItem value="other" className="rounded-lg">
+                Other
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={timeRange}
+            onValueChange={(value: string) =>
+              setTimeRange(value as "90d" | "30d" | "7d")
+            }
+          >
+            <SelectTrigger
+              className="w-[160px] rounded-lg"
+              aria-label="Select a time range"
+            >
+              <SelectValue placeholder="Last 3 months" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              <SelectItem value="90d" className="rounded-lg">
+                Last 3 months
+              </SelectItem>
+              <SelectItem value="30d" className="rounded-lg">
+                Last 30 days
+              </SelectItem>
+              <SelectItem value="7d" className="rounded-lg">
+                Last 7 days
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer
