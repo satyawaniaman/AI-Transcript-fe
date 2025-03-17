@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -10,16 +10,54 @@ import { toast } from "react-hot-toast";
 import { ArrowLeft } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import zod from "zod";
 
 const Login = () => {
+  const schema = zod.object({
+    email: zod.string().email(),
+    password: zod.string().min(6),
+  });
+  
+  const [errors, setErrors] = useState({
+    email: '',
+    password: ''
+  });
+  
   const navigate = useRouter();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // In a real app, this would validate credentials with an API
-    toast.success("Logged in successfully! Welcome back to SalesCoach.guru.");
-    // Redirect to dashboard
-    navigate.push('/dashboard');
+    
+    // Get form data from the form elements
+    const formData = {
+      email: (e.currentTarget.elements.namedItem('email') as HTMLInputElement).value,
+      password: (e.currentTarget.elements.namedItem('password') as HTMLInputElement).value
+    };
+    
+    try {
+      // Validate form data against schema
+      schema.parse(formData);
+      
+      // If validation passes, proceed with login
+      toast.success("Logged in successfully! Welcome back to SalesCoach.guru.");
+      // Redirect to dashboard
+      navigate.push('/dashboard');
+    } catch (error) {
+      if (error instanceof zod.ZodError) {
+        // Extract and set validation errors
+        const newErrors = { email: '', password: '' };
+        
+        error.errors.forEach((err) => {
+          const path = err.path[0] as keyof typeof newErrors;
+          if (path in newErrors) {
+            newErrors[path] = err.message;
+          }
+        });
+        
+        setErrors(newErrors);
+        toast.error("Please fix the form errors");
+      }
+    }
   };
 
   return (
@@ -50,6 +88,9 @@ const Login = () => {
               <div className="space-y-2">
                 <Label htmlFor="email">Email address</Label>
                 <Input id="email" type="email" required />
+                {errors.email && (
+                  <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -60,6 +101,9 @@ const Login = () => {
                   </Link>
                 </div>
                 <Input id="password" type="password" required />
+                {errors.password && (
+                  <p className="text-sm text-red-500 mt-1">{errors.password}</p>
+                )}
               </div>
             </div>
             

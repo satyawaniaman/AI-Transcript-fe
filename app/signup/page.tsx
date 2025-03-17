@@ -1,6 +1,6 @@
 "use client";
-import React from 'react';
-import Link  from 'next/link';
+import React, { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,13 +9,59 @@ import { toast } from 'react-hot-toast';
 import { ArrowLeft } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import zod from "zod";
 
 const Signup = () => {
+  const schema = zod.object({
+    firstName: zod.string().min(1, "First name is required"),
+    lastName: zod.string().min(1, "Last name is required"),
+    email: zod.string().email("Please enter a valid email address"),
+    password: zod.string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[0-9]/, "Password must include a number")
+      .regex(/[^a-zA-Z0-9]/, "Password must include a symbol"),
+  });
+  
+  const [errors, setErrors] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: ''
+  });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // In a real app, this would call an API to create the user
-    toast.success("Account created! You've successfully signed up for SalesCoach.guru.");
+    
+    // Get form data from the form elements
+    const formData = {
+      firstName: (e.currentTarget.elements.namedItem('firstName') as HTMLInputElement).value,
+      lastName: (e.currentTarget.elements.namedItem('lastName') as HTMLInputElement).value,
+      email: (e.currentTarget.elements.namedItem('email') as HTMLInputElement).value,
+      password: (e.currentTarget.elements.namedItem('password') as HTMLInputElement).value
+    };
+    
+    try {
+      // Validate form data against schema
+      schema.parse(formData);
+      
+      // If validation passes, proceed with signup
+      toast.success("Account created! You've successfully signed up for SalesCoach.guru.");
+    } catch (error) {
+      if (error instanceof zod.ZodError) {
+        // Extract and set validation errors
+        const newErrors = { firstName: '', lastName: '', email: '', password: '' };
+        
+        error.errors.forEach((err) => {
+          const path = err.path[0] as keyof typeof newErrors;
+          if (path in newErrors) {
+            newErrors[path] = err.message;
+          }
+        });
+        
+        setErrors(newErrors);
+        toast.error("Please fix the form errors");
+      }
+    }
   };
 
   return (
@@ -47,21 +93,33 @@ const Signup = () => {
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First name</Label>
                   <Input id="firstName" required />
+                  {errors.firstName && (
+                    <p className="text-sm text-red-500 mt-1">{errors.firstName}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Last name</Label>
                   <Input id="lastName" required />
+                  {errors.lastName && (
+                    <p className="text-sm text-red-500 mt-1">{errors.lastName}</p>
+                  )}
                 </div>
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="email">Email address</Label>
                 <Input id="email" type="email" required />
+                {errors.email && (
+                  <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+                )}
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input id="password" type="password" required />
+                {errors.password && (
+                  <p className="text-sm text-red-500 mt-1">{errors.password}</p>
+                )}
                 <p className="text-xs text-gray-500">
                   Must be at least 8 characters and include a number and symbol.
                 </p>
