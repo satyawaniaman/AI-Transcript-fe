@@ -235,7 +235,14 @@ const Pricing = () => {
           >
             {pricingPlans[pricingPeriod].map((plan) => (
               <motion.div key={plan.id} variants={itemVariants}>
-                <PricingCard {...plan} />
+                <PricingCard 
+                  title={plan.name}
+                  price={plan.price.replace('$', '')}
+                  description={plan.description}
+                  features={plan.features}
+                  cta={plan.buttonText}
+                  highlighted={plan.isPopular || false}
+                />
               </motion.div>
             ))}
           </motion.div>
