@@ -14,7 +14,7 @@ const Navbar = () => {
           {/* Logo and brand */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <span className="text-xl font-bold text-navy-800">SalesCoach<span className="text-accent-blue">.guru</span></span>
+              <span className="text-xl font-bold text-navy-800">SalesCoach<span className="text-[#0284c7]">.guru</span></span>
             </Link>
           </div>
 

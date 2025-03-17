@@ -26,7 +26,7 @@ const Login = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <div className="flex-grow flex items-center justify-center px-4 py-12">
+      <div className="grow flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
           <div className="mb-6">
             <Button
@@ -55,7 +55,7 @@ const Login = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <Link href="/reset-password" className="text-sm text-accent-blue hover:underline">
+                  <Link href="/reset-password" className="text-sm text-[#0284c7] hover:underline">
                     Forgot password?
                   </Link>
                 </div>
@@ -101,7 +101,7 @@ const Login = () => {
           
           <p className="mt-6 text-center text-sm text-gray-600">
             Don&apos;t have an account?{' '}
-            <Link href="/signup" className="text-accent-blue font-medium hover:underline">
+            <Link href="/signup" className="text-[#0284c7] font-medium hover:underline">
               Sign up
             </Link>
           </p>

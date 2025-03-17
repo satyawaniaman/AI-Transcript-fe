@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 const HeroIllustration = () => {
@@ -8,11 +7,11 @@ const HeroIllustration = () => {
       <div className="bg-white rounded-lg shadow-2xl p-4 transform rotate-2 animate-fade-in">
         <div className="bg-navy-50 h-6 w-36 mb-4 rounded"></div>
         <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="bg-accent-blue/10 h-24 rounded flex items-center justify-center">
-            <div className="h-16 w-16 bg-accent-blue/20 rounded-full"></div>
+          <div className="bg-[#0284c7]/10 h-24 rounded flex items-center justify-center">
+            <div className="h-16 w-16 bg-[#0284c7]/20 rounded-full"></div>
           </div>
-          <div className="bg-accent-teal/10 h-24 rounded flex items-center justify-center">
-            <div className="h-16 w-16 bg-accent-teal/20 rounded-full"></div>
+          <div className="bg-[#0d9488]/10 h-24 rounded flex items-center justify-center">
+            <div className="h-16 w-16 bg-[#0d9488]/20 rounded-full"></div>
           </div>
         </div>
         <div className="bg-navy-100 h-32 rounded mb-4"></div>

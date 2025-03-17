@@ -176,7 +176,7 @@ const Pricing = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-blue-50 to-slate-100">
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-indigo-50 via-blue-50 to-slate-100">
       <Navbar />
       
       <motion.div

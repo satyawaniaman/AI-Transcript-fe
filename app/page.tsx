@@ -58,7 +58,7 @@ const Index = () => {
             <div className="hidden lg:flex justify-center items-center">
               <div className="relative w-full max-w-md">
                 <div className="absolute -left-6 -top-6 w-24 h-24 bg-accent/20 rounded-full z-0 animate-pulse" style={{ animationDuration: '4s' }}></div>
-                <div className="absolute -right-10 -bottom-4 w-32 h-32 bg-accent-teal/20 rounded-full z-0 animate-pulse" style={{ animationDuration: '6s' }}></div>
+                <div className="absolute -right-10 -bottom-4 w-32 h-32 bg-[#0d9488]/20 rounded-full z-0 animate-pulse" style={{ animationDuration: '6s' }}></div>
                 <HeroIllustration />
               </div>
             </div>
@@ -141,7 +141,7 @@ const Index = () => {
       <section id="how-it-works" className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50 relative overflow-hidden">
         {/* Background elements */}
         <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-linear-to-bl accent/10 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-linear-to-tr accent-teal/10 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-linear-to-tr from-[#0d9488]/10 to-transparent rounded-full blur-3xl"></div>
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center mb-16">
@@ -173,7 +173,7 @@ const Index = () => {
             
             {/* Step 2 */}
             <div className="relative z-10 flex flex-col items-center text-center">
-              <div className="h-16 w-16 bg-linear-to-br from-accent-teal to-teal-700 text-white rounded-2xl flex items-center justify-center mb-6 font-semibold text-lg shadow-lg shadow-teal-200 transform transition-transform duration-300 hover:scale-110">
+              <div className="h-16 w-16 bg-linear-to-br from-[#0d9488] to-teal-700 text-white rounded-2xl flex items-center justify-center mb-6 font-semibold text-lg shadow-lg shadow-teal-200 transform transition-transform duration-300 hover:scale-110">
                 <div className="h-12 w-12 rounded-xl bg-linear-to-br from-teal-400 to-teal-600 flex items-center justify-center">
                   <BarChart2 className="h-6 w-6" />
                 </div>
@@ -224,7 +224,7 @@ const Index = () => {
              
         {/* Blurred circles */}
         <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-accent opacity-20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-accent-teal opacity-20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-[#0d9488] opacity-20 rounded-full blur-3xl"></div>
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
