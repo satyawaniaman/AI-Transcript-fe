@@ -185,7 +185,7 @@ const InsightsPage: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-2xl font-bold text-navy-800">Sales Insights</h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 max-w-4xl">
               Welcome back, last week you struggled with pacing and timing
               objections, this week let&apos;s focus on slowing down and driving
               timelines with your prospects
