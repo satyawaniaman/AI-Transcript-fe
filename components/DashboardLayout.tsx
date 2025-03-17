@@ -83,6 +83,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div className="flex items-center h-16 shrink-0 px-4 border-b border-navy-700">
             <Link href="/" className="flex items-center">
               <span className="text-xl font-bold text-white">
+
                 SalesCoach<span className="text-[#0284c7]">.guru</span>
               </span>
             </Link>
@@ -108,6 +109,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                   >
                     <item.icon
                       className={`
+
                         mr-3 shrink-0 h-6 w-6 
                         ${
                           isActive
@@ -168,6 +170,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                       </div>
                       <button
                         onClick={handleSidebarFileUpload}
+
                         className="text-xs px-2 py-1 bg-[#0284c7] text-white rounded hover:bg-blue-600 transition-colors"
                       >
                         Upload
@@ -231,6 +234,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div className="flex items-center h-16 shrink-0 px-4 border-b border-navy-700">
             <Link href="/" className="flex items-center">
               <span className="text-xl font-bold text-white">
+
                 SalesCoach<span className="text-[#0284c7]">.guru</span>
               </span>
             </Link>
@@ -257,6 +261,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                   >
                     <item.icon
                       className={`
+
                         mr-3 shrink-0 h-6 w-6
                         ${
                           isActive
@@ -285,6 +290,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           </div>
         </div>
 
+
         <div className="shrink-0 w-14" aria-hidden="true">
           {/* Dummy element to force sidebar to shrink to fit close icon */}
         </div>
@@ -307,6 +313,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             <div className="flex-1 flex">
               <Link href="/" className="flex items-center">
                 <span className="text-xl font-bold text-navy-800">
+
                   SalesCoach<span className="text-[#0284c7]">.guru</span>
                 </span>
               </Link>
