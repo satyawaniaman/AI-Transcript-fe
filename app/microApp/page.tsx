@@ -56,14 +56,14 @@ const MicroApp = () => {
     // In a real app, this would upload the file to the server
     setTimeout(() => {
       setIsUploading(false);
-      navigate.push("/micro-app/results");
+      navigate.push("/microAppResults");
     }, 2000);
   };
   
   const handleTextSubmit = (text: string) => {
     // In a real app, this would process the text
     setTimeout(() => {
-      navigate.push("/micro-app/results");
+      navigate.push("/microAppResults");
     }, 1500);
   };
   
