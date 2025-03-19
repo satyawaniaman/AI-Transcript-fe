@@ -71,7 +71,7 @@ const ForgotPassword = () => {
               Reset your password
             </h1>
             {!isSubmitted && (
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-2 text-sm text-gray-600">_=
                 Enter your email address and we&apos;ll send you a link to reset your password.
               </p>
             )}
