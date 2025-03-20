@@ -127,7 +127,7 @@ const Login = () => {
               </div>
             </div>
             
-            <Button type="submit" disabled={isLoading}>
+            {/* <Button type="submit" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -136,8 +136,10 @@ const Login = () => {
                 ) : (
                   "Login"
                 )}
-              </Button>
-              <GoogleSignin/>
+              </Button> */}
+              <div className="flex justify-center">
+                <GoogleSignin/>
+              </div>
           </form>
           
           <p className="mt-6 text-center text-sm text-gray-600">
@@ -148,7 +150,6 @@ const Login = () => {
           </p>
         </div>
       </div>
-      
       <Footer />
     </div>
   );

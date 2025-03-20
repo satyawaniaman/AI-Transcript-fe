@@ -146,7 +146,9 @@ const Signup = () => {
               </div>
             </div>
             
-            <GoogleSignin/>
+            <div className="flex justify-center">
+                <GoogleSignin/>
+              </div>
           </form>
           
           <p className="mt-6 text-center text-sm text-gray-600">

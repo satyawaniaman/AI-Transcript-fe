@@ -1,31 +1,22 @@
 "use server";
 
-import { passwordMatchSchema } from "@/validation/passwordMatchSchema";
 import { z } from "zod";
-
-// import { revalidatePath } from "next/cache";
-// import { redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/server";
 
-
-export const  erUser = async ({
-  email,
+export const resetPasswordFunc = async ({
   password,
   passwordConfirm,
 }: {
-  email: string;
   password: string;
   passwordConfirm: string;
 }) => {
-  const newUserSchema = z
-    .object({
-      email: z.string().email(),
-    })
-    .and(passwordMatchSchema);
+  const newUserSchema = z.object({
+    password: z.string().min(6),
+    passwordConfirm: z.string().min(6),
+  });
 
   const newUserValidation = newUserSchema.safeParse({
-    email,
     password,
     passwordConfirm,
   });
@@ -40,10 +31,11 @@ export const  erUser = async ({
   // supabase authentication from here
   const supabase = await createClient();
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
+  const { data, error } = await supabase.auth.updateUser({
+    password: password,
   });
+
+  console.log("data : ", data);
 
   if (error) {
     return {
@@ -52,16 +44,9 @@ export const  erUser = async ({
     };
   }
 
-  if (data.user && data.user.identities && data.user.identities.length === 0) {
-    return {
-      error: true,
-      message: "Email already in use",
-    };
-  }
-
   // User successfully created
   return {
     success: true,
-    message: "Check your email for the confirmation link",
+    message: "Password reset successful",
   };
 };
