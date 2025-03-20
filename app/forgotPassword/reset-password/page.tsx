@@ -24,6 +24,8 @@ import { z } from "zod";
 import { resetPasswordFunc } from "./action";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { toast } from "react-hot-toast";
+
 const formSchema = z.object({
   password: z.string().min(6),
   passwordConfirm: z.string().min(6),
@@ -55,9 +57,13 @@ export default function ResetPassword() {
       if (response.error) {
         setServerError(response.message);
       } else {
-        console.log("ddd: ", response);
-        // Redirect to the confirmation page
-        router.push("/dashboard");
+        // Add success notification before redirecting
+        toast.success("Password reset successful! You can now log in with your new password.");
+        
+        // Short delay to allow the toast to be visible
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1500);
       }
     } catch (error) {
       setServerError("An unexpected error occurred. Please try again.");
