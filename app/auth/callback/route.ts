@@ -12,6 +12,22 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
+
+      const { data: session } = await supabase.auth.getUser();
+
+      // TODO: create the user object in the public.User table 
+      const { data: userData, error: userError } = await supabase.from("User").insert([
+        {
+          id: session.user?.id,
+          firstName: session.user?.user_metadata.full_name,
+          lastName: null,
+          email: session.user?.email,
+          isEmailVerified: true,
+        },
+      ]);
+
+      console.log("after inserting: userData", userData, "userError", userError);
+
       const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
       const isLocalEnv = process.env.NODE_ENV === 'development'
       if (isLocalEnv) {
