@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import {useRouter} from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,22 +12,23 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import zod from "zod";
 import GoogleSignin from './GoogleSignin';
+import { login } from './action';
 
 const Login = () => {
   const schema = zod.object({
     email: zod.string().email(),
     password: zod.string().min(6),
   });
-  
+
   const [errors, setErrors] = useState({
     email: '',
     password: ''
   });
-  
+
   const navigate = useRouter();
   const [isLoading, setIsLoading] = useState(false); // Add loading state
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true); // Set loading to true when submission starts
 
@@ -36,31 +37,36 @@ const Login = () => {
       email: (e.currentTarget.elements.namedItem('email') as HTMLInputElement).value,
       password: (e.currentTarget.elements.namedItem('password') as HTMLInputElement).value
     };
-    
+
     try {
       // Validate form data against schema
       schema.parse(formData);
-      
-      // If validation passes, proceed with login
-      toast.success("Logged in successfully! Welcome back to SalesCoach.guru.");
-      // Redirect to dashboard
-      navigate.push('/dashboard');
+
+      const response = await login({ email: formData.email, password: formData.password });
+
+      if (response.error) {
+        toast.error(response.message);
+      } else {
+        toast.success("Logged in successfully! Welcome back to SalesCoach.guru.");
+        // Redirect to dashboard
+        navigate.push('/dashboard');
+      }
     } catch (error) {
       if (error instanceof zod.ZodError) {
         // Extract and set validation errors
         const newErrors = { email: '', password: '' };
-        
+
         error.errors.forEach((err) => {
           const path = err.path[0] as keyof typeof newErrors;
           if (path in newErrors) {
             newErrors[path] = err.message;
           }
         });
-        
+
         setErrors(newErrors);
         toast.error("Please fix the form errors");
       }
-    }finally {
+    } finally {
       setIsLoading(false); // Set loading to false when submission ends
     }
   };
@@ -68,7 +74,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <div className="grow flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
           <div className="mb-6">
@@ -83,7 +89,7 @@ const Login = () => {
                 Back to home
               </Link>
             </Button>
-            
+
             <h1 className="text-2xl font-bold text-navy-800 mb-2">Welcome back</h1>
             <p className="text-gray-600">Log in to your SalesCoach.guru account.</p>
           </div>
@@ -97,7 +103,7 @@ const Login = () => {
                   <p className="text-sm text-red-500 mt-1">{errors.email}</p>
                 )}
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
@@ -111,11 +117,11 @@ const Login = () => {
                 )}
               </div>
             </div>
-            
+
             <Button type="submit" className="w-full">
               Log in
             </Button>
-            
+
             <div className="relative py-4">
               <div className="absolute inset-0 flex items-center">
                 <Separator />
@@ -126,7 +132,7 @@ const Login = () => {
                 </span>
               </div>
             </div>
-            
+
             {/* <Button type="submit" disabled={isLoading}>
                 {isLoading ? (
                   <>
@@ -137,11 +143,11 @@ const Login = () => {
                   "Login"
                 )}
               </Button> */}
-              <div className="flex justify-center">
-                <GoogleSignin/>
-              </div>
+            <div className="flex justify-center">
+              <GoogleSignin />
+            </div>
           </form>
-          
+
           <p className="mt-6 text-center text-sm text-gray-600">
             Don&apos;t have an account?{' '}
             <Link href="/signup" className="text-[#0284c7] font-medium hover:underline">

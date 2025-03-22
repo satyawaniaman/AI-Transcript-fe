@@ -12,6 +12,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import zod from "zod";
 import GoogleSignin from '../login/GoogleSignin';
+import { registerUser } from './action';
 
 const Signup = () => {
   const schema = zod.object({
@@ -23,7 +24,7 @@ const Signup = () => {
       .regex(/[0-9]/, "Password must include a number")
       .regex(/[^a-zA-Z0-9]/, "Password must include a symbol"),
   });
-  
+
   const [errors, setErrors] = useState({
     firstName: '',
     lastName: '',
@@ -33,9 +34,9 @@ const Signup = () => {
 
   const navigate = useRouter();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     // Get form data from the form elements
     const formData = {
       firstName: (e.currentTarget.elements.namedItem('firstName') as HTMLInputElement).value,
@@ -43,26 +44,31 @@ const Signup = () => {
       email: (e.currentTarget.elements.namedItem('email') as HTMLInputElement).value,
       password: (e.currentTarget.elements.namedItem('password') as HTMLInputElement).value
     };
-    
+
     try {
       // Validate form data against schema
       schema.parse(formData);
-      
       // If validation passes, proceed with signup
-      toast.success("Account created! You've successfully signed up for SalesCoach.guru.");
-      navigate.push('/login');
+      const response = await registerUser({ email: formData.email, password: formData.password });
+
+      if (response.error) {
+        toast.error(response.message);
+      } else {
+        toast.success("Account created! You've successfully signed up for SalesCoach.guru.");
+        navigate.push('/login');
+      }
     } catch (error) {
       if (error instanceof zod.ZodError) {
         // Extract and set validation errors
         const newErrors = { firstName: '', lastName: '', email: '', password: '' };
-        
+
         error.errors.forEach((err) => {
           const path = err.path[0] as keyof typeof newErrors;
           if (path in newErrors) {
             newErrors[path] = err.message;
           }
         });
-        
+
         setErrors(newErrors);
         toast.error("Please fix the form errors");
       }
@@ -72,7 +78,7 @@ const Signup = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <div className="grow flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
           <div className="mb-6">
@@ -87,7 +93,7 @@ const Signup = () => {
                 Back to home
               </Link>
             </Button>
-            
+
             <h1 className="text-2xl font-bold text-navy-800 mb-2">Create your account</h1>
             <p className="text-gray-600">Start your 14-day free trial. No credit card required.</p>
           </div>
@@ -110,7 +116,7 @@ const Signup = () => {
                   )}
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email address</Label>
                 <Input id="email" type="email" required />
@@ -118,7 +124,7 @@ const Signup = () => {
                   <p className="text-sm text-red-500 mt-1">{errors.email}</p>
                 )}
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input id="password" type="password" required />
@@ -130,11 +136,11 @@ const Signup = () => {
                 </p>
               </div>
             </div>
-            
+
             <Button type="submit" className="w-full" >
               Create account
             </Button>
-            
+
             <div className="relative py-4">
               <div className="absolute inset-0 flex items-center">
                 <Separator />
@@ -145,19 +151,19 @@ const Signup = () => {
                 </span>
               </div>
             </div>
-            
+
             <div className="flex justify-center">
-                <GoogleSignin/>
-              </div>
+              <GoogleSignin />
+            </div>
           </form>
-          
+
           <p className="mt-6 text-center text-sm text-gray-600">
             Already have an account?{' '}
             <Link href="/login" className="text-[#0284c7] font-medium hover:underline">
               Log in
             </Link>
           </p>
-          
+
           <p className="mt-4 text-center text-xs text-gray-500">
             By signing up, you agree to our{' '}
             <Link href="/terms" className="text-navy-700 hover:underline">Terms of Service</Link>
@@ -166,7 +172,7 @@ const Signup = () => {
           </p>
         </div>
       </div>
-      
+
       <Footer />
     </div>
   );

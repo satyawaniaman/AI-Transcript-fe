@@ -1,6 +1,5 @@
 "use server";
 
-import { passwordMatchSchema } from "@/validation/passwordMatchSchema";
 import { z } from "zod";
 
 // import { revalidatePath } from "next/cache";
@@ -9,25 +8,22 @@ import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
 
 
-export const  erUser = async ({
+export const registerUser = async ({
   email,
   password,
-  passwordConfirm,
 }: {
   email: string;
   password: string;
-  passwordConfirm: string;
 }) => {
   const newUserSchema = z
     .object({
       email: z.string().email(),
+      password: z.string().min(8, "Password must be at least 8 characters"),
     })
-    .and(passwordMatchSchema);
 
   const newUserValidation = newUserSchema.safeParse({
     email,
     password,
-    passwordConfirm,
   });
 
   if (!newUserValidation.success) {

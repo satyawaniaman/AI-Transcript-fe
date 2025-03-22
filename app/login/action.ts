@@ -50,6 +50,8 @@ export const login = async ({
     password,
   });
 
+  console.log("data", data, "error");
+
   if (error) {
     return {
       error: true,
