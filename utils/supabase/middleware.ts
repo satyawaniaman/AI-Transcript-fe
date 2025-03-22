@@ -15,7 +15,7 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value}) => request.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
           })
@@ -36,7 +36,8 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user && ( request.nextUrl.pathname === '/' || request.nextUrl.pathname === '/pricing' || request.nextUrl.pathname === '/features' || request.nextUrl.pathname === '/contact' || request.nextUrl.pathname === '/about' || request.nextUrl.pathname === '/blog' || request.nextUrl.pathname === '/microApp' )) {
+  // pathname doesn't start with /dashboard
+  if (!user && !request.nextUrl.pathname.startsWith('/dashboard')) {
     return
   }
 

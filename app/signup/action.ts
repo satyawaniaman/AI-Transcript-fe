@@ -2,9 +2,6 @@
 
 import { z } from "zod";
 
-// import { revalidatePath } from "next/cache";
-// import { redirect } from "next/navigation";
-
 import { createClient } from "@/utils/supabase/server";
 
 
@@ -40,6 +37,8 @@ export const registerUser = async ({
     email,
     password,
   });
+
+  console.log("data", data, "error", error);
 
   if (error) {
     return {
