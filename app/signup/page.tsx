@@ -49,7 +49,7 @@ const Signup = () => {
       // Validate form data against schema
       schema.parse(formData);
       // If validation passes, proceed with signup
-      const response = await registerUser({ email: formData.email, password: formData.password });
+      const response = await registerUser({ email: formData.email, password: formData.password, firstName: formData.firstName, lastName: formData.lastName });
 
       if (response.error) {
         toast.error(response.message);

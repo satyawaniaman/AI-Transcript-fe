@@ -8,19 +8,27 @@ import { createClient } from "@/utils/supabase/server";
 export const registerUser = async ({
   email,
   password,
+  firstName,
+  lastName,
 }: {
   email: string;
   password: string;
+  firstName: string;
+  lastName: string;
 }) => {
   const newUserSchema = z
     .object({
       email: z.string().email(),
       password: z.string().min(8, "Password must be at least 8 characters"),
+      firstName: z.string(),
+      lastName: z.string(),
     })
 
   const newUserValidation = newUserSchema.safeParse({
     email,
     password,
+    firstName,
+    lastName,
   });
 
   if (!newUserValidation.success) {
@@ -51,6 +59,34 @@ export const registerUser = async ({
     return {
       error: true,
       message: "Email already in use",
+    };
+  }
+
+  if (!data?.user?.id) {
+    return {
+      error: true,
+      message: "Error in creating user",
+    };
+  }
+
+  console.log("data.user id", data.user?.id);
+  // add user to the public.User table with the firstName, lastName and the same id
+  const { data: userData, error: userError } = await supabase.from("User").insert([
+    {
+      id: data.user?.id,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      isEmailVerified: false,
+    },
+  ]);
+
+  console.log("after inserting: userData", userData, "userError", userError);
+
+  if (userError) {
+    return {
+      error: true,
+      message: "Auth successful but user creation failed",
     };
   }
 

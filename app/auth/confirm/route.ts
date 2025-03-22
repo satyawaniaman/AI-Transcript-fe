@@ -19,6 +19,15 @@ export async function GET(request: NextRequest) {
     })
     if (!error) {
       // redirect user to /dashboard
+      const { data: session } = await supabase.auth.getUser();
+      const userId = session?.user?.id;
+      if (!userId) {
+        redirect('/error')
+      }
+      const { error: verifyError, data: verifyData } = await supabase.from("User").update({
+        isEmailVerified: true,
+      }).eq("id", userId)
+      console.log(verifyError, verifyData)
       redirect('/dashboard')
     }
   }
