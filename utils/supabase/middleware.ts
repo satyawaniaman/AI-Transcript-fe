@@ -36,6 +36,9 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+  if (!user && ( request.nextUrl.pathname === '/' || request.nextUrl.pathname === '/pricing' || request.nextUrl.pathname === '/features' || request.nextUrl.pathname === '/contact' || request.nextUrl.pathname === '/about' || request.nextUrl.pathname === '/blog' || request.nextUrl.pathname === '/microApp' )) {
+    return
+  }
 
   if (
     !user &&
