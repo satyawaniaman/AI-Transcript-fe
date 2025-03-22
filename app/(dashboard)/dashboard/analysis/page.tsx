@@ -189,7 +189,7 @@ const Analysis = () => {
                     <ul className="space-y-2">
                       {transcriptData.keyInsights.map((insight, index) => (
                         <li key={index} className="flex items-start">
-                          <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-800 text-sm mr-3 mt-0.5 flex-shrink-0">
+                          <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-800 text-sm mr-3 mt-0.5 shrink-0">
                             {index + 1}
                           </span>
                           <span className="text-gray-700">{insight}</span>
@@ -210,7 +210,7 @@ const Analysis = () => {
                     <ul className="space-y-2">
                       {transcriptData.recommendations.map((recommendation, index) => (
                         <li key={index} className="flex items-start">
-                          <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-100 text-green-800 text-sm mr-3 mt-0.5 flex-shrink-0">
+                          <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-100 text-green-800 text-sm mr-3 mt-0.5 shrink-0">
                             {index + 1}
                           </span>
                           <span className="text-gray-700">{recommendation}</span>

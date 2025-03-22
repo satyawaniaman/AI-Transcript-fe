@@ -118,7 +118,7 @@ const Docs = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-blue-50 to-slate-100">
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-indigo-50 via-blue-50 to-slate-100">
       <Navbar />
       
       <motion.div
@@ -165,7 +165,7 @@ const Docs = () => {
                     <motion.div
                       key={category.title}
                       variants={itemVariants}
-                      className="bg-white rounded-xl shadow-sm p-6"
+                      className="bg-white rounded-xl shadow-xs p-6"
                     >
                       <div className="flex items-center mb-4">
                         <category.icon className="h-6 w-6 text-blue-600 mr-3" />
@@ -204,7 +204,7 @@ const Docs = () => {
               
               <TabsContent value="api">
                 <motion.div variants={itemVariants}>
-                  <div className="bg-white rounded-xl shadow-sm p-8">
+                  <div className="bg-white rounded-xl shadow-xs p-8">
                     <h2 className="text-2xl font-bold mb-4">API Documentation</h2>
                     <p className="text-gray-600 mb-6">
                       Our RESTful API allows you to integrate SalesCoach&apos;s powerful analysis capabilities
@@ -255,7 +255,7 @@ const Docs = () => {
                     <motion.div
                       key={index}
                       variants={itemVariants}
-                      className="bg-white rounded-xl shadow-sm p-6"
+                      className="bg-white rounded-xl shadow-xs p-6"
                     >
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">
                         {faq.question}

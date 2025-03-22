@@ -6,7 +6,10 @@ import { Input } from '@/components/ui/input';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import Link  from 'next/link';
 import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
+
 const LeadMagnetForm = () => {
+  const router = useRouter();
   const [objectionText, setObjectionText] = useState('');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -16,20 +19,15 @@ const LeadMagnetForm = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-        setIsLoading(false);
-      
-        // Show the analysis result
-        setResult(
-          "This is a pricing objection. The customer feels your solution is too expensive compared to alternatives. Try emphasizing the unique value your product offers and the ROI they'll see. Consider offering a small discount or payment plan if appropriate."
-        );
-      
-        // Show toast notifications
-        toast.success("Analysis complete!");
-      
-        toast.success("Your dashboard report has been downloaded.");
-      }, 2000);
+    // Store the data in localStorage
+    localStorage.setItem('objectionText', objectionText);
+    localStorage.setItem('userEmail', email);
+    
+    // Redirect to the microApp results page
+    router.push('/microAppResults');
+    
+    // Show toast notification
+    toast.success("Analysis complete!");
   };
 
   return (
@@ -72,7 +70,7 @@ const LeadMagnetForm = () => {
           
           <Button 
             type="submit" 
-            className="w-full bg-accent-blue hover:bg-accent-blue/90"
+            className="w-full bg-[#0284c7] hover:bg-[#0284c7]/90"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -97,7 +95,7 @@ const LeadMagnetForm = () => {
           <div className="text-sm">
             <p>Want more insights like this? Sign up for a free trial!</p>
           </div>
-          <Button asChild className="w-full bg-accent-blue hover:bg-accent-blue/90">
+          <Button asChild className="w-full bg-[#0284c7] hover:bg-[#0284c7]/90">
             <Link href="/signup">
               Sign Up for Free Trial
               <ArrowRight className="ml-2 h-4 w-4" />

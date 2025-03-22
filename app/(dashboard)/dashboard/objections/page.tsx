@@ -355,10 +355,10 @@ const ObjectionsPage: React.FC = () => {
                 filteredObjections.map((objection) => (
                   <div key={objection.id} className="border rounded-lg p-4">
                     <div className="flex flex-col md:flex-row md:items-start gap-4">
-                      <div className={`${objection.color} h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0`}>
+                      <div className={`${objection.color} h-10 w-10 rounded-full flex items-center justify-center shrink-0`}>
                         {objection.icon}
                       </div>
-                      <div className="flex-grow">
+                      <div className="grow">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
                           <h3 className="font-medium text-navy-800">{objection.text}</h3>
                           <div className="flex items-center">

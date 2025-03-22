@@ -28,6 +28,8 @@ import {
   X,
 } from "lucide-react";
 
+import { createClient } from "@/utils/supabase/client";
+
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
@@ -80,12 +82,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     <div className="min-h-screen flex">
       {/* Sidebar for desktop */}
       <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
-        <div className="flex flex-col flex-grow bg-navy-800 overflow-y-auto">
+        <div className="flex flex-col grow bg-navy-800 overflow-y-auto">
           {/* Sidebar header */}
-          <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-navy-700">
+          <div className="flex items-center h-16 shrink-0 px-4 border-b border-navy-700">
             <Link href="/" className="flex items-center">
               <span className="text-xl font-bold text-white">
-                SalesCoach<span className="text-accent">.guru</span>
+
+                SalesCoach<span className="text-[#0284c7]">.guru</span>
               </span>
             </Link>
           </div>
@@ -101,20 +104,19 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     href={item.href}
                     className={`
                       group flex items-center px-2 py-2 text-sm font-medium rounded-md 
-                      ${
-                        isActive
-                          ? "bg-navy-700 text-white"
-                          : "text-gray-300 hover:bg-navy-700 hover:text-white"
+                      ${isActive
+                        ? "bg-navy-700 text-white"
+                        : "text-gray-300 hover:bg-navy-700 hover:text-white"
                       }
                     `}
                   >
                     <item.icon
                       className={`
-                        mr-3 flex-shrink-0 h-6 w-6 
-                        ${
-                          isActive
-                            ? "text-white"
-                            : "text-gray-400 group-hover:text-gray-300"
+
+                        mr-3 shrink-0 h-6 w-6 
+                        ${isActive
+                          ? "text-white"
+                          : "text-gray-400 group-hover:text-gray-300"
                         }
                       `}
                     />
@@ -170,7 +172,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                       </div>
                       <button
                         onClick={handleSidebarFileUpload}
-                        className="text-xs px-2 py-1 bg-accent-blue text-white rounded hover:bg-blue-600 transition-colors"
+
+                        className="text-xs px-2 py-1 bg-[#0284c7] text-white rounded hover:bg-blue-600 transition-colors"
                       >
                         Upload
                       </button>
@@ -188,7 +191,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 href="/help"
                 className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-navy-700 hover:text-white"
               >
-                <HelpCircle className="mr-3 flex-shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-300" />
+                <HelpCircle className="mr-3 shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-300" />
                 Help & Support
               </Link>
             </div>
@@ -221,7 +224,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           {/* Close button */}
           <div className="absolute top-0 right-0 -mr-12 pt-2">
             <button
-              className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+              className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-white"
               onClick={() => setSidebarOpen(false)}
             >
               <span className="sr-only">Close sidebar</span>
@@ -230,10 +233,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           </div>
 
           {/* Logo */}
-          <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-navy-700">
+          <div className="flex items-center h-16 shrink-0 px-4 border-b border-navy-700">
             <Link href="/" className="flex items-center">
               <span className="text-xl font-bold text-white">
-                SalesCoach<span className="text-accent">.guru</span>
+
+                SalesCoach<span className="text-[#0284c7]">.guru</span>
               </span>
             </Link>
           </div>
@@ -249,21 +253,20 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     href={item.href}
                     className={`
                       group flex items-center px-2 py-2 text-sm font-medium rounded-md
-                      ${
-                        isActive
-                          ? "bg-navy-700 text-white"
-                          : "text-gray-300 hover:bg-navy-700 hover:text-white"
+                      ${isActive
+                        ? "bg-navy-700 text-white"
+                        : "text-gray-300 hover:bg-navy-700 hover:text-white"
                       }
                     `}
                     onClick={() => setSidebarOpen(false)}
                   >
                     <item.icon
                       className={`
-                        mr-3 flex-shrink-0 h-6 w-6
-                        ${
-                          isActive
-                            ? "text-white"
-                            : "text-gray-400 group-hover:text-gray-300"
+
+                        mr-3 shrink-0 h-6 w-6
+                        ${isActive
+                          ? "text-white"
+                          : "text-gray-400 group-hover:text-gray-300"
                         }
                       `}
                     />
@@ -281,13 +284,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-navy-700 hover:text-white"
               onClick={() => setSidebarOpen(false)}
             >
-              <HelpCircle className="mr-3 flex-shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-300" />
+              <HelpCircle className="mr-3 shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-300" />
               Help & Support
             </Link>
           </div>
         </div>
 
-        <div className="flex-shrink-0 w-14" aria-hidden="true">
+
+        <div className="shrink-0 w-14" aria-hidden="true">
           {/* Dummy element to force sidebar to shrink to fit close icon */}
         </div>
       </div>
@@ -295,10 +299,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       {/* Main content */}
       <div className="md:pl-64 flex flex-col flex-1">
         {/* Top navigation */}
-        <div className="sticky top-0 z-10 md:hidden flex-shrink-0 flex h-16 bg-white border-b border-gray-200">
+        <div className="sticky top-0 z-10 md:hidden shrink-0 flex h-16 bg-white border-b border-gray-200">
           <button
             type="button"
-            className="px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-navy-500 md:hidden"
+            className="px-4 text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-navy-500 md:hidden"
             onClick={() => setSidebarOpen(true)}
           >
             <span className="sr-only">Open sidebar</span>
@@ -309,7 +313,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             <div className="flex-1 flex">
               <Link href="/" className="flex items-center">
                 <span className="text-xl font-bold text-navy-800">
-                  SalesCoach<span className="text-accent">.guru</span>
+
+                  SalesCoach<span className="text-[#0284c7]">.guru</span>
                 </span>
               </Link>
             </div>
@@ -320,7 +325,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </div>
 
         {/* Top bar desktop */}
-        <div className="hidden md:flex sticky top-0 z-10 flex-shrink-0 h-16 bg-white border-b border-gray-200">
+        <div className="hidden md:flex sticky top-0 z-10 shrink-0 h-16 bg-white border-b border-gray-200">
           <div className="flex-1 flex justify-end px-4">
             <div className="ml-4 flex items-center">
               <UserMenu />
@@ -336,6 +341,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 };
 
 const UserMenu = () => {
+  const supabase = createClient();
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.reload();
+  };
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -363,10 +373,10 @@ const UserMenu = () => {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/" className="cursor-pointer">
+          <Button onClick={handleLogout} className="cursor-pointer">
             <LogOut className="mr-2 h-4 w-4" />
             Log out
-          </Link>
+          </Button>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -176,7 +176,7 @@ const Pricing = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-blue-50 to-slate-100">
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-indigo-50 via-blue-50 to-slate-100">
       <Navbar />
       
       <motion.div
@@ -235,7 +235,14 @@ const Pricing = () => {
           >
             {pricingPlans[pricingPeriod].map((plan) => (
               <motion.div key={plan.id} variants={itemVariants}>
-                <PricingCard {...plan} />
+                <PricingCard 
+                  title={plan.name}
+                  price={plan.price.replace('$', '')}
+                  description={plan.description}
+                  features={plan.features}
+                  cta={plan.buttonText}
+                  highlighted={plan.isPopular || false}
+                />
               </motion.div>
             ))}
           </motion.div>

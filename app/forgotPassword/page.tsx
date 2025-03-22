@@ -1,11 +1,11 @@
 "use client";
 import { useState } from "react";
-import  Link  from "next/link";
+import Link from "next/link";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import { forgotPassword } from "./action";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -27,6 +28,9 @@ const formSchema = z.object({
 
 const ForgotPassword = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -35,14 +39,23 @@ const ForgotPassword = () => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // In a real app, this would call an API
-    console.log(values);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitted(true);
-    }, 1000);
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    setIsLoading(true);
+    try {
+      const response = await forgotPassword({
+        email: data.email,
+      });
+
+      if (response.error) {
+        setServerError(response.message);
+      } else {
+        setIsSubmitted(true);
+      }
+    } catch (error) {
+      setServerError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const containerVariants = {
@@ -58,7 +71,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-blue-50 to-slate-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-50 via-blue-50 to-slate-100 p-4">
       <motion.div
         className="bg-white w-full max-w-md rounded-xl shadow-lg p-8"
         initial="hidden"
@@ -71,7 +84,7 @@ const ForgotPassword = () => {
               Reset your password
             </h1>
             {!isSubmitted && (
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-2 text-sm text-gray-600">_=
                 Enter your email address and we&apos;ll send you a link to reset your password.
               </p>
             )}

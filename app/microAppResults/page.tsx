@@ -81,7 +81,7 @@ const MicroAppResults = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-blue-50 to-slate-100">
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-indigo-50 via-blue-50 to-slate-100">
       <Navbar />
       
       <motion.div
@@ -182,7 +182,7 @@ const MicroAppResults = () => {
                           transition={{ delay: index * 0.1 + 0.5, duration: 0.3 }}
                           className="flex items-start"
                         >
-                          <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-100 text-blue-800 text-xs mr-2 mt-0.5 flex-shrink-0">
+                          <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-100 text-blue-800 text-xs mr-2 mt-0.5 shrink-0">
                             {index + 1}
                           </span>
                           <span className="text-sm text-gray-700">{insight}</span>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Link  from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -24,13 +23,13 @@ const PricingCard: React.FC<PricingCardProps> = ({
   return (
     <div className={`${
       highlighted 
-        ? 'border-accent-blue shadow-lg scale-105 z-10' 
-        : 'border-gray-200 shadow-xs'
+        ? 'border-[#0284c7] shadow-lg scale-105 z-10' 
+        : 'border-gray-200 shadow-2xs'
       } 
       bg-white rounded-xl border p-8 flex flex-col`}
     >
       <div className="mb-6">
-        <h3 className={`text-xl font-bold mb-2 ${highlighted ? 'text-accent-blue' : 'text-navy-800'}`}>
+        <h3 className={`text-xl font-bold mb-2 ${highlighted ? 'text-[#0284c7]' : 'text-navy-800'}`}>
           {title}
         </h3>
         <p className="text-gray-600 mb-4">{description}</p>
@@ -51,7 +50,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
       
       <Button 
         asChild 
-        className={highlighted ? 'bg-accent-blue hover:bg-accent-blue/90' : 'bg-navy-700 hover:bg-navy-800'}
+        className={highlighted ? 'bg-[#0284c7] hover:bg-[#0284c7]/90' : 'bg-navy-700 hover:bg-navy-800'}
       >
         <Link href="/signup">{cta}</Link>
       </Button>

@@ -49,6 +49,9 @@ const Index = () => {
                     How It Works
                   </Link>
                 </Button>
+                <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-white font-medium">
+                  <Link href="/microApp">Try Our Objection Analyzer</Link>
+                </Button>
               </div>
               <p className="text-sm text-gray-300 flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-accent" />
@@ -58,7 +61,7 @@ const Index = () => {
             <div className="hidden lg:flex justify-center items-center">
               <div className="relative w-full max-w-md">
                 <div className="absolute -left-6 -top-6 w-24 h-24 bg-accent/20 rounded-full z-0 animate-pulse" style={{ animationDuration: '4s' }}></div>
-                <div className="absolute -right-10 -bottom-4 w-32 h-32 bg-accent-teal/20 rounded-full z-0 animate-pulse" style={{ animationDuration: '6s' }}></div>
+                <div className="absolute -right-10 -bottom-4 w-32 h-32 bg-[#0d9488]/20 rounded-full z-0 animate-pulse" style={{ animationDuration: '6s' }}></div>
                 <HeroIllustration />
               </div>
             </div>
@@ -141,7 +144,7 @@ const Index = () => {
       <section id="how-it-works" className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50 relative overflow-hidden">
         {/* Background elements */}
         <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-linear-to-bl accent/10 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-linear-to-tr accent-teal/10 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-linear-to-tr from-[#0d9488]/10 to-transparent rounded-full blur-3xl"></div>
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center mb-16">
@@ -173,7 +176,7 @@ const Index = () => {
             
             {/* Step 2 */}
             <div className="relative z-10 flex flex-col items-center text-center">
-              <div className="h-16 w-16 bg-linear-to-br from-accent-teal to-teal-700 text-white rounded-2xl flex items-center justify-center mb-6 font-semibold text-lg shadow-lg shadow-teal-200 transform transition-transform duration-300 hover:scale-110">
+              <div className="h-16 w-16 bg-linear-to-br from-[#0d9488] to-teal-700 text-white rounded-2xl flex items-center justify-center mb-6 font-semibold text-lg shadow-lg shadow-teal-200 transform transition-transform duration-300 hover:scale-110">
                 <div className="h-12 w-12 rounded-xl bg-linear-to-br from-teal-400 to-teal-600 flex items-center justify-center">
                   <BarChart2 className="h-6 w-6" />
                 </div>
@@ -219,12 +222,12 @@ const Index = () => {
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-10" 
              style={{ 
-               backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")` 
+               backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5z-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")` 
              }}></div>
              
         {/* Blurred circles */}
         <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-accent opacity-20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-accent-teal opacity-20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-[#0d9488] opacity-20 rounded-full blur-3xl"></div>
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">

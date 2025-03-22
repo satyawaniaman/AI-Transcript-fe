@@ -185,7 +185,7 @@ const InsightsPage: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-2xl font-bold text-navy-800">Sales Insights</h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 max-w-4xl">
               Welcome back, last week you struggled with pacing and timing
               objections, this week let&apos;s focus on slowing down and driving
               timelines with your prospects
@@ -369,7 +369,7 @@ const InsightsPage: React.FC = () => {
                   <Card>
                     <CardHeader className="flex flex-row items-start gap-4">
                       <div
-                        className={`${insight.color} h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0`}
+                        className={`${insight.color} h-10 w-10 rounded-full flex items-center justify-center shrink-0`}
                       >
                         {insight.icon}
                       </div>
@@ -518,7 +518,7 @@ const InsightsPage: React.FC = () => {
                                 suggestion.impact === "high"
                                   ? "bg-red-100 text-red-600"
                                   : "bg-yellow-100 text-yellow-600"
-                              } flex items-center justify-center flex-shrink-0`}
+                              } flex items-center justify-center shrink-0`}
                             >
                               <span className="text-xs font-bold">
                                 {suggestion.impact === "high" ? "H" : "M"}
