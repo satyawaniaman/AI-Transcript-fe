@@ -27,6 +27,8 @@ import {
   X,
 } from "lucide-react";
 
+import { createClient } from "@/utils/supabase/client";
+
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
@@ -100,10 +102,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     href={item.href}
                     className={`
                       group flex items-center px-2 py-2 text-sm font-medium rounded-md 
-                      ${
-                        isActive
-                          ? "bg-navy-700 text-white"
-                          : "text-gray-300 hover:bg-navy-700 hover:text-white"
+                      ${isActive
+                        ? "bg-navy-700 text-white"
+                        : "text-gray-300 hover:bg-navy-700 hover:text-white"
                       }
                     `}
                   >
@@ -111,10 +112,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                       className={`
 
                         mr-3 shrink-0 h-6 w-6 
-                        ${
-                          isActive
-                            ? "text-white"
-                            : "text-gray-400 group-hover:text-gray-300"
+                        ${isActive
+                          ? "text-white"
+                          : "text-gray-400 group-hover:text-gray-300"
                         }
                       `}
                     />
@@ -251,10 +251,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     href={item.href}
                     className={`
                       group flex items-center px-2 py-2 text-sm font-medium rounded-md
-                      ${
-                        isActive
-                          ? "bg-navy-700 text-white"
-                          : "text-gray-300 hover:bg-navy-700 hover:text-white"
+                      ${isActive
+                        ? "bg-navy-700 text-white"
+                        : "text-gray-300 hover:bg-navy-700 hover:text-white"
                       }
                     `}
                     onClick={() => setSidebarOpen(false)}
@@ -263,10 +262,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                       className={`
 
                         mr-3 shrink-0 h-6 w-6
-                        ${
-                          isActive
-                            ? "text-white"
-                            : "text-gray-400 group-hover:text-gray-300"
+                        ${isActive
+                          ? "text-white"
+                          : "text-gray-400 group-hover:text-gray-300"
                         }
                       `}
                     />
@@ -341,6 +339,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 };
 
 const UserMenu = () => {
+  const supabase = createClient();
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.reload();
+  };
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -368,10 +371,10 @@ const UserMenu = () => {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/" className="cursor-pointer">
+          <Button onClick={handleLogout} className="cursor-pointer">
             <LogOut className="mr-2 h-4 w-4" />
             Log out
-          </Link>
+          </Button>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
