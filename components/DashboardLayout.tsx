@@ -41,6 +41,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+  // Add mock organization data
+  const orgName = "Acme Corp";
+  const orgLogo =
+    "https://api.dicebear.com/7.x/initials/svg?seed=AC&backgroundColor=0284c7"; // Using DiceBear for placeholder logo
+
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Teams", href: "/dashboard/teams", icon: Users },
@@ -82,12 +87,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     <div className="min-h-screen flex">
       {/* Sidebar for desktop */}
       <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
-        <div className="flex flex-col grow bg-navy-800 overflow-y-auto">
+        <div className="flex flex-col h-full bg-navy-800 overflow-y-auto">
           {/* Sidebar header */}
           <div className="flex items-center h-16 shrink-0 px-4 border-b border-navy-700">
             <Link href="/" className="flex items-center">
               <span className="text-xl font-bold text-white">
-
                 SalesCoach<span className="text-[#0284c7]">.guru</span>
               </span>
             </Link>
@@ -104,9 +108,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     href={item.href}
                     className={`
                       group flex items-center px-2 py-2 text-sm font-medium rounded-md 
-                      ${isActive
-                        ? "bg-navy-700 text-white"
-                        : "text-gray-300 hover:bg-navy-700 hover:text-white"
+                      ${
+                        isActive
+                          ? "bg-navy-700 text-white"
+                          : "text-gray-300 hover:bg-navy-700 hover:text-white"
                       }
                     `}
                   >
@@ -114,9 +119,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                       className={`
 
                         mr-3 shrink-0 h-6 w-6 
-                        ${isActive
-                          ? "text-white"
-                          : "text-gray-400 group-hover:text-gray-300"
+                        ${
+                          isActive
+                            ? "text-white"
+                            : "text-gray-400 group-hover:text-gray-300"
                         }
                       `}
                     />
@@ -128,7 +134,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           </div>
 
           {/* Upload section */}
-          <div className="p-4 mt-auto border-t border-navy-700">
+          <div className="p-4 border-t border-navy-700">
             <div className="rounded-md overflow-hidden">
               <div className="px-3 py-2 bg-navy-700 text-white text-sm font-medium">
                 Quick Upload
@@ -172,7 +178,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                       </div>
                       <button
                         onClick={handleSidebarFileUpload}
-
                         className="text-xs px-2 py-1 bg-[#0284c7] text-white rounded hover:bg-blue-600 transition-colors"
                       >
                         Upload
@@ -185,7 +190,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           </div>
 
           {/* Help section */}
-          <div className="p-4 mt-auto border-t border-navy-700">
+          <div className="p-4 border-t border-navy-700">
             <div className="rounded-md">
               <Link
                 href="/help"
@@ -194,6 +199,31 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 <HelpCircle className="mr-3 shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-300" />
                 Help & Support
               </Link>
+            </div>
+          </div>
+
+          {/* Organization section - Desktop */}
+          <div className="p-4 border-t border-navy-700 mt-auto">
+            <div className="rounded-md bg-navy-700 bg-opacity-50 p-3 hover:bg-navy-600 transition-colors duration-200 cursor-pointer">
+              <div className="flex items-center">
+                <Avatar className="h-10 w-10 mr-3">
+                  <AvatarImage
+                    src={orgLogo || "/placeholder-org.svg"}
+                    alt={`${orgName} Logo`}
+                  />
+                  <AvatarFallback className="bg-navy-600 text-white">
+                    {orgName ? orgName.charAt(0).toUpperCase() : "O"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="overflow-hidden">
+                  <p className="text-sm font-medium text-white truncate">
+                    {orgName}
+                  </p>
+                  <p className="text-xs text-gray-400 truncate">
+                    Organization Plan
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -236,7 +266,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div className="flex items-center h-16 shrink-0 px-4 border-b border-navy-700">
             <Link href="/" className="flex items-center">
               <span className="text-xl font-bold text-white">
-
                 SalesCoach<span className="text-[#0284c7]">.guru</span>
               </span>
             </Link>
@@ -253,20 +282,21 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     href={item.href}
                     className={`
                       group flex items-center px-2 py-2 text-sm font-medium rounded-md
-                      ${isActive
-                        ? "bg-navy-700 text-white"
-                        : "text-gray-300 hover:bg-navy-700 hover:text-white"
+                      ${
+                        isActive
+                          ? "bg-navy-700 text-white"
+                          : "text-gray-300 hover:bg-navy-700 hover:text-white"
                       }
                     `}
                     onClick={() => setSidebarOpen(false)}
                   >
                     <item.icon
                       className={`
-
                         mr-3 shrink-0 h-6 w-6
-                        ${isActive
-                          ? "text-white"
-                          : "text-gray-400 group-hover:text-gray-300"
+                        ${
+                          isActive
+                            ? "text-white"
+                            : "text-gray-400 group-hover:text-gray-300"
                         }
                       `}
                     />
@@ -278,7 +308,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           </div>
 
           {/* Help */}
-          <div className="p-4 mt-auto border-t border-navy-700">
+          <div className="p-4 border-t border-navy-700">
             <Link
               href="/help"
               className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-navy-700 hover:text-white"
@@ -288,8 +318,32 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               Help & Support
             </Link>
           </div>
-        </div>
 
+          {/* Organization section - Mobile */}
+          <div className="p-4 border-t border-navy-700 mt-auto">
+            <div className="rounded-md bg-navy-700 bg-opacity-50 p-3 hover:bg-navy-600 transition-colors duration-200 cursor-pointer">
+              <div className="flex items-center">
+                <Avatar className="h-10 w-10 mr-3">
+                  <AvatarImage
+                    src={orgLogo || "/placeholder-org.svg"}
+                    alt={`${orgName} Logo`}
+                  />
+                  <AvatarFallback className="bg-navy-600 text-white">
+                    {orgName ? orgName.charAt(0).toUpperCase() : "O"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="overflow-hidden">
+                  <p className="text-sm font-medium text-white truncate">
+                    {orgName}
+                  </p>
+                  <p className="text-xs text-gray-400 truncate">
+                    Organization Plan
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div className="shrink-0 w-14" aria-hidden="true">
           {/* Dummy element to force sidebar to shrink to fit close icon */}
@@ -313,7 +367,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             <div className="flex-1 flex">
               <Link href="/" className="flex items-center">
                 <span className="text-xl font-bold text-navy-800">
-
                   SalesCoach<span className="text-[#0284c7]">.guru</span>
                 </span>
               </Link>
@@ -349,34 +402,48 @@ const UserMenu = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+        <Button
+          variant="outline"
+          className="relative h-8 w-8 rounded-full border-gray-200 bg-white hover:bg-sky-100 hover:border-sky-300 transition-all duration-200"
+        >
           <Avatar className="h-8 w-8">
             <AvatarImage src="/placeholder.svg" alt="User" />
-            <AvatarFallback>JD</AvatarFallback>
+            <AvatarFallback className="bg-navy-700 text-white">
+              JD
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuLabel className="text-gray-900">
+          My Account
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/profile" className="cursor-pointer">
+        <DropdownMenuItem className="p-0 focus:bg-transparent focus:text-inherit">
+          <Link
+            href="/profile"
+            className="flex w-full items-center px-2 py-1.5 text-sm rounded-sm text-navy-800 hover:text-navy-900 hover:bg-sky-100 transition-colors"
+          >
             <User className="mr-2 h-4 w-4" />
             Profile
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/settings" className="cursor-pointer">
+        <DropdownMenuItem className="p-0 focus:bg-transparent focus:text-inherit">
+          <Link
+            href="/settings"
+            className="flex w-full items-center px-2 py-1.5 text-sm rounded-sm text-navy-800 hover:text-navy-900 hover:bg-sky-100 transition-colors"
+          >
             <Settings className="mr-2 h-4 w-4" />
             Settings
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Button onClick={handleLogout} className="cursor-pointer">
-            <LogOut className="mr-2 h-4 w-4" />
-            Log out
-          </Button>
+        <DropdownMenuItem
+          onClick={handleLogout}
+          className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 focus:text-red-700 focus:bg-red-50 transition-colors"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
