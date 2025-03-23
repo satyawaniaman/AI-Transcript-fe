@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 
 import { createClient } from "@/utils/supabase/client";
+import { useGetUser } from "@/services/user/query";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -41,10 +42,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+  const { data: user, isLoading } = useGetUser();
+
   // Add mock organization data
-  const orgName = "Acme Corp";
+  const orgName = isLoading ? "..." : user?.organizations[0]?.organization?.name || "Acme Corp";
   const orgLogo =
-    "https://api.dicebear.com/7.x/initials/svg?seed=AC&backgroundColor=0284c7"; // Using DiceBear for placeholder logo
+    "https://api.dicebear.com/7.x/initials/svg?seed=" + orgName[0] + "&backgroundColor=0284c7"; // Using DiceBear for placeholder logo
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -220,7 +223,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     {orgName}
                   </p>
                   <p className="text-xs text-gray-400 truncate">
-                    Organization Plan
+                    Organization 
                   </p>
                 </div>
               </div>
@@ -337,7 +340,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     {orgName}
                   </p>
                   <p className="text-xs text-gray-400 truncate">
-                    Organization Plan
+                    Organization 
                   </p>
                 </div>
               </div>
@@ -399,6 +402,7 @@ const UserMenu = () => {
     await supabase.auth.signOut();
     window.location.reload();
   };
+  const { data: user, isLoading } = useGetUser();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -409,7 +413,7 @@ const UserMenu = () => {
           <Avatar className="h-8 w-8">
             <AvatarImage src="/placeholder.svg" alt="User" />
             <AvatarFallback className="bg-navy-700 text-white">
-              JD
+              {isLoading ? "..." : (user?.firstName?.charAt(0).toUpperCase() || '') + (user?.lastName?.charAt(0).toUpperCase() || '')}
             </AvatarFallback>
           </Avatar>
         </Button>
