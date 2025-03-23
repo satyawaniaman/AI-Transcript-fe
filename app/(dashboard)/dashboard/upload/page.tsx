@@ -6,8 +6,15 @@ import { File, Upload as UploadIcon, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TeamSelector from "@/components/TeamSelector"; // Import the new TeamSelector
 
 type FileStatus = "idle" | "uploading" | "success" | "error";
 
@@ -18,42 +25,52 @@ interface UploadedFile {
   type: string;
   progress: number;
   status: FileStatus;
+  teamId: string;
   error?: string;
 }
+
+// Sample team data - replace with your actual teams
+const teams = [
+  { id: "team1", name: "Sales Team A", memberCount: 12 },
+  { id: "team2", name: "Sales Team B", memberCount: 8 },
+  { id: "team3", name: "Support Team", memberCount: 15 },
+  { id: "team4", name: "Executive Team", memberCount: 5 },
+];
 
 const UploadPage = () => {
   const navigate = useRouter();
   const [activeTab, setActiveTab] = useState("upload-file");
   const [dragActive, setDragActive] = useState(false);
   const [files, setFiles] = useState<UploadedFile[]>([]);
-  
+  const [selectedTeam, setSelectedTeam] = useState(teams[0].id);
+
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
     } else if (e.type === "dragleave") {
       setDragActive(false);
     }
   };
-  
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       handleFiles(e.dataTransfer.files);
     }
   };
-  
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       handleFiles(e.target.files);
     }
   };
-  
+
   const handleFiles = (fileList: FileList) => {
     const allowedTypes = [
       "text/plain", // .txt
@@ -62,38 +79,37 @@ const UploadPage = () => {
       "application/msword", // .doc
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
     ];
-    
+
     const newFiles = Array.from(fileList)
-      .filter(file => allowedTypes.includes(file.type))
-      .map(file => ({
+      .filter((file) => allowedTypes.includes(file.type))
+      .map((file) => ({
         id: Math.random().toString(36).substring(2, 11),
         name: file.name,
         size: file.size,
         type: file.type,
         progress: 0,
         status: "idle" as FileStatus,
+        teamId: selectedTeam, // Associate the selected team with the file
       }));
-    
+
     if (newFiles.length > 0) {
-      setFiles(prev => [...prev, ...newFiles]);
+      setFiles((prev) => [...prev, ...newFiles]);
       simulateFileUpload(newFiles);
     }
   };
-  
+
   const simulateFileUpload = (newFiles: UploadedFile[]) => {
     // Simulate file upload for each file
-    newFiles.forEach(file => {
+    newFiles.forEach((file) => {
       // Start "uploading"
-      setFiles(files => 
-        files.map(f => 
-          f.id === file.id ? { ...f, status: "uploading" } : f
-        )
+      setFiles((files) =>
+        files.map((f) => (f.id === file.id ? { ...f, status: "uploading" } : f))
       );
-      
+
       // Simulate progress updates
       const interval = setInterval(() => {
-        setFiles(files => {
-          const updatedFiles = files.map(f => {
+        setFiles((files) => {
+          const updatedFiles = files.map((f) => {
             if (f.id === file.id) {
               const newProgress = Math.min(f.progress + 10, 100);
               return {
@@ -105,19 +121,25 @@ const UploadPage = () => {
             }
             return f;
           });
-          
+
           // If this file is done uploading, clear the interval
-          const currentFile = updatedFiles.find(f => f.id === file.id);
+          const currentFile = updatedFiles.find((f) => f.id === file.id);
           if (currentFile?.progress === 100) {
             clearInterval(interval);
           }
-          
+
           return updatedFiles;
         });
       }, 300);
     });
   };
-  
+
+  const updateFileTeam = (fileId: string, teamId: string) => {
+    setFiles((files) =>
+      files.map((f) => (f.id === fileId ? { ...f, teamId } : f))
+    );
+  };
+
   const fileIconMap: Record<string, JSX.Element> = {
     "text/plain": <File className="h-6 w-6 text-blue-500" />,
     "application/pdf": <File className="h-6 w-6 text-red-500" />,
@@ -127,7 +149,7 @@ const UploadPage = () => {
       <File className="h-6 w-6 text-blue-500" />
     ),
   };
-  
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -137,7 +159,7 @@ const UploadPage = () => {
       },
     },
   };
-  
+
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -148,20 +170,23 @@ const UploadPage = () => {
       },
     },
   };
-  
+
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + " bytes";
     else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
     else return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
-  
+
   const handleAnalyzeClick = () => {
-    // In a real app, this would redirect to the analysis page after processing
+    // In a real app, this would send the files and their associated teamIds to the backend
+    console.log("Files with team associations:", files);
+
+    // Then redirect to the analysis page after processing
     setTimeout(() => {
       navigate.push("/dashboard/analysis");
     }, 500);
   };
-  
+
   return (
     <>
       <motion.div
@@ -171,18 +196,25 @@ const UploadPage = () => {
         className="container mx-auto p-6"
       >
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Upload Transcripts</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Upload Transcripts
+          </h1>
           <p className="text-gray-600 mt-2">
-            Upload your sales call transcripts for analysis and get personalized coaching insights.
+            Upload your sales call transcripts for analysis and get personalized
+            coaching insights.
           </p>
         </div>
-        
-        <Tabs defaultValue="upload-file" value={activeTab} onValueChange={setActiveTab}>
+
+        <Tabs
+          defaultValue="upload-file"
+          value={activeTab}
+          onValueChange={setActiveTab}
+        >
           <TabsList className="mb-6">
             <TabsTrigger value="upload-file">Upload File</TabsTrigger>
             <TabsTrigger value="paste-text">Paste Text</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="upload-file">
             <Card>
               <CardHeader>
@@ -192,9 +224,20 @@ const UploadPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {/* Team Selection with new component */}
+                <div className="mb-3">
+                  <TeamSelector
+                    teams={teams}
+                    selectedTeamId={selectedTeam}
+                    onSelectTeam={setSelectedTeam}
+                  />
+                </div>
+
                 <div
                   className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-                    dragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
+                    dragActive
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-300"
                   }`}
                   onDragEnter={handleDrag}
                   onDragOver={handleDrag}
@@ -214,7 +257,9 @@ const UploadPage = () => {
                     </p>
                     <Button
                       variant="outline"
-                      onClick={() => document.getElementById("file-input")?.click()}
+                      onClick={() =>
+                        document.getElementById("file-input")?.click()
+                      }
                     >
                       Select Files
                     </Button>
@@ -228,7 +273,7 @@ const UploadPage = () => {
                     />
                   </motion.div>
                 </div>
-                
+
                 {files.length > 0 && (
                   <motion.div
                     className="mt-8"
@@ -236,52 +281,83 @@ const UploadPage = () => {
                     initial="hidden"
                     animate="visible"
                   >
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Uploaded Files</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                      Uploaded Files
+                    </h3>
                     <div className="space-y-4">
-                      {files.map(file => (
+                      {files.map((file) => (
                         <motion.div
                           key={file.id}
                           variants={itemVariants}
-                          className="border rounded-lg p-4 flex items-start"
+                          className="border rounded-lg p-4"
                         >
-                          <div className="mr-4">
-                            {fileIconMap[file.type] || <File className="h-6 w-6 text-gray-500" />}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex justify-between">
-                              <div>
-                                <h4 className="font-medium text-gray-900">{file.name}</h4>
-                                <p className="text-sm text-gray-500">
-                                  {formatFileSize(file.size)}
-                                </p>
-                              </div>
-                              <div>
-                                {file.status === "uploading" && (
-                                  <span className="text-blue-500 text-sm">Uploading...</span>
-                                )}
-                                {file.status === "success" && (
-                                  <CheckCircle className="h-5 w-5 text-green-500" />
-                                )}
-                                {file.status === "error" && (
-                                  <XCircle className="h-5 w-5 text-red-500" />
-                                )}
-                              </div>
+                          <div className="flex items-start mb-3">
+                            <div className="mr-4">
+                              {fileIconMap[file.type] || (
+                                <File className="h-6 w-6 text-gray-500" />
+                              )}
                             </div>
-                            {file.status === "uploading" && (
-                              <Progress value={file.progress} className="h-2 mt-2" />
-                            )}
-                            {file.error && (
-                              <p className="text-sm text-red-500 mt-1">{file.error}</p>
-                            )}
+                            <div className="flex-1">
+                              <div className="flex justify-between">
+                                <div>
+                                  <h4 className="font-medium text-gray-900">
+                                    {file.name}
+                                  </h4>
+                                  <p className="text-sm text-gray-500">
+                                    {formatFileSize(file.size)}
+                                  </p>
+                                </div>
+                                <div>
+                                  {file.status === "uploading" && (
+                                    <span className="text-blue-500 text-sm">
+                                      Uploading...
+                                    </span>
+                                  )}
+                                  {file.status === "success" && (
+                                    <CheckCircle className="h-5 w-5 text-green-500" />
+                                  )}
+                                  {file.status === "error" && (
+                                    <XCircle className="h-5 w-5 text-red-500" />
+                                  )}
+                                </div>
+                              </div>
+                              {file.status === "uploading" && (
+                                <Progress
+                                  value={file.progress}
+                                  className="h-2 mt-2"
+                                />
+                              )}
+                              {file.error && (
+                                <p className="text-sm text-red-500 mt-1">
+                                  {file.error}
+                                </p>
+                              )}
+                            </div>
                           </div>
+
+                          {/* Per-file team selection */}
+                          {file.status === "success" && (
+                            <div className="mt-2 border-t pt-3">
+                              <TeamSelector
+                                teams={teams}
+                                selectedTeamId={file.teamId}
+                                onSelectTeam={(teamId) =>
+                                  updateFileTeam(file.id, teamId)
+                                }
+                              />
+                            </div>
+                          )}
                         </motion.div>
                       ))}
                     </div>
-                    
+
                     <div className="mt-6">
-                      <Button 
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                        disabled={files.some(f => f.status === "uploading" || f.status === "idle")}
+                      <Button
+                        variant="default"
+                        className="w-full"
+                        disabled={files.some(
+                          (f) => f.status === "uploading" || f.status === "idle"
+                        )}
                         onClick={handleAnalyzeClick}
                       >
                         Analyze Transcripts
@@ -292,7 +368,7 @@ const UploadPage = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="paste-text">
             <Card>
               <CardHeader>
@@ -302,6 +378,15 @@ const UploadPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {/* Team Selection for pasted text */}
+                <div className="mb-4">
+                  <TeamSelector
+                    teams={teams}
+                    selectedTeamId={selectedTeam}
+                    onSelectTeam={setSelectedTeam}
+                  />
+                </div>
+
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -312,7 +397,7 @@ const UploadPage = () => {
                     placeholder="Paste your transcript text here..."
                   />
                   <div className="mt-4">
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                    <Button variant="default" className="w-full">
                       Analyze Text
                     </Button>
                   </div>
@@ -321,11 +406,12 @@ const UploadPage = () => {
             </Card>
           </TabsContent>
         </Tabs>
-        
+
         <Alert className="mt-8 bg-blue-50 border-blue-200">
           <AlertDescription>
-            After uploading, our AI will analyze your transcripts to identify objections, 
-            sentiment trends, and provide personalized coaching insights.
+            After uploading, our AI will analyze your transcripts to identify
+            objections, sentiment trends, and provide personalized coaching
+            insights for your selected team.
           </AlertDescription>
         </Alert>
       </motion.div>
@@ -333,4 +419,4 @@ const UploadPage = () => {
   );
 };
 
-export default UploadPage; 
+export default UploadPage;
