@@ -4,12 +4,20 @@ import { toast } from "react-hot-toast";
 
 function useCreateTeamMutation() {
   return useMutation({
-    mutationFn: ({ name, description, organizationId }: { name: string, description: string, organizationId: string }) => createTeam(name, description, organizationId),
+    mutationFn: ({
+      name,
+      description,
+      organizationId,
+    }: {
+      name: string;
+      description: string;
+      organizationId: string;
+    }) => createTeam(name, description, organizationId),
     onSuccess: () => {
-      toast.success('Team created successfully');
+      toast.success("Team created successfully");
     },
     onError: () => {
-      toast.error('Failed to create team');
+      toast.error("Failed to create team");
     },
   });
 }
