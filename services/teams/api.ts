@@ -6,7 +6,7 @@ import { api } from "@/utils/axios";
 
 // create a team
 function createTeam(name: string, description: string, organizationId: string) {
-  return api.post('/api/teams', {
+  return api.post('/api/team', {
     name,
     description,
     organizationId,

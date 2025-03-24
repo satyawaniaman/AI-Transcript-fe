@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { useGetUser } from "@/services/user/query";
 import useCreateTeamMutation from "@/services/teams/mutation";
+import { toast } from "sonner";
 
 interface FormData {
   name: string;
@@ -92,11 +93,13 @@ const NewTeamPage = () => {
         {
           onSuccess: () => {
             // Navigate back to teams page
-            router.push("/teams");
+            toast.success("Team created successfully");
+            router.push("/dashboard/teams");
           },
         }
       );
     } else {
+      toast.error("Failed to create team");
       // Handle case where orgId is not available
       // Note: Your mutation already handles the error toast, so we don't need to add it here
     }
