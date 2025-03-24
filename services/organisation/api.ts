@@ -7,7 +7,9 @@ export interface Organisation {
   updatedAt: string;
 }
 
-export const createOrganisation = async (name: string): Promise<Organisation> => {
-  const response = await api.post('/organisation', { name });
+export const createOrganisation = async (
+  name: string
+): Promise<Organisation> => {
+  const response = await api.post("/api/organisation", { name });
   return response.data;
 };

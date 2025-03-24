@@ -12,12 +12,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import useCreateOrganisationMutation from "@/services/organisation/mutation";
 
 const CreateOrganizationPage = () => {
   const router = useRouter();
   const [orgName, setOrgName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  // Move the hook to the component level
+  const { mutate: createOrganisation } = useCreateOrganisationMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,21 +34,8 @@ const CreateOrganizationPage = () => {
     setError("");
 
     try {
-      // Here you would typically make an API call to create the organization
-      // const response = await fetch('/api/organizations', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ name: orgName }),
-      // });
-
-      // if (!response.ok) throw new Error('Failed to create organization');
-
-      // const data = await response.json();
-
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Redirect to the next step or dashboard
+      // Use the mutation function directly
+      createOrganisation(orgName);
       router.push("/dashboard");
     } catch (err) {
       setError("Failed to create organization. Please try again.");
