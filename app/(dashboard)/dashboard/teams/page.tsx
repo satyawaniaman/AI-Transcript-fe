@@ -42,6 +42,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useGetUser } from "@/services/user/query";
+import useCreateTeamMutation from "@/services/teams/mutation";
 
 // TypeScript interfaces for our data
 interface TeamMember {
@@ -201,16 +203,16 @@ const TeamPage = () => {
     team.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleCreateTeam = () => {
-    if (newTeamName.trim()) {
-      const newTeam: Team = {
-        id: `team-${teams.length + 1}`,
-        name: newTeamName,
-        memberCount: 0,
-        createdAt: new Date().toISOString().split("T")[0],
-        lastActive: new Date().toISOString().split("T")[0],
-      };
-      setTeams([...teams, newTeam]);
+  const handleCreateTeam = async () => {
+    console.log("Creating team");
+    const { data: user } = useGetUser();
+    const orgId = user?.organizations[0]?.organization?.id;
+
+    const { mutate: createTeam } = useCreateTeamMutation();
+
+    if (newTeamName.trim() && orgId) {
+      const newTeam = createTeam({ name: newTeamName, description: "Team Description", organizationId: orgId });
+      // setTeams([...teams, newTeam]);
       setNewTeamName("");
       setShowNewTeamDialog(false);
     }
