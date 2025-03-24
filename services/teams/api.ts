@@ -13,5 +13,22 @@ function createTeam(name: string, description: string, organizationId: string) {
   });
 }
 
-export { createTeam };
+interface Team {
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  id: string;
+  organizationId: string;
+}
+
+function getTeams(organizationId: string): Promise<{ data: Team[] }> {
+  return api.get('/api/team?organizationId=' + organizationId);
+}
+
+function getTeamById(teamId: string): Promise<{ data: Team }> {
+  return api.get('/api/team/' + teamId);
+}
+
+export { createTeam, getTeams, getTeamById };
 

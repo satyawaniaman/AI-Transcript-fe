@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { api } from '@/utils/axios';
-
+import { useGetTeams } from '@/services/teams/query';
+import { useGetUser } from '@/services/user/query';
 const DummyPage = () => {
   const [response, setResponse] = useState(null);
-
+  const [teams, setTeams] = useState<any>(null);
   const handleClick = async () => {
     try {
       const res = await api.get('/api/user');
@@ -25,6 +26,13 @@ const DummyPage = () => {
     }
   };
 
+  const { data: user } = useGetUser();
+  const { data: team, isLoading: teamsLoading } = useGetTeams(user?.organizations[0].organization.id || '');
+  useEffect(() => {
+    console.log("team", team);
+    setTeams(team);
+  }, [team]);
+
   return (
     <div>
       <h1>Dummy Page</h1>
@@ -36,10 +44,17 @@ const DummyPage = () => {
         <button onClick={createOrg} className="ml-2 px-4 py-2 bg-green-500 text-white rounded">
           Create Organization
         </button>
+
         {response && (
           <div className="mt-4">
             <h2>Response:</h2>
            <pre>{JSON.stringify(response, null, 2)}</pre>
+          </div>
+        )}
+        {teams && (
+          <div className="mt-4">
+            <h2>Teams:</h2>
+            <pre>{JSON.stringify(teams, null, 2)}</pre>
           </div>
         )}
     </div>

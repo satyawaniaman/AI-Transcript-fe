@@ -7,6 +7,15 @@ enum Role {
   COACH = 'COACH',
 }
 
+interface Team {
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  id: string;
+  organizationId: string;
+}
+
 interface User {
   firstName: string;
   lastName: string | null;
@@ -31,7 +40,7 @@ interface User {
       createdAt: string | null;
       updatedAt: string | null;
       id: string | null;
-      teams: Array<any>; // Assuming teams can be of any type
+      teams: Team[]; // Updated to use the Team type
     };
   }>;
 }

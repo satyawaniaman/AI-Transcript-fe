@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -21,40 +21,16 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useGetUser } from "@/services/user/query";
-
+import { formatDistance } from "date-fns";
 // TypeScript interfaces for our data
 interface Team {
-  id: string;
   name: string;
-  memberCount: number;
+  description: string;
   createdAt: string;
-  lastActive: string;
+  updatedAt: string;
+  id: string;
+  organizationId: string;
 }
-
-// Mock data for demonstration - in real app this would come from API
-const MOCK_TEAMS: Team[] = [
-  {
-    id: "team-1",
-    name: "Enterprise Sales",
-    memberCount: 7,
-    createdAt: "2024-10-15",
-    lastActive: "2025-03-20",
-  },
-  {
-    id: "team-2",
-    name: "SMB Team",
-    memberCount: 5,
-    createdAt: "2024-09-01",
-    lastActive: "2025-03-19",
-  },
-  {
-    id: "team-3",
-    name: "Mid-Market Team",
-    memberCount: 6,
-    createdAt: "2024-11-12",
-    lastActive: "2025-03-15",
-  },
-];
 
 const TeamsPage = () => {
   const router = useRouter();
@@ -62,8 +38,15 @@ const TeamsPage = () => {
   const [userRole, setUserRole] = useState<"sales-manager" | "sales-rep">(
     "sales-manager"
   );
-  const [teams, setTeams] = useState<Team[]>(MOCK_TEAMS);
+  const { data: user, isLoading: userLoading } = useGetUser();
+  const [teams, setTeams] = useState<Team[]>(user?.organizations[0].organization.teams || []);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (user && !userLoading || teams.length === 0) {
+      setTeams(user?.organizations[0].organization.teams || []);
+    }
+  }, [user, userLoading, teams]);
 
   // Filter teams based on search query
   const filteredTeams = teams.filter((team) =>
@@ -151,16 +134,16 @@ const TeamsPage = () => {
                     <CardTitle className="flex justify-between items-center">
                       <span>{team.name}</span>
                       <Badge variant="outline" className="ml-2">
-                        {team.memberCount} members
+                        {0} members
                       </Badge>
                     </CardTitle>
                     <CardDescription>
-                      Created on {team.createdAt}
+                      Created on {formatDistance(new Date(team.createdAt), new Date(), { addSuffix: true })}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="flex justify-between items-center text-sm text-gray-500">
-                      <span>Last active: {team.lastActive}</span>
+                      <span>Last active: {formatDistance(new Date(team.updatedAt), new Date(), { addSuffix: true })}</span>
                       <ChevronRight className="h-4 w-4" />
                     </div>
                   </CardContent>

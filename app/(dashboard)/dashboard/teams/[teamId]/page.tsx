@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { animate, motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import {
@@ -21,6 +21,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useGetTeamById } from "@/services/teams/query";
 
 // TypeScript interfaces for our data
 interface TeamMember {
@@ -38,107 +39,18 @@ interface TeamMember {
 }
 
 interface Team {
-  id: string;
   name: string;
-  memberCount: number;
+  description: string;
   createdAt: string;
-  lastActive: string;
-  description?: string;
+  updatedAt: string;
+  id: string;
+  organizationId: string;
 }
 
 // Define type for TeamMembers object
 interface TeamMembersMap {
   [key: string]: TeamMember[];
 }
-
-// Mock data for demonstration
-const MOCK_TEAMS: { [key: string]: Team } = {
-  "team-1": {
-    id: "team-1",
-    name: "Enterprise Sales",
-    memberCount: 7,
-    createdAt: "2024-10-15",
-    lastActive: "2025-03-20",
-    description: "Team focused on enterprise clients with 500+ employees",
-  },
-  "team-2": {
-    id: "team-2",
-    name: "SMB Team",
-    memberCount: 5,
-    createdAt: "2024-09-01",
-    lastActive: "2025-03-19",
-    description: "Small and medium business sales team",
-  },
-  "team-3": {
-    id: "team-3",
-    name: "Mid-Market Team",
-    memberCount: 6,
-    createdAt: "2024-11-12",
-    lastActive: "2025-03-15",
-    description: "Team handling mid-sized organizations",
-  },
-};
-
-const MOCK_TEAM_MEMBERS: TeamMembersMap = {
-  "team-1": [
-    {
-      id: "user-1",
-      name: "Alex Johnson",
-      email: "alex@example.com",
-      role: "Sales Rep",
-      avatarUrl: "/placeholder.svg",
-      metrics: {
-        calls: 48,
-        objections: 32,
-        closingRate: 67,
-        transcripts: 15,
-      },
-    },
-    {
-      id: "user-2",
-      name: "Sarah Miller",
-      email: "sarah@example.com",
-      role: "Sales Rep",
-      avatarUrl: "/placeholder.svg",
-      metrics: {
-        calls: 52,
-        objections: 38,
-        closingRate: 73,
-        transcripts: 18,
-      },
-    },
-  ],
-  "team-2": [
-    {
-      id: "user-3",
-      name: "David Lee",
-      email: "david@example.com",
-      role: "Sales Rep",
-      avatarUrl: "/placeholder.svg",
-      metrics: {
-        calls: 38,
-        objections: 25,
-        closingRate: 62,
-        transcripts: 12,
-      },
-    },
-  ],
-  "team-3": [
-    {
-      id: "user-4",
-      name: "Emily Chen",
-      email: "emily@example.com",
-      role: "Sales Rep",
-      avatarUrl: "/placeholder.svg",
-      metrics: {
-        calls: 45,
-        objections: 30,
-        closingRate: 68,
-        transcripts: 14,
-      },
-    },
-  ],
-};
 
 const TeamDetailPage = () => {
   const router = useRouter();
@@ -149,26 +61,10 @@ const TeamDetailPage = () => {
   const [userRole, setUserRole] = useState<"sales-manager" | "sales-rep">(
     "sales-manager"
   );
-  const [team, setTeam] = useState<Team | null>(null);
-  const [members, setMembers] = useState<TeamMember[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Fetch team data
-  useEffect(() => {
-    // Simulate API call
-    setLoading(true);
-    setTimeout(() => {
-      if (MOCK_TEAMS[teamId]) {
-        setTeam(MOCK_TEAMS[teamId]);
-        setMembers(MOCK_TEAM_MEMBERS[teamId] || []);
-        setError(null);
-      } else {
-        setError("Team not found");
-      }
-      setLoading(false);
-    }, 500);
-  }, [teamId]);
+  const { data: team, isLoading: teamLoading, error: teamError } = useGetTeamById(teamId);
+    
 
   const handleInviteMember = () => {
     router.push(`/dashboard/teams/invite?teamId=${teamId}`);
@@ -182,7 +78,7 @@ const TeamDetailPage = () => {
     router.push("/dashboard/teams");
   };
 
-  if (loading) {
+  if (teamLoading) {
     return (
       <div className="container mx-auto p-8 text-center">
         <p>Loading team details...</p>
@@ -190,7 +86,7 @@ const TeamDetailPage = () => {
     );
   }
 
-  if (error || !team) {
+  if (teamError || !team) {
     return (
       <div className="container mx-auto p-8">
         <Button
@@ -202,7 +98,7 @@ const TeamDetailPage = () => {
           Back to Teams
         </Button>
         <div className="text-center py-10">
-          <h3 className="text-xl font-medium text-gray-900">Error: {error}</h3>
+          <h3 className="text-xl font-medium text-gray-900">Error: {teamError?.message}</h3>
           <p className="mt-2 text-gray-600">
             We couldn't find the team you're looking for.
           </p>
@@ -213,6 +109,23 @@ const TeamDetailPage = () => {
       </div>
     );
   }
+
+  // dummy data for now
+  const members = [
+    {
+      id: "1",
+      name: "John Doe",
+      email: "john.doe@example.com",
+      role: "sales-rep",
+      avatarUrl: "https://via.placeholder.com/150",
+      metrics: {
+        calls: 100,
+        objections: 50,
+        closingRate: 75,
+        transcripts: 10,
+      },
+    },
+  ];
 
   return (
     <motion.div
@@ -233,16 +146,16 @@ const TeamDetailPage = () => {
 
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{team.name}</h1>
-            {team.description && (
-              <p className="text-gray-600 mt-1">{team.description}</p>
+            <h1 className="text-3xl font-bold text-gray-900">{team.data.name}</h1>
+            {team.data.description && (
+              <p className="text-gray-600 mt-1">{team.data.description}</p>
             )}
             <div className="mt-2 flex flex-wrap gap-2 text-sm text-gray-500">
-              <span>Created: {team.createdAt}</span>
+              <span>Created: {team.data.createdAt}</span>
               <span>•</span>
-              <span>Last active: {team.lastActive}</span>
+              <span>Last active: {team.data.updatedAt}</span>
               <span>•</span>
-              <span>{team.memberCount} members</span>
+              <span>{1} members</span>
             </div>
           </div>
 
