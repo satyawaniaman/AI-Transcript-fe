@@ -52,7 +52,7 @@ const Dashboard = () => {
             Export
           </Button>
           <Button asChild className="flex items-center gap-2">
-            <Link href="/upload">
+            <Link href="/dashboard/upload">
               <Upload className="h-4 w-4" />
               Upload Transcript
             </Link>
