@@ -5,11 +5,8 @@ import { toast } from "react-hot-toast";
 function useCreateOrganisationMutation() {
   return useMutation({
     mutationFn: ({ name }: { name: string }) => createOrganisation(name),
-    onSuccess: () => {
-      toast.success('Organisation created successfully');
-    },
     onError: () => {
-      toast.error('Failed to create organisation');
+      toast.error("Failed to create organisation");
     },
   });
 }
