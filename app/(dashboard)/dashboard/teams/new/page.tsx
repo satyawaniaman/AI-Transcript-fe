@@ -18,6 +18,7 @@ import {
 import { useGetUser } from "@/services/user/query";
 import useCreateTeamMutation from "@/services/teams/mutation";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface FormData {
   name: string;
@@ -74,7 +75,7 @@ const NewTeamPage = () => {
     setFormErrors(errors);
     return isValid;
   };
-
+  const queryClient = useQueryClient();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -92,7 +93,9 @@ const NewTeamPage = () => {
         },
         {
           onSuccess: () => {
-            // Navigate back to teams page
+            // Navigate back to teams page and refetch the teams data
+            queryClient.invalidateQueries({ queryKey: ["teams"] });
+            queryClient.refetchQueries({ queryKey: ["teams"] });
             toast.success("Team created successfully");
             router.push("/dashboard/teams");
           },

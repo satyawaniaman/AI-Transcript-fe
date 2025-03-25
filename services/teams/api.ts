@@ -1,7 +1,5 @@
 import { api } from "@/utils/axios";
 
-// get all the team for the organisation
-
 // get one team by id
 
 // create a team
@@ -22,8 +20,9 @@ interface Team {
   organizationId: string;
 }
 
-function getTeams(organizationId: string): Promise<{ data: Team[] }> {
-  return api.get('/api/team?organizationId=' + organizationId);
+async function getTeams(organizationId: string): Promise<Team[]> {
+  const response = await api.get('/api/team?organizationId=' + organizationId);
+  return response.data
 }
 
 function getTeamById(teamId: string): Promise<{ data: Team }> {

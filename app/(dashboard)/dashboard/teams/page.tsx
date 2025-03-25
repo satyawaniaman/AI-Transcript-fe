@@ -22,6 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useGetUser } from "@/services/user/query";
 import { formatDistance } from "date-fns";
+import { useGetTeams } from "@/services/teams/query";
 // TypeScript interfaces for our data
 interface Team {
   name: string;
@@ -39,19 +40,9 @@ const TeamsPage = () => {
     "sales-manager"
   );
   const { data: user, isLoading: userLoading } = useGetUser();
-  const [teams, setTeams] = useState<Team[]>(user?.organizations[0].organization.teams || []);
+  const { data: teams, isLoading } = useGetTeams(user?.organizations[0]?.organizationId ?? '');
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    if (user && !userLoading || teams.length === 0) {
-      setTeams(user?.organizations[0].organization.teams || []);
-    }
-  }, [user, userLoading, teams]);
-
-  // Filter teams based on search query
-  const filteredTeams = teams.filter((team) =>
-    team.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   // Animation variants
   const containerVariants = {
@@ -126,7 +117,7 @@ const TeamsPage = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTeams.map((team) => (
+          {teams && teams.map((team) => (
             <motion.div key={team.id} variants={itemVariants}>
               <Link href={`/dashboard/teams/${team.id}`}>
                 <Card className="cursor-pointer hover:shadow-md transition-shadow duration-200">
@@ -153,7 +144,7 @@ const TeamsPage = () => {
           ))}
         </div>
 
-        {filteredTeams.length === 0 && (
+        {(!teams ||  teams.length === 0) && (
           <div className="text-center py-10">
             <Users className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">
