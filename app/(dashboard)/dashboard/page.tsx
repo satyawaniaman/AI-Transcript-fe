@@ -19,8 +19,29 @@ import SentimentChart from '@/components/SentimentChart';
 import ObjectionsList from '@/components/ObjectionsList';
 import RecentTranscriptsList from '@/components/RecentTranscriptsList';
 import { Toaster, toast } from 'react-hot-toast';
+import { useGetUser } from '@/services/user/query';
 
 const Dashboard = () => {
+  const { data: user } = useGetUser();
+
+  if (!user) {
+    return <div>Loading...</div>;
+  }
+
+  if (user.organizations.length === 0) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-navy-800">No organizations found</h1>
+          <p className="text-gray-600">Please create an organization to get started.</p>
+          <Button asChild>
+            <Link href="/dashboard/organisation/new">Create Organization</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <Toaster />

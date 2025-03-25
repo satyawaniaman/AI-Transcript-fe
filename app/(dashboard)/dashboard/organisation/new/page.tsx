@@ -13,15 +13,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useCreateOrganisationMutation from "@/services/organisation/mutation";
+import { toast } from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 const CreateOrganizationPage = () => {
   const router = useRouter();
   const [orgName, setOrgName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  // Move the hook to the component level
-  const { mutate: createOrganisation } = useCreateOrganisationMutation();
+  const { mutateAsync: createOrganisation } = useCreateOrganisationMutation();
 
+    const queryClient = useQueryClient();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -32,17 +34,34 @@ const CreateOrganizationPage = () => {
 
     setIsLoading(true);
     setError("");
+    createOrganisation({ name: orgName }, {
+      onSuccess: () => {
+          toast.success("Organization created successfully");
+          queryClient.invalidateQueries({ queryKey: ['user'] });
+          setIsLoading(false);
+          router.push("/dashboard");
 
-    try {
-      // Use the mutation function directly
-      createOrganisation(orgName);
-      router.push("/dashboard");
-    } catch (err) {
-      setError("Failed to create organization. Please try again.");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
+        },
+        onError: () => {
+          toast.error("Failed to create organization. Please try again.");
+          setError("Failed to create organization. Please try again.");
+          setIsLoading(false);
+        },
+      });
+
+    // try {
+    //   console.log("Creating organization");
+    //   const res = await createOrganisation({ name: orgName });
+    //   console.log("Organization created", res);
+    //   toast.success("Organization created successfully");
+    //   queryClient.invalidateQueries({ queryKey: ['user'] });
+    //   setIsLoading(false);
+    //   router.push("/dashboard");
+    // } catch (error) {
+    //   toast.error("Failed to create organization. Please try again.");
+    //   setError("Failed to create organization. Please try again.");
+    //   setIsLoading(false);
+    // }
   };
 
   return (
@@ -64,7 +83,7 @@ const CreateOrganizationPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          <form >
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="organization-name">Organization Name</Label>
@@ -85,10 +104,10 @@ const CreateOrganizationPage = () => {
               </div>
 
               <Button
-                type="submit"
                 variant="default"
                 className="w-full"
                 disabled={isLoading}
+                onClick={handleSubmit}
               >
                 {isLoading ? (
                   <span className="flex items-center">
