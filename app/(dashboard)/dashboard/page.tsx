@@ -1,45 +1,43 @@
 "use client";
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  BarChart, 
-  ChevronDown, 
-  Download, 
-  FileText, 
-  ListFilter, 
-  MessageSquare, 
-  PieChart, 
-  PlusCircle, 
-  Upload, 
-} from 'lucide-react';
-import SentimentChart from '@/components/SentimentChart';
-import ObjectionsList from '@/components/ObjectionsList';
-import RecentTranscriptsList from '@/components/RecentTranscriptsList';
-import { Toaster, toast } from 'react-hot-toast';
-import { useGetUser } from '@/services/user/query';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  BarChart,
+  ChevronDown,
+  Download,
+  FileText,
+  ListFilter,
+  MessageSquare,
+  PieChart,
+  PlusCircle,
+  Upload,
+} from "lucide-react";
+import SentimentChart from "@/components/SentimentChart";
+import ObjectionsList from "@/components/ObjectionsList";
+import RecentTranscriptsList from "@/components/RecentTranscriptsList";
+import { Toaster, toast } from "react-hot-toast";
+import { useGetUser } from "@/services/user/query";
+import DashboardSkeleton from "@/components/DashboardSkeleton";
+import NoOrganizationScreen from "@/components/NoOrganizationScreen";
 
 const Dashboard = () => {
-  const { data: user } = useGetUser();
+  const { data: user, isLoading } = useGetUser();
 
-  if (!user) {
-    return <div>Loading...</div>;
+  if (isLoading || !user) {
+    return <DashboardSkeleton />;
   }
 
   if (user.organizations.length === 0) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-navy-800">No organizations found</h1>
-          <p className="text-gray-600">Please create an organization to get started.</p>
-          <Button asChild>
-            <Link href="/dashboard/organisation/new">Create Organization</Link>
-          </Button>
-        </div>
-      </div>
-    );
+    return <NoOrganizationScreen />;
   }
 
   return (
@@ -48,11 +46,13 @@ const Dashboard = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-navy-800">Dashboard</h1>
-          <p className="text-gray-600">Welcome back! Here&apos;s an overview of your sales performance.</p>
+          <p className="text-gray-600">
+            Welcome back! Here&apos;s an overview of your sales performance.
+          </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="flex items-center gap-2"
             onClick={() => {
               toast.success("Your dashboard data has been filtered.");
@@ -62,8 +62,8 @@ const Dashboard = () => {
             Filter
             <ChevronDown className="h-4 w-4" />
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="flex items-center gap-2"
             onClick={() => {
               toast.success("Your dashboard report has been downloaded.");
@@ -85,7 +85,9 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Total Transcripts</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">
+              Total Transcripts
+            </CardTitle>
             <FileText className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
@@ -97,7 +99,9 @@ const Dashboard = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Average Sentiment</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">
+              Average Sentiment
+            </CardTitle>
             <BarChart className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
@@ -109,7 +113,9 @@ const Dashboard = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Objections Handled</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">
+              Objections Handled
+            </CardTitle>
             <MessageSquare className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
@@ -121,7 +127,9 @@ const Dashboard = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Talk Ratio</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">
+              Talk Ratio
+            </CardTitle>
             <PieChart className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
@@ -141,7 +149,7 @@ const Dashboard = () => {
           <TabsTrigger value="objections">Objections</TabsTrigger>
           <TabsTrigger value="insights">Insights</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
             {/* Main Chart */}
@@ -156,7 +164,7 @@ const Dashboard = () => {
                 <SentimentChart data={[]} />
               </CardContent>
             </Card>
-            
+
             {/* Objections List */}
             <Card className="md:col-span-3">
               <CardHeader>
@@ -170,7 +178,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
           </div>
-          
+
           {/* Recent Transcripts */}
           <Card>
             <CardHeader>
@@ -191,7 +199,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="transcripts" className="space-y-4">
           <Card>
             <CardHeader>
@@ -202,7 +210,8 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <p className="py-8 text-center text-gray-500">
-                This section will display a filterable, sortable table of all your transcripts.
+                This section will display a filterable, sortable table of all
+                your transcripts.
               </p>
               <div className="flex justify-center">
                 <Button asChild>
@@ -215,7 +224,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="objections" className="space-y-4">
           <Card>
             <CardHeader>
@@ -226,13 +235,14 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <p className="py-8 text-center text-gray-500">
-                This section will display a comprehensive library of objections categorized by type,
-                along with effectiveness ratings for your responses.
+                This section will display a comprehensive library of objections
+                categorized by type, along with effectiveness ratings for your
+                responses.
               </p>
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="insights" className="space-y-4">
           <Card>
             <CardHeader>
@@ -243,8 +253,8 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <p className="py-8 text-center text-gray-500">
-                This section will provide AI-generated insights and coaching advice
-                based on patterns observed across your sales calls.
+                This section will provide AI-generated insights and coaching
+                advice based on patterns observed across your sales calls.
               </p>
             </CardContent>
           </Card>
