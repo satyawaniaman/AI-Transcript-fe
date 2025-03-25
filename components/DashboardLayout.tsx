@@ -30,6 +30,7 @@ import {
 
 import { createClient } from "@/utils/supabase/client";
 import { useGetUser } from "@/services/user/query";
+import DashboardLayoutSkeleton from "@/components/DashboardLayoutSkeleton";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -45,9 +46,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const { data: user, isLoading } = useGetUser();
 
   // Add mock organization data
-  const orgName = isLoading ? "..." : user?.organizations[0]?.organization?.name || "Acme Corp";
+  const orgName = isLoading
+    ? "..."
+    : user?.organizations[0]?.organization?.name || "Acme Corp";
   const orgLogo =
-    "https://api.dicebear.com/7.x/initials/svg?seed=" + orgName[0] + "&backgroundColor=0284c7"; // Using DiceBear for placeholder logo
+    "https://api.dicebear.com/7.x/initials/svg?seed=" +
+    (orgName ? orgName[0] : "A") +
+    "&backgroundColor=0284c7"; // Using DiceBear for placeholder logo
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -86,8 +91,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     }
   };
 
+  // Use our skeleton component instead of "Loading..."
   if (isLoading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    return <DashboardLayoutSkeleton />;
   }
 
   return (
@@ -107,13 +113,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           {/* Sidebar navigation */}
           <div className="mt-5 flex-1 flex flex-col">
             <nav className="flex-1 px-2 pb-4 space-y-1">
-              { user && user?.organizations?.length > 0 && navigation.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`
+              {user &&
+                user?.organizations?.length > 0 &&
+                navigation.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`
                       group flex items-center px-2 py-2 text-sm font-medium rounded-md 
                       ${
                         isActive
@@ -121,10 +129,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                           : "text-gray-300 hover:bg-navy-700 hover:text-white"
                       }
                     `}
-                  >
-                    <item.icon
-                      className={`
-
+                    >
+                      <item.icon
+                        className={`
                         mr-3 shrink-0 h-6 w-6 
                         ${
                           isActive
@@ -132,72 +139,71 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                             : "text-gray-400 group-hover:text-gray-300"
                         }
                       `}
-                    />
-                    {item.name}
-                  </Link>
-                );
-              })}
+                      />
+                      {item.name}
+                    </Link>
+                  );
+                })}
             </nav>
           </div>
 
           {/* Upload section */}
-          { user && user?.organizations?.length > 0 && (
-          <div className="p-4 border-t border-navy-700">
-            <div className="rounded-md overflow-hidden">
-              <div className="px-3 py-2 bg-navy-700 text-white text-sm font-medium">
-                Quick Upload
-              </div>
-              <div className="p-3 bg-navy-700 bg-opacity-50">
-                <label
-                  htmlFor="sidebar-dropzone-file"
-                  className="flex flex-col items-center justify-center w-full h-24 border border-navy-600 border-dashed rounded-md cursor-pointer hover:bg-navy-700 transition-colors duration-200"
-                >
-                  <div className="flex flex-col items-center justify-center p-2">
-                    <Upload className="h-5 w-5 text-gray-400 mb-1" />
-                    <p className="text-xs text-gray-300 text-center">
-                      <span className="font-medium">Click to upload</span> or
-                      drag files
-                    </p>
-                  </div>
-                  <input
-                    id="sidebar-dropzone-file"
-                    type="file"
-                    className="hidden"
-                    onChange={handleSidebarFileChange}
-                    ref={fileInputRef}
-                  />
-                </label>
+          {user && user?.organizations?.length > 0 && (
+            <div className="p-4 border-t border-navy-700">
+              <div className="rounded-md overflow-hidden">
+                <div className="px-3 py-2 bg-navy-700 text-white text-sm font-medium">
+                  Quick Upload
+                </div>
+                <div className="p-3 bg-navy-700 bg-opacity-50">
+                  <label
+                    htmlFor="sidebar-dropzone-file"
+                    className="flex flex-col items-center justify-center w-full h-24 border border-navy-600 border-dashed rounded-md cursor-pointer hover:bg-navy-700 transition-colors duration-200"
+                  >
+                    <div className="flex flex-col items-center justify-center p-2">
+                      <Upload className="h-5 w-5 text-gray-400 mb-1" />
+                      <p className="text-xs text-gray-300 text-center">
+                        <span className="font-medium">Click to upload</span> or
+                        drag files
+                      </p>
+                    </div>
+                    <input
+                      id="sidebar-dropzone-file"
+                      type="file"
+                      className="hidden"
+                      onChange={handleSidebarFileChange}
+                      ref={fileInputRef}
+                    />
+                  </label>
 
-                {sidebarFile && (
-                  <div className="mt-2">
-                    <div className="text-xs text-gray-300 truncate mb-1 flex justify-between items-center">
-                      <span>{sidebarFile.name}</span>
-                      <button
-                        onClick={handleRemoveFile}
-                        className="text-gray-400 hover:text-white"
-                        title="Remove file"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div className="text-xs text-gray-400">
-                        {(sidebarFile.size / 1024).toFixed(1)} KB
+                  {sidebarFile && (
+                    <div className="mt-2">
+                      <div className="text-xs text-gray-300 truncate mb-1 flex justify-between items-center">
+                        <span>{sidebarFile.name}</span>
+                        <button
+                          onClick={handleRemoveFile}
+                          className="text-gray-400 hover:text-white"
+                          title="Remove file"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
                       </div>
-                      <button
-                        onClick={handleSidebarFileUpload}
-                        className="text-xs px-2 py-1 bg-[#0284c7] text-white rounded hover:bg-blue-600 transition-colors"
-                      >
-                        Upload
-                      </button>
+                      <div className="flex justify-between items-center">
+                        <div className="text-xs text-gray-400">
+                          {(sidebarFile.size / 1024).toFixed(1)} KB
+                        </div>
+                        <button
+                          onClick={handleSidebarFileUpload}
+                          className="text-xs px-2 py-1 bg-[#0284c7] text-white rounded hover:bg-blue-600 transition-colors"
+                        >
+                          Upload
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-          )
-          }
+          )}
 
           {/* Help section */}
           <div className="p-4 border-t border-navy-700">
@@ -213,35 +219,34 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           </div>
 
           {/* Organization section - Desktop */}
-          { user && user?.organizations?.length > 0 && (
-          <div className="p-4 border-t border-navy-700 mt-auto">
-            <div className="rounded-md bg-navy-700 bg-opacity-50 p-3 hover:bg-navy-600 transition-colors duration-200 cursor-pointer">
-              <div className="flex items-center">
-                <Avatar className="h-10 w-10 mr-3">
-                  <AvatarImage
-                    src={orgLogo || "/placeholder-org.svg"}
-                    alt={`${orgName} Logo`}
-                  />
-                  <AvatarFallback className="bg-navy-600 text-white">
-                    {orgName ? orgName.charAt(0).toUpperCase() : "O"}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="overflow-hidden">
-                  <p className="text-sm font-medium text-white truncate">
-                    {orgName}
-                  </p>
-                  <p className="text-xs text-gray-400 truncate">
-                    Organization 
-                  </p>
+          {user && user?.organizations?.length > 0 && (
+            <div className="p-4 border-t border-navy-700 mt-auto">
+              <div className="rounded-md bg-navy-700 bg-opacity-50 p-3 hover:bg-navy-600 transition-colors duration-200 cursor-pointer">
+                <div className="flex items-center">
+                  <Avatar className="h-10 w-10 mr-3">
+                    <AvatarImage
+                      src={orgLogo || "/placeholder-org.svg"}
+                      alt={`${orgName} Logo`}
+                    />
+                    <AvatarFallback className="bg-navy-600 text-white">
+                      {orgName ? orgName.charAt(0).toUpperCase() : "O"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="overflow-hidden">
+                    <p className="text-sm font-medium text-white truncate">
+                      {orgName}
+                    </p>
+                    <p className="text-xs text-gray-400 truncate">
+                      Organization
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          )
-          }
+          )}
         </div>
-      </div> 
-      
+      </div>
+
       {/* Mobile menu */}
       <div
         className={`
@@ -285,16 +290,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           </div>
 
           {/* Navigation */}
-          { user && user?.organizations?.length > 0 && (
-          <div className="mt-5 flex-1 h-0 overflow-y-auto">
-            <nav className="px-2 space-y-1">
-              {navigation.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`
+          {user && user?.organizations?.length > 0 && (
+            <div className="mt-5 flex-1 h-0 overflow-y-auto">
+              <nav className="px-2 space-y-1">
+                {navigation.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`
                       group flex items-center px-2 py-2 text-sm font-medium rounded-md
                       ${
                         isActive
@@ -302,10 +307,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                           : "text-gray-300 hover:bg-navy-700 hover:text-white"
                       }
                     `}
-                    onClick={() => setSidebarOpen(false)}
-                  >
-                    <item.icon
-                      className={`
+                      onClick={() => setSidebarOpen(false)}
+                    >
+                      <item.icon
+                        className={`
                         mr-3 shrink-0 h-6 w-6
                         ${
                           isActive
@@ -313,58 +318,55 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                             : "text-gray-400 group-hover:text-gray-300"
                         }
                       `}
-                    />
-                    {item.name}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-          )
-          }
+                      />
+                      {item.name}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+          )}
 
           {/* Help */}
-          { user && user?.organizations?.length > 0 && (
-          <div className="p-4 border-t border-navy-700">
-            <Link
-              href="/help"
-              className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-navy-700 hover:text-white"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <HelpCircle className="mr-3 shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-300" />
-              Help & Support
-            </Link>
-          </div>
-          )
-          }
+          {user && user?.organizations?.length > 0 && (
+            <div className="p-4 border-t border-navy-700">
+              <Link
+                href="/help"
+                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-navy-700 hover:text-white"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <HelpCircle className="mr-3 shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-300" />
+                Help & Support
+              </Link>
+            </div>
+          )}
 
           {/* Organization section - Mobile */}
-          { user && user?.organizations?.length > 0 && (
-          <div className="p-4 border-t border-navy-700 mt-auto">
-            <div className="rounded-md bg-navy-700 bg-opacity-50 p-3 hover:bg-navy-600 transition-colors duration-200 cursor-pointer">
-              <div className="flex items-center">
-                <Avatar className="h-10 w-10 mr-3">
-                  <AvatarImage
-                    src={orgLogo || "/placeholder-org.svg"}
-                    alt={`${orgName} Logo`}
-                  />
-                  <AvatarFallback className="bg-navy-600 text-white">
-                    {orgName ? orgName.charAt(0).toUpperCase() : "O"}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="overflow-hidden">
-                  <p className="text-sm font-medium text-white truncate">
-                    {orgName}
-                  </p>
-                  <p className="text-xs text-gray-400 truncate">
-                    Organization 
-                  </p>
+          {user && user?.organizations?.length > 0 && (
+            <div className="p-4 border-t border-navy-700 mt-auto">
+              <div className="rounded-md bg-navy-700 bg-opacity-50 p-3 hover:bg-navy-600 transition-colors duration-200 cursor-pointer">
+                <div className="flex items-center">
+                  <Avatar className="h-10 w-10 mr-3">
+                    <AvatarImage
+                      src={orgLogo || "/placeholder-org.svg"}
+                      alt={`${orgName} Logo`}
+                    />
+                    <AvatarFallback className="bg-navy-600 text-white">
+                      {orgName ? orgName.charAt(0).toUpperCase() : "O"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="overflow-hidden">
+                    <p className="text-sm font-medium text-white truncate">
+                      {orgName}
+                    </p>
+                    <p className="text-xs text-gray-400 truncate">
+                      Organization
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          )
-          }
+          )}
         </div>
 
         <div className="shrink-0 w-14" aria-hidden="true">
@@ -432,7 +434,10 @@ const UserMenu = () => {
           <Avatar className="h-8 w-8">
             <AvatarImage src="/placeholder.svg" alt="User" />
             <AvatarFallback className="bg-navy-700 text-white">
-              {isLoading ? "..." : (user?.firstName?.charAt(0).toUpperCase() || '') + (user?.lastName?.charAt(0).toUpperCase() || '')}
+              {isLoading
+                ? "..."
+                : (user?.firstName?.charAt(0).toUpperCase() || "") +
+                  (user?.lastName?.charAt(0).toUpperCase() || "")}
             </AvatarFallback>
           </Avatar>
         </Button>
