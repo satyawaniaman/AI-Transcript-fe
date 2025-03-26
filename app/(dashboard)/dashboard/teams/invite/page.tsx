@@ -5,16 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   Send,
-  UserPlus,
   X,
-  Check,
   Info,
-  Copy,
+  Check,
   Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -23,7 +20,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -31,11 +31,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { toast } from "@/components/ui/use-toast";
+import { useGetTeams } from "@/services/teams/query";
+import { useGetUser } from "@/services/user/query";
+import { Role } from "@/services/user/api";
+import { useInviteToOrganisationMutation } from "@/services/organisation/mutation";
+import { Textarea } from "@/components/ui/textarea";
 
 // TypeScript interfaces
 interface Team {
@@ -43,68 +43,49 @@ interface Team {
   name: string;
 }
 
-interface TeamMap {
-  [key: string]: Team;
-}
-
 interface FormErrors {
   email?: string;
   emailList?: string;
+  role?: string;
   [key: string]: string | undefined;
 }
 
-// Mock data for demonstration
-const MOCK_TEAMS: TeamMap = {
-  "team-1": {
-    id: "team-1",
-    name: "Enterprise Sales",
-  },
-  "team-2": {
-    id: "team-2",
-    name: "SMB Team",
-  },
-  "team-3": {
-    id: "team-3",
-    name: "Mid-Market Team",
-  },
-};
+interface SelectedTeam {
+  id: string;
+  name: string;
+  selected: boolean;
+}
 
 const InviteTeamMemberPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const teamId = searchParams.get("teamId");
 
-  const [activeTab, setActiveTab] = useState("email");
-  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
-  const [emails, setEmails] = useState("");
+  const { data: user } = useGetUser();
+  const organizationId = user?.organizations?.[0]?.organizationId;
+  const { data: teamsData, isLoading: teamsLoading } = useGetTeams(organizationId || '');
+  
+  const [selectedRole, setSelectedRole] = useState<Role | "">("");
   const [currentEmail, setCurrentEmail] = useState("");
   const [emailList, setEmailList] = useState<string[]>([]);
   const [customMessage, setCustomMessage] = useState("");
-  const [sendCopy, setSendCopy] = useState(false);
-  const [inviteLink, setInviteLink] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [selectedTeams, setSelectedTeams] = useState<SelectedTeam[]>([]);
+  
+  const inviteToOrganisationMutation = useInviteToOrganisationMutation();
 
-  // Team access permission states
-  const [teamPerformanceAccess, setTeamPerformanceAccess] = useState(true);
-  const [membersDataAccess, setMembersDataAccess] = useState(false);
-  const [transcriptAccess, setTranscriptAccess] = useState(true);
-
-  // Load team data based on teamId from URL
+  // Initialize selected teams when teams data is loaded
   useEffect(() => {
-    if (teamId && MOCK_TEAMS[teamId]) {
-      setSelectedTeam(MOCK_TEAMS[teamId]);
-
-      // Generate a mock invite link
-      const baseUrl = window.location.origin;
-      setInviteLink(`${baseUrl}/join-team/${teamId}/${generateInviteCode()}`);
+    if (teamsData) {
+      const initialSelectedTeams = teamsData.map(team => ({
+        id: team.id,
+        name: team.name,
+        selected: teamId === team.id // Pre-select the team from URL if it matches
+      }));
+      setSelectedTeams(initialSelectedTeams);
     }
-  }, [teamId]);
-
-  // Generate a random invitation code
-  const generateInviteCode = () => {
-    return Math.random().toString(36).substring(2, 15);
-  };
+  }, [teamsData, teamId]);
 
   // Add email to the list
   const addEmail = () => {
@@ -129,56 +110,78 @@ const InviteTeamMemberPage = () => {
     setEmailList(emailList.filter((e) => e !== email));
   };
 
+  // Toggle team selection
+  const toggleTeamSelection = (teamId: string) => {
+    setSelectedTeams(prevTeams => 
+      prevTeams.map(team => 
+        team.id === teamId ? { ...team, selected: !team.selected } : team
+      )
+    );
+  };
+
+  // Validate form before submission
+  const validateForm = (): boolean => {
+    const errors: FormErrors = {};
+    let isValid = true;
+
+    if (emailList.length === 0) {
+      errors.emailList = "Please add at least one email address";
+      isValid = false;
+    }
+
+    if (!selectedRole) {
+      errors.role = "Please select a role";
+      isValid = false;
+    }
+
+    setFormErrors(errors);
+    return isValid;
+  };
+
   // Handle form submission for email invites
   const handleEmailInvite = () => {
-    if (emailList.length === 0) {
+    if (!validateForm()) {
+      return;
+    }
+
+    const selectedTeamIds = selectedTeams
+      .filter(team => team.selected)
+      .map(team => team.id);
+
+    if (selectedTeamIds.length === 0) {
       setFormErrors({
         ...formErrors,
-        emailList: "Please add at least one email address",
+        teams: "Please select at least one team"
       });
       return;
     }
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      // In a real app, you would handle success/error states based on API response
-
-      // Show success message
-      toast({
-        title: "Invitations Sent",
-        description: `Invitations sent to ${emailList.length} recipient(s).`,
-        variant: "default",
-      });
-
-      // Navigate back to team page
-      router.push("/dashboard/teams");
-    }, 1500);
-  };
-
-  // Handle copy invite link to clipboard
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(inviteLink);
-
-    toast({
-      title: "Link Copied",
-      description: "Invitation link copied to clipboard",
-      variant: "default",
+    // For each email in the list, send an invitation
+    emailList.forEach(email => {
+      if (organizationId && selectedRole) {
+        inviteToOrganisationMutation.mutate({
+          email,
+          role: selectedRole as Role,
+          organisationId: organizationId,
+          teamIds: selectedTeamIds
+        }, {
+          onSuccess: () => {
+            setIsSubmitting(false);
+            toast({
+              title: "Invitations Sent",
+              description: `Invitations sent to ${emailList.length} recipient(s).`,
+              variant: "default",
+            });
+            router.push("/dashboard/teams");
+          },
+          onError: () => {
+            setIsSubmitting(false);
+          }
+        });
+      }
     });
-  };
-
-  // Handle parsed emails from textarea
-  const handleEmailsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setEmails(e.target.value);
-
-    // Parse emails
-    const emailRegex = /[^\s@]+@[^\s@]+\.[^\s@]+/g;
-    const parsed = e.target.value.match(emailRegex) || [];
-    const uniqueEmails = [...new Set(parsed)];
-
-    setEmailList(uniqueEmails);
   };
 
   // Handle back button click
@@ -187,7 +190,7 @@ const InviteTeamMemberPage = () => {
   };
 
   // Check if the selected team is valid
-  if (teamId && !selectedTeam) {
+  if (teamId && !selectedTeams) {
     return (
       <div className="container mx-auto p-6">
         <Alert variant="destructive">
@@ -226,13 +229,13 @@ const InviteTeamMemberPage = () => {
         </Button>
 
         <h1 className="text-3xl font-bold text-gray-900">
-          Invite Team Members
+          Invite People to Organisation
         </h1>
-        {selectedTeam && (
+        {selectedTeams && (
           <div className="flex items-center mt-2">
-            <p className="text-gray-600">Team:</p>
+            <p className="text-gray-600">Organisation</p>
             <Badge variant="outline" className="ml-2">
-              {selectedTeam.name}
+              {"sharath"}
             </Badge>
           </div>
         )}
@@ -240,298 +243,157 @@ const InviteTeamMemberPage = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Add People to Your Team</CardTitle>
+          <CardTitle>Add People to Your Organisation</CardTitle>
           <CardDescription>
-            Invite sales representatives to join your team and track their
-            performance.
+            Invite people to join your organisation and assign them to teams.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs
-            defaultValue="email"
-            value={activeTab}
-            onValueChange={setActiveTab}
-          >
-            <TabsList className="mb-6">
-              <TabsTrigger value="email">Email Invitation</TabsTrigger>
-              <TabsTrigger value="link">Invitation Link</TabsTrigger>
-            </TabsList>
+          <div className="space-y-6">
+            {/* Email Input Section */}
+            <div className="space-y-2">
+              <Label htmlFor="email-input">Email Addresses</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="email-input"
+                  placeholder="Enter email address"
+                  type="email"
+                  value={currentEmail}
+                  onChange={(e) => setCurrentEmail(e.target.value)}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && (e.preventDefault(), addEmail())
+                  }
+                />
+                <Button onClick={addEmail}>Add</Button>
+              </div>
 
-            <TabsContent value="email">
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="email-input">Email Addresses</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="email-input"
-                      placeholder="Enter email address"
-                      type="email"
-                      value={currentEmail}
-                      onChange={(e) => setCurrentEmail(e.target.value)}
-                      onKeyDown={(e) =>
-                        e.key === "Enter" && (e.preventDefault(), addEmail())
-                      }
-                    />
-                    <Button onClick={addEmail}>Add</Button>
+              {formErrors.email && (
+                <p className="text-sm text-red-500 mt-1">
+                  {formErrors.email}
+                </p>
+              )}
+
+              {emailList.length > 0 && (
+                <div className="mt-2">
+                  <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-gray-50">
+                    {emailList.map((email) => (
+                      <Badge
+                        key={email}
+                        variant="secondary"
+                        className="flex items-center gap-1"
+                      >
+                        {email}
+                        <button
+                          onClick={() => removeEmail(email)}
+                          className="rounded-full hover:bg-gray-200 p-1"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
                   </div>
-
-                  {formErrors.email && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {formErrors.email}
-                    </p>
-                  )}
-
-                  {emailList.length > 0 && (
-                    <div className="mt-2">
-                      <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-gray-50">
-                        {emailList.map((email) => (
-                          <Badge
-                            key={email}
-                            variant="secondary"
-                            className="flex items-center gap-1"
-                          >
-                            {email}
-                            <button
-                              onClick={() => removeEmail(email)}
-                              className="rounded-full hover:bg-gray-200 p-1"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {formErrors.emailList && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {formErrors.emailList}
-                    </p>
-                  )}
                 </div>
+              )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="bulk-emails">Or paste multiple emails</Label>
-                  <Textarea
-                    id="bulk-emails"
-                    placeholder="Paste multiple email addresses (separated by commas, spaces, or new lines)"
-                    value={emails}
-                    onChange={handleEmailsChange}
-                    className="min-h-[100px]"
-                  />
-                  <p className="text-xs text-gray-500">
-                    Emails will be automatically extracted from the text
+              {formErrors.emailList && (
+                <p className="text-sm text-red-500 mt-1">
+                  {formErrors.emailList}
+                </p>
+              )}
+            </div>
+
+            {/* Role Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="role-select">Role</Label>
+              <Select 
+                onValueChange={(value) => setSelectedRole(value as Role)} 
+                value={selectedRole}
+              >
+                <SelectTrigger id="role-select">
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={Role.ADMIN}>Admin</SelectItem>
+                  <SelectItem value={Role.MANAGER}>Manager</SelectItem>
+                  <SelectItem value={Role.COACH}>Coach</SelectItem>
+                  <SelectItem value={Role.SALES_REP}>Sales Rep</SelectItem>
+                </SelectContent>
+              </Select>
+              {formErrors.role && (
+                <p className="text-sm text-red-500 mt-1">
+                  {formErrors.role}
+                </p>
+              )}
+            </div>
+
+            {/* Team Selection */}
+            <div className="space-y-2">
+              <Label>Team Access</Label>
+              <div className="border rounded-md p-4 space-y-2">
+                {teamsLoading ? (
+                  <p className="text-sm text-gray-500">Loading teams...</p>
+                ) : selectedTeams.length > 0 ? (
+                  selectedTeams.map((team) => (
+                    <div key={team.id} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`team-${team.id}`} 
+                        checked={team.selected}
+                        onCheckedChange={() => toggleTeamSelection(team.id)}
+                      />
+                      <Label 
+                        htmlFor={`team-${team.id}`}
+                        className="cursor-pointer"
+                      >
+                        {team.name}
+                      </Label>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">No teams available</p>
+                )}
+                {formErrors.teams && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {formErrors.teams}
                   </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="custom-message">
-                    Personalized Message (Optional)
-                  </Label>
-                  <Textarea
-                    id="custom-message"
-                    placeholder="Add a personal message to your invitation"
-                    value={customMessage}
-                    onChange={(e) => setCustomMessage(e.target.value)}
-                    className="min-h-[100px]"
-                  />
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="send-copy"
-                    checked={sendCopy}
-                    onCheckedChange={setSendCopy}
-                  />
-                  <Label htmlFor="send-copy">
-                    Send me a copy of the invitation
-                  </Label>
-                </div>
-
-                <div className="pt-4">
-                  <Button
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    onClick={handleEmailInvite}
-                    disabled={isSubmitting || emailList.length === 0}
-                  >
-                    {isSubmitting ? (
-                      <>Sending...</>
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4 mr-2" />
-                        Send Invitations
-                      </>
-                    )}
-                  </Button>
-                </div>
+                )}
               </div>
-            </TabsContent>
+            </div>
 
-            <TabsContent value="link">
-              <div className="space-y-6">
-                <Alert className="bg-blue-50 border-blue-200">
-                  <Info className="h-4 w-4" />
-                  <AlertTitle>Share this invitation link</AlertTitle>
-                  <AlertDescription className="text-sm">
-                    Anyone with this link can join your team. The link will
-                    expire after 7 days.
-                  </AlertDescription>
-                </Alert>
-
-                <div className="flex items-center mt-2">
-                  <Input
-                    readOnly
-                    value={inviteLink}
-                    className="font-mono text-sm"
-                  />
-                  <Button
-                    variant="outline"
-                    className="ml-2"
-                    onClick={handleCopyLink}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                <div className="space-y-2 mt-4">
-                  <h3 className="text-sm font-medium">
-                    Or send the link via email
-                  </h3>
-
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Enter email address"
-                      type="email"
-                      value={currentEmail}
-                      onChange={(e) => setCurrentEmail(e.target.value)}
-                      onKeyDown={(e) =>
-                        e.key === "Enter" && (e.preventDefault(), addEmail())
-                      }
-                    />
-                    <Button onClick={addEmail}>Add</Button>
-                  </div>
-
-                  {formErrors.email && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {formErrors.email}
-                    </p>
-                  )}
-
-                  {emailList.length > 0 && (
-                    <div className="mt-2">
-                      <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-gray-50">
-                        {emailList.map((email) => (
-                          <Badge
-                            key={email}
-                            variant="secondary"
-                            className="flex items-center gap-1"
-                          >
-                            {email}
-                            <button
-                              onClick={() => removeEmail(email)}
-                              className="rounded-full hover:bg-gray-200 p-1"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-2 mt-4">
-                    <Label htmlFor="custom-message-link">
-                      Message (Optional)
-                    </Label>
-                    <Textarea
-                      id="custom-message-link"
-                      placeholder="Add a personal message"
-                      value={customMessage}
-                      onChange={(e) => setCustomMessage(e.target.value)}
-                      className="min-h-[100px]"
-                    />
-                  </div>
-
-                  <div className="pt-4">
-                    <Button
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                      onClick={handleEmailInvite}
-                      disabled={isSubmitting || emailList.length === 0}
-                    >
-                      {isSubmitting ? (
-                        <>Sending...</>
-                      ) : (
-                        <>
-                          <Mail className="h-4 w-4 mr-2" />
-                          Send Link
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Team Access</CardTitle>
-          <CardDescription>
-            Configure what team members can access and permissions
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="font-medium">View team performance</h3>
-                <p className="text-sm text-gray-500">
-                  Allow members to view overall team performance metrics
-                </p>
-              </div>
-              <Switch
-                id="team-performance"
-                checked={teamPerformanceAccess}
-                onCheckedChange={setTeamPerformanceAccess}
+            {/* Optional Message */}
+            <div className="space-y-2">
+              <Label htmlFor="custom-message">
+                Message (Optional)
+              </Label>
+              <Textarea
+                id="custom-message"
+                placeholder="Add a personal message"
+                value={customMessage}
+                onChange={(e) => setCustomMessage(e.target.value)}
+                className="min-h-[100px]"
               />
             </div>
 
-            <Separator />
-
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="font-medium">View other members' data</h3>
-                <p className="text-sm text-gray-500">
-                  Allow members to view other teammates' individual metrics
-                </p>
-              </div>
-              <Switch
-                id="member-data"
-                checked={membersDataAccess}
-                onCheckedChange={setMembersDataAccess}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="font-medium">Access to transcripts</h3>
-                <p className="text-sm text-gray-500">
-                  Allow members to access all team call transcripts
-                </p>
-              </div>
-              <Switch
-                id="transcript-access"
-                checked={transcriptAccess}
-                onCheckedChange={setTranscriptAccess}
-              />
+            {/* Submit Button */}
+            <div className="pt-4">
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={handleEmailInvite}
+                disabled={isSubmitting || emailList.length === 0}
+              >
+                {isSubmitting ? (
+                  <>Sending...</>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Send Invitations
+                  </>
+                )}
+              </Button>
             </div>
           </div>
         </CardContent>
       </Card>
+
     </motion.div>
   );
 };

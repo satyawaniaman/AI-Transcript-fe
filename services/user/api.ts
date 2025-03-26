@@ -50,4 +50,4 @@ const getUser = async (): Promise<User> => {
   return response.data;
 };
 
-export { getUser, };
+export { getUser, Role };
