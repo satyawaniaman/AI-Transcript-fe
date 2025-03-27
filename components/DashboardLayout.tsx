@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -31,6 +31,7 @@ import {
 import { createClient } from "@/utils/supabase/client";
 import { useGetUser } from "@/services/user/query";
 import DashboardLayoutSkeleton from "@/components/DashboardLayoutSkeleton";
+import useCurrentOrg from "@/store/useCurrentOrg";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -91,10 +92,20 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     }
   };
 
+  const { setCurrentOrg } = useCurrentOrg();
+  useEffect(() => {
+    if (user) {
+        const currOrg = user.organizations?.[0]?.organization?.name || "";
+        setCurrentOrg(currOrg);
+    }
+  }, [user]);
+
   // Use our skeleton component instead of "Loading..."
   if (isLoading) {
     return <DashboardLayoutSkeleton />;
   }
+
+
 
   return (
     <div className="min-h-screen flex">

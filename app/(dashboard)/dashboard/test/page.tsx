@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { api } from '@/utils/axios';
 import { useGetTeams } from '@/services/teams/query';
 import { useGetUser } from '@/services/user/query';
+import useCurrentOrg from '@/store/useCurrentOrg';
 const DummyPage = () => {
   const [response, setResponse] = useState(null);
   const [teams, setTeams] = useState<any>(null);
@@ -33,9 +34,12 @@ const DummyPage = () => {
     setTeams(team);
   }, [team]);
 
+  const { currentOrg } = useCurrentOrg();
+
   return (
     <div>
-      <h1>Dummy Page</h1>
+      <h1>Dummy Page { currentOrg ?? currentOrg }</h1>
+
       <button onClick={handleClick} className="px-4 py-2 bg-blue-500 text-white rounded">
         Fetch Data
       </button>
