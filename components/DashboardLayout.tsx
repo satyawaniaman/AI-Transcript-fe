@@ -95,8 +95,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const { setCurrentOrg } = useCurrentOrg();
   useEffect(() => {
     if (user) {
-        const currOrg = user.organizations?.[0]?.organization?.name || "";
-        setCurrentOrg(currOrg);
+      const currOrg = user.organizations?.[0]?.organization?.name || "";
+      setCurrentOrg(currOrg);
     }
   }, [user]);
 
@@ -104,8 +104,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   if (isLoading) {
     return <DashboardLayoutSkeleton />;
   }
-
-
 
   return (
     <div className="min-h-screen flex">
@@ -232,27 +230,29 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           {/* Organization section - Desktop */}
           {user && user?.organizations?.length > 0 && (
             <div className="p-4 border-t border-navy-700 mt-auto">
-              <div className="rounded-md bg-navy-700 bg-opacity-50 p-3 hover:bg-navy-600 transition-colors duration-200 cursor-pointer">
-                <div className="flex items-center">
-                  <Avatar className="h-10 w-10 mr-3">
-                    <AvatarImage
-                      src={orgLogo || "/placeholder-org.svg"}
-                      alt={`${orgName} Logo`}
-                    />
-                    <AvatarFallback className="bg-navy-600 text-white">
-                      {orgName ? orgName.charAt(0).toUpperCase() : "O"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="overflow-hidden">
-                    <p className="text-sm font-medium text-white truncate">
-                      {orgName}
-                    </p>
-                    <p className="text-xs text-gray-400 truncate">
-                      Organization
-                    </p>
+              <Link href="/dashboard/organisation">
+                <div className="rounded-md bg-navy-700 bg-opacity-50 p-3 hover:bg-navy-600 transition-colors duration-200 cursor-pointer">
+                  <div className="flex items-center">
+                    <Avatar className="h-10 w-10 mr-3">
+                      <AvatarImage
+                        src={orgLogo || "/placeholder-org.svg"}
+                        alt={`${orgName} Logo`}
+                      />
+                      <AvatarFallback className="bg-navy-600 text-white">
+                        {orgName ? orgName.charAt(0).toUpperCase() : "O"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="overflow-hidden">
+                      <p className="text-sm font-medium text-white truncate">
+                        {orgName}
+                      </p>
+                      <p className="text-xs text-gray-400 truncate">
+                        Organization
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             </div>
           )}
         </div>
@@ -355,27 +355,32 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           {/* Organization section - Mobile */}
           {user && user?.organizations?.length > 0 && (
             <div className="p-4 border-t border-navy-700 mt-auto">
-              <div className="rounded-md bg-navy-700 bg-opacity-50 p-3 hover:bg-navy-600 transition-colors duration-200 cursor-pointer">
-                <div className="flex items-center">
-                  <Avatar className="h-10 w-10 mr-3">
-                    <AvatarImage
-                      src={orgLogo || "/placeholder-org.svg"}
-                      alt={`${orgName} Logo`}
-                    />
-                    <AvatarFallback className="bg-navy-600 text-white">
-                      {orgName ? orgName.charAt(0).toUpperCase() : "O"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="overflow-hidden">
-                    <p className="text-sm font-medium text-white truncate">
-                      {orgName}
-                    </p>
-                    <p className="text-xs text-gray-400 truncate">
-                      Organization
-                    </p>
+              <Link
+                href="/dashboard/organisation"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <div className="rounded-md bg-navy-700 bg-opacity-50 p-3 hover:bg-navy-600 transition-colors duration-200 cursor-pointer">
+                  <div className="flex items-center">
+                    <Avatar className="h-10 w-10 mr-3">
+                      <AvatarImage
+                        src={orgLogo || "/placeholder-org.svg"}
+                        alt={`${orgName} Logo`}
+                      />
+                      <AvatarFallback className="bg-navy-600 text-white">
+                        {orgName ? orgName.charAt(0).toUpperCase() : "O"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="overflow-hidden">
+                      <p className="text-sm font-medium text-white truncate">
+                        {orgName}
+                      </p>
+                      <p className="text-xs text-gray-400 truncate">
+                        Organization
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             </div>
           )}
         </div>
