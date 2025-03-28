@@ -437,35 +437,52 @@ const Pricing = () => {
           </div>
         </div>
 
-        {/* Custom solution CTA with enhanced background styling */}
+        {/* Custom solution CTA with navy background similar to LeadMagnetForm */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
           className="relative py-20 text-white overflow-hidden"
         >
-          {/* Enhanced background with patterns and gradients */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700">
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 left-0 w-full h-64 bg-white rounded-full blur-3xl transform -translate-y-1/2 translate-x-1/4 opacity-20"></div>
-              <div className="absolute bottom-0 right-0 w-full h-64 bg-white rounded-full blur-3xl transform translate-y-1/2 -translate-x-1/4 opacity-20"></div>
-
+          {/* Enhanced background with navy gradients and patterns */}
+          <div className="absolute inset-0 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-700">
+            <div className="absolute inset-0">
               {/* Decorative dots pattern */}
               <div
                 className="absolute inset-0"
                 style={{
                   backgroundImage:
                     "radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)",
-                  backgroundSize: "30px 30px",
+                  backgroundSize: "20px 20px",
                 }}
               ></div>
+
+              {/* Glowing orbs */}
+              <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-10 transform -translate-y-1/2 -translate-x-1/4"></div>
+              <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500 rounded-full blur-3xl opacity-10 transform translate-y-1/2 translate-x-1/4"></div>
+
+              {/* Additional decorative element */}
+              <div className="absolute top-1/2 right-1/4 w-64 h-64 opacity-20">
+                <svg
+                  className="w-full h-full text-blue-500"
+                  viewBox="0 0 200 200"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M42.7,-73.4C54.9,-67.8,64.2,-55.5,71.5,-42.3C78.7,-29.1,84,-15,82.5,-1.9C81,11.3,72.7,22.6,65.3,34.5C58,46.4,51.5,58.9,41.3,66.4C31.1,73.9,17.1,76.3,2.4,73.3C-12.3,70.3,-27.5,61.9,-38.7,51.7C-49.9,41.5,-57.1,29.5,-62.9,16.1C-68.7,2.7,-73,-12.2,-70.4,-25.2C-67.7,-38.3,-58,-49.5,-46.1,-55.1C-34.2,-60.8,-20.1,-60.8,-5.8,-61.3C8.5,-61.8,17,-79,30.5,-79.1C44,-79.2,60.5,-61.1,67.8,-50.8Z"
+                    transform="translate(100 100)"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
 
           <div className="container mx-auto px-4 text-center relative z-10">
-            <div className="max-w-3xl mx-auto backdrop-blur-sm bg-white/5 p-12 rounded-3xl border border-white/10 shadow-2xl">
-              <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-white/20 px-6 py-2 rounded-full backdrop-blur-md border border-white/20 text-sm font-medium">
-                Enterprise Solution
+            <div className="max-w-3xl mx-auto backdrop-blur-sm bg-navy-800/50 p-12 rounded-2xl border border-navy-600/50 shadow-2xl">
+              <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-blue-500/20 px-6 py-2 rounded-full backdrop-blur-md border border-blue-400/20 text-sm font-medium flex items-center justify-center">
+                <Sparkles className="h-3.5 w-3.5 mr-1.5 text-blue-400" />
+                <span>Enterprise Solution</span>
               </div>
               <h2 className="text-3xl font-bold mb-4">
                 Need a custom solution?
@@ -477,7 +494,7 @@ const Pricing = () => {
               </p>
               <Button
                 size="lg"
-                className="bg-white text-blue-700 hover:bg-blue-50 px-8 py-6 text-lg font-medium shadow-lg shadow-blue-900/20 transition-all duration-300 hover:shadow-xl hover:scale-105"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-8 py-6 text-lg font-medium shadow-lg shadow-blue-900/30 transition-all duration-300 hover:shadow-xl hover:scale-105 border border-blue-500/20"
               >
                 Schedule a Demo
                 <ArrowRight className="ml-2 h-5 w-5" />
