@@ -1,60 +1,104 @@
-import React from 'react';
+"use client";
+import React, { use } from "react";
 import Image from "next/image";
+
 const LogoCloud = () => {
   // Array of company logos with image paths
   const companyLogos = [
     {
       name: "Salesforce",
       imgSrc: "/logos/salesforce.png",
-      alt: "Salesforce logo"
+      alt: "Salesforce logo",
     },
     {
       name: "HubSpot",
       imgSrc: "/logos/hubspot.svg",
-      alt: "HubSpot logo"
+      alt: "HubSpot logo",
     },
     {
       name: "Slack",
       imgSrc: "/logos/slack.png",
-      alt: "Slack logo"
+      alt: "Slack logo",
     },
     {
       name: "Zoom",
       imgSrc: "/logos/zoom.svg",
-      alt: "Zoom logo"
+      alt: "Zoom logo",
     },
     {
       name: "Microsoft",
       imgSrc: "/logos/microsoft.png",
-      alt: "Microsoft logo"
+      alt: "Microsoft logo",
     },
     {
       name: "Adobe",
       imgSrc: "/logos/adobe.png",
-      alt: "Adobe logo"
-    }
+      alt: "Adobe logo",
+    },
   ];
 
   return (
-    <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 border-t border-b border-gray-100">
+    <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 border-t border-b border-gray-100 overflow-hidden">
       <div className="container mx-auto max-w-7xl">
         <p className="text-center text-sm font-semibold text-gray-500 uppercase tracking-wide mb-8">
           Trusted by sales teams worldwide
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center">
-          {companyLogos.map((company, index) => (
-            <div key={index} className="flex items-center justify-center">
-              <Image
-                src={company.imgSrc}
-                alt={company.alt}
-                className="h-8 md:h-12 w-auto object-contain filter grayscale opacity-80 hover:opacity-100 hover:grayscale-0 transition-all duration-300"
-                width={500} 
-                height={300} 
-              />
+
+        {/* Logo animation container */}
+        <div className="relative">
+          {/* Hide scrollbar and overflow */}
+          <div className="overflow-hidden whitespace-nowrap relative">
+            {/* First set of logos */}
+            <div className="inline-block animate-marquee">
+              {companyLogos.map((company, index) => (
+                <div key={`first-${index}`} className="inline-block mx-8">
+                  <Image
+                    src={company.imgSrc}
+                    alt={company.alt}
+                    className="h-10 md:h-12 w-auto object-contain filter grayscale opacity-80 hover:opacity-100 hover:grayscale-0 transition-all duration-300"
+                    width={120}
+                    height={60}
+                  />
+                </div>
+              ))}
             </div>
-          ))}
+
+            {/* Second set of logos for seamless loop */}
+            <div
+              className="inline-block animate-marquee"
+              style={{ animationDelay: "0ms" }}
+            >
+              {companyLogos.map((company, index) => (
+                <div key={`second-${index}`} className="inline-block mx-8">
+                  <Image
+                    src={company.imgSrc}
+                    alt={company.alt}
+                    className="h-10 md:h-12 w-auto object-contain filter grayscale opacity-80 hover:opacity-100 hover:grayscale-0 transition-all duration-300"
+                    width={120}
+                    height={60}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Add the required CSS animations */}
+      <style jsx global>{`
+        @keyframes marquee {
+          0% {
+            transform: translateX(0%);
+          }
+          100% {
+            transform: translateX(-100%);
+          }
+        }
+
+        .animate-marquee {
+          animation: marquee 20s linear infinite;
+        }
+      `}</style>
     </section>
   );
 };
