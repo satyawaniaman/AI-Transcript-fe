@@ -96,7 +96,7 @@ export default function OrganizationPage() {
                 organizations.map((org) => (
                   <Card
                     key={org.id}
-                    className="shadow-sm hover:shadow-md transition-shadow"
+                    className="shadow-sm hover:shadow-md transition-shadow duration-300 transform hover:-translate-y-1 hover:bg-blue-50 cursor-pointer border border-transparent hover:border-blue-200"
                     onClick={() => handleOrgInfo(org)}
                   >
                     <CardHeader className="pb-2">
@@ -126,7 +126,7 @@ export default function OrganizationPage() {
                         </div>
                       </div>
                       <Button
-                        className="w-full bg-[#0284c7] hover:bg-blue-600 cursor-pointer"
+                        className="w-full bg-[#0284c7] hover:bg-blue-600 cursor-pointer transition-colors duration-300"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleSelectOrg(org.name);
@@ -150,7 +150,7 @@ export default function OrganizationPage() {
                       Create your first organization to get started.
                     </p>
                     <Button
-                      className="bg-[#0284c7] hover:bg-blue-600"
+                      className="bg-[#0284c7] hover:bg-blue-600 transition-colors duration-300"
                       onClick={handleCreateOrg}
                     >
                       <Plus className="mr-2 h-4 w-4" /> Create Organization
@@ -161,7 +161,7 @@ export default function OrganizationPage() {
             </div>
 
             <div className="mt-10">
-              <Card className="bg-gray-50 border-dashed border-2 border-gray-200">
+              <Card className="bg-gray-50 border-dashed border-2 border-gray-200 hover:bg-gray-100 transition-colors duration-300 hover:border-gray-300">
                 <CardContent className="flex flex-col sm:flex-row items-center justify-between p-6">
                   <div className="mb-4 sm:mb-0 text-center sm:text-left">
                     <h3 className="text-lg font-medium text-navy-800 mb-1">
@@ -173,7 +173,7 @@ export default function OrganizationPage() {
                     </p>
                   </div>
                   <Button
-                    className="bg-[#0284c7] hover:bg-blue-600"
+                    className="bg-[#0284c7] hover:bg-blue-600 transition-colors duration-300"
                     onClick={handleCreateOrg}
                   >
                     <Plus className="mr-2 h-4 w-4" /> New Organization
