@@ -38,6 +38,11 @@ export default function OrganizationPage() {
     }
   }, [user]);
 
+  const handleOrgInfo = (org: Organization) => {
+    setCurrentOrg(org.name);
+    router.push(`/dashboard/organisation/${org.id}`);
+  };
+
   const handleSelectOrg = (orgName: string) => {
     setCurrentOrg(orgName);
     router.push("/dashboard");
@@ -92,6 +97,7 @@ export default function OrganizationPage() {
                   <Card
                     key={org.id}
                     className="shadow-sm hover:shadow-md transition-shadow"
+                    onClick={() => handleOrgInfo(org)}
                   >
                     <CardHeader className="pb-2">
                       <CardTitle>{org.name}</CardTitle>
@@ -120,8 +126,11 @@ export default function OrganizationPage() {
                         </div>
                       </div>
                       <Button
-                        className="w-full bg-[#0284c7] hover:bg-blue-600"
-                        onClick={() => handleSelectOrg(org.name)}
+                        className="w-full bg-[#0284c7] hover:bg-blue-600 cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSelectOrg(org.name);
+                        }}
                       >
                         Select Organization{" "}
                         <ArrowRight className="ml-2 h-4 w-4" />

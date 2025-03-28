@@ -2,14 +2,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  ArrowLeft,
-  Send,
-  X,
-  Info,
-  Check,
-  Mail,
-} from "lucide-react";
+import { ArrowLeft, Send, X, Info, Check, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -37,7 +30,6 @@ import { Role } from "@/services/user/api";
 import { useInviteToOrganisationMutation } from "@/services/organisation/mutation";
 import { Textarea } from "@/components/ui/textarea";
 
-// TypeScript interfaces
 interface Team {
   id: string;
   name: string;
@@ -63,8 +55,10 @@ const InviteTeamMemberPage = () => {
 
   const { data: user } = useGetUser();
   const organizationId = user?.organizations?.[0]?.organizationId;
-  const { data: teamsData, isLoading: teamsLoading } = useGetTeams(organizationId || '');
-  
+  const { data: teamsData, isLoading: teamsLoading } = useGetTeams(
+    organizationId || ""
+  );
+
   const [selectedRole, setSelectedRole] = useState<Role | "">("");
   const [currentEmail, setCurrentEmail] = useState("");
   const [emailList, setEmailList] = useState<string[]>([]);
@@ -72,16 +66,16 @@ const InviteTeamMemberPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [selectedTeams, setSelectedTeams] = useState<SelectedTeam[]>([]);
-  
+
   const inviteToOrganisationMutation = useInviteToOrganisationMutation();
 
   // Initialize selected teams when teams data is loaded
   useEffect(() => {
     if (teamsData) {
-      const initialSelectedTeams = teamsData.map(team => ({
+      const initialSelectedTeams = teamsData.map((team) => ({
         id: team.id,
         name: team.name,
-        selected: teamId === team.id // Pre-select the team from URL if it matches
+        selected: teamId === team.id, // Pre-select the team from URL if it matches
       }));
       setSelectedTeams(initialSelectedTeams);
     }
@@ -112,8 +106,8 @@ const InviteTeamMemberPage = () => {
 
   // Toggle team selection
   const toggleTeamSelection = (teamId: string) => {
-    setSelectedTeams(prevTeams => 
-      prevTeams.map(team => 
+    setSelectedTeams((prevTeams) =>
+      prevTeams.map((team) =>
         team.id === teamId ? { ...team, selected: !team.selected } : team
       )
     );
@@ -145,13 +139,13 @@ const InviteTeamMemberPage = () => {
     }
 
     const selectedTeamIds = selectedTeams
-      .filter(team => team.selected)
-      .map(team => team.id);
+      .filter((team) => team.selected)
+      .map((team) => team.id);
 
     if (selectedTeamIds.length === 0) {
       setFormErrors({
         ...formErrors,
-        teams: "Please select at least one team"
+        teams: "Please select at least one team",
       });
       return;
     }
@@ -159,27 +153,30 @@ const InviteTeamMemberPage = () => {
     setIsSubmitting(true);
 
     // For each email in the list, send an invitation
-    emailList.forEach(email => {
+    emailList.forEach((email) => {
       if (organizationId && selectedRole) {
-        inviteToOrganisationMutation.mutate({
-          email,
-          role: selectedRole as Role,
-          organisationId: organizationId,
-          teamIds: selectedTeamIds
-        }, {
-          onSuccess: () => {
-            setIsSubmitting(false);
-            toast({
-              title: "Invitations Sent",
-              description: `Invitations sent to ${emailList.length} recipient(s).`,
-              variant: "default",
-            });
-            router.push("/dashboard/teams");
+        inviteToOrganisationMutation.mutate(
+          {
+            email,
+            role: selectedRole as Role,
+            organisationId: organizationId,
+            teamIds: selectedTeamIds,
           },
-          onError: () => {
-            setIsSubmitting(false);
+          {
+            onSuccess: () => {
+              setIsSubmitting(false);
+              toast({
+                title: "Invitations Sent",
+                description: `Invitations sent to ${emailList.length} recipient(s).`,
+                variant: "default",
+              });
+              router.push("/dashboard/teams");
+            },
+            onError: () => {
+              setIsSubmitting(false);
+            },
           }
-        });
+        );
       }
     });
   };
@@ -235,7 +232,7 @@ const InviteTeamMemberPage = () => {
           <div className="flex items-center mt-2">
             <p className="text-gray-600">Organisation</p>
             <Badge variant="outline" className="ml-2">
-              {"sharath"}
+              {"Sales Team"}
             </Badge>
           </div>
         )}
@@ -268,9 +265,7 @@ const InviteTeamMemberPage = () => {
               </div>
 
               {formErrors.email && (
-                <p className="text-sm text-red-500 mt-1">
-                  {formErrors.email}
-                </p>
+                <p className="text-sm text-red-500 mt-1">{formErrors.email}</p>
               )}
 
               {emailList.length > 0 && (
@@ -305,8 +300,8 @@ const InviteTeamMemberPage = () => {
             {/* Role Selection */}
             <div className="space-y-2">
               <Label htmlFor="role-select">Role</Label>
-              <Select 
-                onValueChange={(value) => setSelectedRole(value as Role)} 
+              <Select
+                onValueChange={(value) => setSelectedRole(value as Role)}
                 value={selectedRole}
               >
                 <SelectTrigger id="role-select">
@@ -320,9 +315,7 @@ const InviteTeamMemberPage = () => {
                 </SelectContent>
               </Select>
               {formErrors.role && (
-                <p className="text-sm text-red-500 mt-1">
-                  {formErrors.role}
-                </p>
+                <p className="text-sm text-red-500 mt-1">{formErrors.role}</p>
               )}
             </div>
 
@@ -335,12 +328,12 @@ const InviteTeamMemberPage = () => {
                 ) : selectedTeams.length > 0 ? (
                   selectedTeams.map((team) => (
                     <div key={team.id} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={`team-${team.id}`} 
+                      <Checkbox
+                        id={`team-${team.id}`}
                         checked={team.selected}
                         onCheckedChange={() => toggleTeamSelection(team.id)}
                       />
-                      <Label 
+                      <Label
                         htmlFor={`team-${team.id}`}
                         className="cursor-pointer"
                       >
@@ -361,9 +354,7 @@ const InviteTeamMemberPage = () => {
 
             {/* Optional Message */}
             <div className="space-y-2">
-              <Label htmlFor="custom-message">
-                Message (Optional)
-              </Label>
+              <Label htmlFor="custom-message">Message (Optional)</Label>
               <Textarea
                 id="custom-message"
                 placeholder="Add a personal message"
@@ -393,7 +384,6 @@ const InviteTeamMemberPage = () => {
           </div>
         </CardContent>
       </Card>
-
     </motion.div>
   );
 };
