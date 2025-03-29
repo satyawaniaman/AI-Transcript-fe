@@ -56,9 +56,9 @@ const CreateOrganizationPage = () => {
   };
 
   return (
-    <div className="h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+    <div className="flex items-center justify-center h-full bg-gray-50">
+      <div className="w-full max-w-md px-4 py-6">
+        <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-navy-100 mb-4">
             <Building className="h-8 w-8 text-navy-800" />
           </div>
@@ -160,7 +160,7 @@ const CreateOrganizationPage = () => {
           </CardFooter>
         </Card>
 
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-4 text-center text-sm text-gray-500">
           <p>
             Need help? Contact our{" "}
             <a

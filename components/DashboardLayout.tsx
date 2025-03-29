@@ -181,22 +181,28 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                       className="hidden"
                       onChange={handleSidebarFileChange}
                       ref={fileInputRef}
+                      accept=".txt,.pdf,.vtt,.doc,.docx"
                     />
                   </label>
 
                   {sidebarFile && (
                     <div className="mt-2">
-                      <div className="text-xs text-gray-300 truncate mb-1 flex justify-between items-center">
-                        <span>{sidebarFile.name}</span>
+                      <div className="text-xs text-gray-300 flex justify-between items-center gap-1">
+                        <span
+                          className="truncate max-w-[85%]"
+                          title={sidebarFile.name}
+                        >
+                          {sidebarFile.name}
+                        </span>
                         <button
                           onClick={handleRemoveFile}
-                          className="text-gray-400 hover:text-white"
+                          className="text-gray-400 hover:text-white flex-shrink-0"
                           title="Remove file"
                         >
                           <X className="h-3 w-3" />
                         </button>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center mt-1">
                         <div className="text-xs text-gray-400">
                           {(sidebarFile.size / 1024).toFixed(1)} KB
                         </div>
