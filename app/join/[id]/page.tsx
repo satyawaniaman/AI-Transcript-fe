@@ -13,10 +13,6 @@ import Footer from "@/components/Footer";
 import GoogleSignin from "@/app/login/GoogleSignin";
 import zod from "zod";
 
-// Import your actual auth actions
-// import { login } from '@/app/login/action';
-// import { registerUser } from '@/app/signup/action';
-
 // Define invitation details type
 interface InvitationDetails {
   id: string;
@@ -237,13 +233,6 @@ const LoginForm: React.FC<FormProps> = ({
     try {
       // Validate form data against schema
       schema.parse(formData);
-
-      // This would be your actual login action
-      // const response = await login({
-      //   email: formData.email,
-      //   password: formData.password,
-      //   invitationId
-      // });
 
       // Simulate login success
       const response: AuthResponse = { success: true };

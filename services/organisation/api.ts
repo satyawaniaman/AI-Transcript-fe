@@ -15,6 +15,11 @@ export const createOrganisation = async (
   return response.data;
 };
 
+export const getOrgs = async (): Promise<{ userId: string; organizationId: string; role: string; organization: Organisation }[]> => {
+  const res = await api.get("/api/organisation");
+  return res.data;
+}
+
 export const inviteToOrganisation = async (
   email: string,
   role: Role,

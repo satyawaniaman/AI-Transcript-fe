@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,30 +13,12 @@ import {
 import { Plus, ArrowRight, Building2 } from "lucide-react";
 import { useGetUser } from "@/services/user/query";
 import useCurrentOrg from "@/store/useCurrentOrg";
-
-interface Organization {
-  id: string;
-  name: string;
-  isAdmin?: boolean;
-  memberCount?: number;
-}
+import { useGetOrgs } from "@/services/organisation/query";
 
 export default function OrganizationPage() {
   const router = useRouter();
-  const { data: user, isLoading } = useGetUser();
+  const { data: orgs, isLoading } = useGetOrgs();
   const { setCurrentOrg } = useCurrentOrg();
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-
-  useEffect(() => {
-    if (user && user.organizations) {
-      // Extract organizations from user data and ensure they match our Organization interface
-      const orgs = user.organizations.map((org) => ({
-        id: org.organization?.id || "",
-        name: org.organization?.name || "",
-      }));
-      setOrganizations(orgs);
-    }
-  }, [user]);
 
   const handleSelectOrg = (orgName: string) => {
     setCurrentOrg(orgName);
@@ -87,41 +69,41 @@ export default function OrganizationPage() {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {organizations && organizations.length > 0 ? (
-                organizations.map((org) => (
+              {orgs && orgs.length > 0 ? (
+                orgs.map((org) => (
                   <Card
-                    key={org.id}
+                    key={org.organization.id}
                     className="shadow-sm hover:shadow-md transition-shadow"
                   >
                     <CardHeader className="pb-2">
-                      <CardTitle>{org.name}</CardTitle>
+                      <CardTitle>{org.organization.name}</CardTitle>
                       <CardDescription>
-                        {org.isAdmin ? "Admin" : "Member"}
+                        {"member"}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="flex items-center mb-4">
                         <Avatar className="h-12 w-12 mr-3">
                           <AvatarImage
-                            src={generateAvatarUrl(org.name)}
-                            alt={`${org.name} Logo`}
+                            src={generateAvatarUrl(org.organization.name)}
+                            alt={`${org.organization.name} Logo`}
                           />
                           <AvatarFallback className="bg-navy-600 text-white">
-                            {org.name ? org.name.charAt(0).toUpperCase() : "O"}
+                            {org.organization.name ? org.organization.name.charAt(0).toUpperCase() : "O"}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <p className="font-medium text-navy-800">
-                            {org.name}
+                            {org.organization.name}
                           </p>
                           <p className="text-sm text-gray-500">
-                            {org.memberCount || 1} Members
+                            { 1} Members
                           </p>
                         </div>
                       </div>
                       <Button
                         className="w-full bg-[#0284c7] hover:bg-blue-600"
-                        onClick={() => handleSelectOrg(org.name)}
+                        onClick={() => handleSelectOrg(org.organization.name)}
                       >
                         Select Organization{" "}
                         <ArrowRight className="ml-2 h-4 w-4" />

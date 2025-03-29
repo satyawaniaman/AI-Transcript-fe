@@ -224,14 +224,6 @@ const UploadPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {/* Team Selection with new component */}
-                <div className="mb-3">
-                  <TeamSelector
-                    teams={teams}
-                    selectedTeamId={selectedTeam}
-                    onSelectTeam={setSelectedTeam}
-                  />
-                </div>
 
                 <div
                   className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
@@ -378,14 +370,6 @@ const UploadPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {/* Team Selection for pasted text */}
-                <div className="mb-4">
-                  <TeamSelector
-                    teams={teams}
-                    selectedTeamId={selectedTeam}
-                    onSelectTeam={setSelectedTeam}
-                  />
-                </div>
 
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}

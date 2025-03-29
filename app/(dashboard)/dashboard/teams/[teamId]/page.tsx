@@ -1,10 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import { animate, motion } from "framer-motion";
-import Link from "next/link";
+import { motion } from "framer-motion";
 import { useRouter, useParams } from "next/navigation";
 import {
-  Users,
   UserPlus,
   Phone,
   FileText,
@@ -16,9 +14,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGetTeamById } from "@/services/teams/query";
@@ -57,19 +52,9 @@ const TeamDetailPage = () => {
   const params = useParams();
   const teamId = params.teamId as string;
 
-  // In a real app, this would come from authentication context
-  const [userRole, setUserRole] = useState<"sales-manager" | "sales-rep">(
-    "sales-manager"
-  );
-
   // Fetch team data
   const { data: team, isLoading: teamLoading, error: teamError } = useGetTeamById(teamId);
     
-
-  const handleInviteMember = () => {
-    router.push(`/dashboard/teams/invite?teamId=${teamId}`);
-  };
-
   const handleNavigateToMember = (memberId: string) => {
     router.push(`/dashboard/user/${memberId}?teamId=${teamId}`);
   };
@@ -159,17 +144,6 @@ const TeamDetailPage = () => {
             </div>
           </div>
 
-          {userRole === "sales-manager" && (
-            <div className="flex space-x-2">
-              <Button
-                onClick={handleInviteMember}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                <UserPlus className="h-4 w-4 mr-2" />
-                Invite Member
-              </Button>
-            </div>
-          )}
         </div>
       </div>
 
@@ -230,17 +204,6 @@ const TeamDetailPage = () => {
             <p className="mt-1 text-sm text-gray-500">
               Start by inviting sales representatives to your team.
             </p>
-            {userRole === "sales-manager" && (
-              <div className="mt-6">
-                <Button
-                  onClick={handleInviteMember}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Invite Member
-                </Button>
-              </div>
-            )}
           </div>
         )}
       </div>
