@@ -111,7 +111,10 @@ const Index = () => {
       <LogoCloud />
 
       {/* Features Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white relative overflow-hidden">
+      <section
+        id="features"
+        className="py-24 px-4 sm:px-6 lg:px-8 bg-white relative overflow-hidden"
+      >
         {/* Background pattern */}
         <div className="absolute top-0 left-0 right-0 h-32 bg-linear-to-b from-gray-50 to-white"></div>
         <div className="absolute inset-0 flex items-center justify-center opacity-5">
@@ -486,7 +489,7 @@ const Index = () => {
           </div>
 
           {/* View more testimonials button */}
-          <div className="mt-12 text-center">
+          {/* <div className="mt-12 text-center">
             <Button
               asChild
               variant="outline"
@@ -497,7 +500,7 @@ const Index = () => {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-          </div>
+          </div> */}
         </div>
       </section>
 
