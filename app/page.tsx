@@ -325,7 +325,7 @@ const Index = () => {
               <Button
                 variant="ghost"
                 onClick={() => setIsDemoModalOpen(true)}
-                className="flex items-center text-navy-800 hover:text-blue-600 transition-colors"
+                className="flex items-center text-navy-800 hover:text-blue-600 hover:bg-transparent transition-colors"
               >
                 <PlayCircle className="h-5 w-5 mr-2" />
                 <span className="font-medium">Watch Demo</span>
