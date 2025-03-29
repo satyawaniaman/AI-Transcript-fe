@@ -1,7 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Users,
@@ -25,7 +24,6 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useGetUser } from "@/services/user/query";
 import { formatDistance } from "date-fns";
 import {
   DropdownMenu,
@@ -171,7 +169,7 @@ const OrganizationInfoPage = () => {
             {userRole === "admin" && (
               <Button
                 className="bg-blue-600 hover:bg-blue-700 ml-4"
-                onClick={() => router.push("/dashboard/teams/invite")}
+                onClick={() => router.push("/dashboard/organisation/invite")}
               >
                 <UserPlus className="h-4 w-4 mr-2" />
                 Invite Member
