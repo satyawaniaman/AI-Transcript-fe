@@ -160,8 +160,23 @@ const Dashboard = () => {
                   Your call sentiment over the last 10 sales calls
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <SentimentChart data={[]} />
+              <CardContent className="p-0 sm:p-6">
+                {" "}
+                {/* Adjusted padding for better display */}
+                <SentimentChart
+                  data={[
+                    { name: "Call 1", positive: 65, neutral: 30, negative: 5 },
+                    { name: "Call 2", positive: 70, neutral: 25, negative: 5 },
+                    { name: "Call 3", positive: 60, neutral: 30, negative: 10 },
+                    { name: "Call 4", positive: 75, neutral: 20, negative: 5 },
+                    { name: "Call 5", positive: 68, neutral: 27, negative: 5 },
+                    { name: "Call 6", positive: 72, neutral: 25, negative: 3 },
+                    { name: "Call 7", positive: 78, neutral: 20, negative: 2 },
+                    { name: "Call 8", positive: 80, neutral: 18, negative: 2 },
+                    { name: "Call 9", positive: 75, neutral: 22, negative: 3 },
+                    { name: "Call 10", positive: 82, neutral: 15, negative: 3 },
+                  ]}
+                />
               </CardContent>
             </Card>
 
