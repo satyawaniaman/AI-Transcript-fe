@@ -4,12 +4,30 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PricingCard from "@/components/PricingCard";
+import TestimonialCard from "@/components/TestimonialCard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Check, HelpCircle, ArrowRight, Sparkles } from "lucide-react";
 
+// Define types for pricing plans
+interface PricingPlan {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  period: string;
+  features: string[];
+  buttonText: string;
+  isPopular: boolean;
+}
+
+interface PricingPlans {
+  monthly: PricingPlan[];
+  annual: PricingPlan[];
+}
+
 // Pricing plans data
-const pricingPlans = {
+const pricingPlans: PricingPlans = {
   monthly: [
     {
       id: "starter",
@@ -26,7 +44,7 @@ const pricingPlans = {
         "Email support",
       ],
       buttonText: "Start Free Trial",
-      buttonVariant: "outline",
+      isPopular: false,
     },
     {
       id: "pro",
@@ -44,7 +62,6 @@ const pricingPlans = {
         "Export data in various formats",
       ],
       buttonText: "Get Pro",
-      buttonVariant: "default",
       isPopular: true,
     },
     {
@@ -65,7 +82,7 @@ const pricingPlans = {
         "Dedicated account manager",
       ],
       buttonText: "Contact Sales",
-      buttonVariant: "outline",
+      isPopular: false,
     },
   ],
   annual: [
@@ -84,7 +101,7 @@ const pricingPlans = {
         "Email support",
       ],
       buttonText: "Start Free Trial",
-      buttonVariant: "outline",
+      isPopular: false,
     },
     {
       id: "pro",
@@ -102,7 +119,6 @@ const pricingPlans = {
         "Export data in various formats",
       ],
       buttonText: "Get Pro",
-      buttonVariant: "default",
       isPopular: true,
     },
     {
@@ -123,13 +139,29 @@ const pricingPlans = {
         "Dedicated account manager",
       ],
       buttonText: "Contact Sales",
-      buttonVariant: "outline",
+      isPopular: false,
     },
   ],
 };
 
+// Define type for FAQ items
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+// Define type for testimonial items
+interface TestimonialItem {
+  quote: string;
+  name: string;
+  title: string;
+  rating: number;
+  gradientFrom?: string;
+  gradientTo?: string;
+}
+
 // FAQ data
-const faqs = [
+const faqs: FaqItem[] = [
   {
     question: "How does the free trial work?",
     answer:
@@ -190,6 +222,11 @@ const Pricing = () => {
     } else {
       setActiveFaq(index);
     }
+  };
+
+  const handlePlanSelection = (planId: string) => {
+    console.log(`Selected plan: ${planId}`);
+    // Implement your plan selection logic here
   };
 
   return (
@@ -279,74 +316,27 @@ const Pricing = () => {
               animate="visible"
               className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto relative"
             >
-              {/* Pricing cards with improved visuals */}
+              {/* Pricing cards using the new PricingCard component */}
               {pricingPlans[pricingPeriod].map((plan) => (
-                <motion.div
-                  key={plan.id}
-                  variants={itemVariants}
-                  className="relative"
-                >
-                  {plan.isPopular && (
-                    <div className="absolute -top-4 left-0 right-0 flex justify-center">
-                      <span className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium px-4 py-1 rounded-full flex items-center">
-                        <Sparkles className="h-3.5 w-3.5 mr-1" />
-                        Most Popular
-                      </span>
-                    </div>
-                  )}
-                  <div
-                    className={`bg-white rounded-2xl shadow-xl border ${
-                      plan.isPopular
-                        ? "border-blue-200 ring-2 ring-blue-500/20"
-                        : "border-gray-200"
-                    } overflow-hidden h-full flex flex-col transition-transform duration-300 hover:scale-105 hover:shadow-2xl`}
-                  >
-                    <div className="p-8">
-                      <h3 className="text-xl font-bold text-gray-900">
-                        {plan.name}
-                      </h3>
-                      <p className="text-gray-500 mt-2 min-h-12">
-                        {plan.description}
-                      </p>
-
-                      <div className="mt-6">
-                        <span className="text-4xl font-bold text-gray-900">
-                          {plan.price}
+                <motion.div key={plan.id} variants={itemVariants}>
+                  <PricingCard
+                    name={plan.name}
+                    description={plan.description}
+                    price={plan.price}
+                    period={plan.period}
+                    features={plan.features}
+                    buttonText={plan.buttonText}
+                    isPopular={plan.isPopular}
+                    badge={
+                      plan.isPopular ? (
+                        <span className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium px-4 py-1 rounded-full flex items-center">
+                          <Sparkles className="h-3.5 w-3.5 mr-1" />
+                          Most Popular
                         </span>
-                        <span className="text-gray-500 ml-1">
-                          {plan.period}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="px-8 pb-8 flex-grow">
-                      <div className="border-t border-gray-100 pt-6 mb-6">
-                        <ul className="space-y-4">
-                          {plan.features.map((feature, index) => (
-                            <li key={index} className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                              <span className="text-gray-600">{feature}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <Button
-                        className={`w-full py-6 ${
-                          plan.isPopular
-                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-                            : plan.buttonVariant === "outline"
-                            ? "border-2 border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
-                            : "bg-gray-900 hover:bg-gray-800 text-white"
-                        }`}
-                      >
-                        {plan.buttonText}
-                        {plan.isPopular && (
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
+                      ) : null
+                    }
+                    onClick={() => handlePlanSelection(plan.id)}
+                  />
                 </motion.div>
               ))}
             </motion.div>
@@ -522,46 +512,50 @@ const Pricing = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {[
-                  {
-                    quote:
-                      "The AI-powered coaching has transformed how our team handles objections. We've seen a 34% increase in close rates.",
-                    author: "Sarah Johnson",
-                    role: "Sales Director, TechCorp",
-                  },
-                  {
-                    quote:
-                      "The insights from our call transcripts were game-changing. We identified patterns we never would have seen otherwise.",
-                    author: "Michael Chen",
-                    role: "VP of Sales, GrowthSoft",
-                  },
-                  {
-                    quote:
-                      "Worth every penny. The ROI was clear within the first month as our team's performance dramatically improved.",
-                    author: "Jessica Martinez",
-                    role: "Sales Manager, Innovate Inc",
-                  },
-                ].map((testimonial, index) => (
+                {(
+                  [
+                    {
+                      quote:
+                        "The AI-powered coaching has transformed how our team handles objections. We've seen a 34% increase in close rates.",
+                      name: "Sarah Johnson",
+                      title: "Sales Director, TechCorp",
+                      rating: 5,
+                      gradientFrom: "blue-600",
+                      gradientTo: "indigo-600",
+                    },
+                    {
+                      quote:
+                        "The insights from our call transcripts were game-changing. We identified patterns we never would have seen otherwise.",
+                      name: "Michael Chen",
+                      title: "VP of Sales, GrowthSoft",
+                      rating: 5,
+                      gradientFrom: "indigo-500",
+                      gradientTo: "purple-600",
+                    },
+                    {
+                      quote:
+                        "Worth every penny. The ROI was clear within the first month as our team's performance dramatically improved.",
+                      name: "Jessica Martinez",
+                      title: "Sales Manager, Innovate Inc",
+                      rating: 4,
+                      gradientFrom: "blue-500",
+                      gradientTo: "blue-700",
+                    },
+                  ] as TestimonialItem[]
+                ).map((testimonial, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 * index }}
-                    className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100"
                   >
-                    <div className="flex-1">
-                      <p className="text-gray-700 mb-6 italic">
-                        "{testimonial.quote}"
-                      </p>
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {testimonial.author}
-                        </p>
-                        <p className="text-gray-500 text-sm">
-                          {testimonial.role}
-                        </p>
-                      </div>
-                    </div>
+                    <TestimonialCard
+                      quote={testimonial.quote}
+                      name={testimonial.name}
+                      title={testimonial.title}
+                      gradientFrom={testimonial.gradientFrom}
+                      gradientTo={testimonial.gradientTo}
+                    />
                   </motion.div>
                 ))}
               </div>

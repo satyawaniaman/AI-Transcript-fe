@@ -465,7 +465,6 @@ const Index = () => {
               quote="The objection handling advice alone is worth the price. I've seen a 15% increase in my close rate since using SalesCoach.guru."
               name="Sarah Johnson"
               title="Account Executive, TechCorp"
-              rating={5}
               gradientFrom="blue-500"
               gradientTo="blue-700"
             />
@@ -473,7 +472,6 @@ const Index = () => {
               quote="As a new sales rep, this tool has been invaluable for my training. I can learn from my calls and improve much faster."
               name="Michael Chen"
               title="SDR, GrowthSoft"
-              rating={5}
               gradientFrom="teal-500"
               gradientTo="teal-700"
             />
@@ -481,7 +479,6 @@ const Index = () => {
               quote="I was skeptical at first, but the insights are spot on. It's like having a sales coach review every one of my calls."
               name="Jessica Miller"
               title="Sales Manager, FinServe"
-              rating={4}
               gradientFrom="purple-500"
               gradientTo="purple-700"
             />

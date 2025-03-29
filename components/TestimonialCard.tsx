@@ -4,7 +4,6 @@ interface TestimonialCardProps {
   quote: string;
   name: string;
   title: string;
-  rating: number;
   initials?: string;
   gradientFrom?: string;
   gradientTo?: string;
@@ -14,7 +13,6 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
   quote,
   name,
   title,
-  rating,
   initials,
   gradientFrom = "blue-500",
   gradientTo = "blue-700",
@@ -71,9 +69,6 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
             {[...Array(5)].map((_, i) => (
               <svg
                 key={i}
-                className={`w-5 h-5 ${
-                  i < rating ? "text-yellow-500" : "text-gray-300"
-                }`}
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -82,9 +77,6 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
               </svg>
             ))}
           </div>
-          <span className="text-gray-400 text-sm ml-2 mt-0.5">
-            {rating}.0 rating
-          </span>
         </div>
       </div>
     </div>
