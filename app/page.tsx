@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -21,8 +22,12 @@ import LeadMagnetForm from "@/components/LeadMagnetForm";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import LandingPagePricing from "@/components/LandingPagePricing";
+import { useState } from "react";
+import { DemoModal } from "@/components/DemoModal";
 
 const Index = () => {
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -316,15 +321,15 @@ const Index = () => {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-
             <div className="mt-8 flex justify-center items-center">
-              <Link
-                href="/demo"
+              <Button
+                variant="ghost"
+                onClick={() => setIsDemoModalOpen(true)}
                 className="flex items-center text-navy-800 hover:text-blue-600 transition-colors"
               >
                 <PlayCircle className="h-5 w-5 mr-2" />
                 <span className="font-medium">Watch Demo</span>
-              </Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -572,6 +577,11 @@ const Index = () => {
       </section>
 
       <Footer />
+
+      <DemoModal
+        isOpen={isDemoModalOpen}
+        onClose={() => setIsDemoModalOpen(false)}
+      />
     </div>
   );
 };
