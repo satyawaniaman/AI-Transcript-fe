@@ -141,7 +141,10 @@ const LandingPagePricing = () => {
   };
 
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <section
+      id="pricing"
+      className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
+    >
       {/* Decorative background elements */}
       <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-full blur-3xl transform -translate-y-1/2"></div>
       <div className="absolute bottom-0 right-0 w-full h-64 bg-gradient-to-l from-purple-500/10 to-pink-500/10 rounded-full blur-3xl transform translate-y-1/2"></div>
