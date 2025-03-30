@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, JSX } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -14,7 +15,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import TeamSelector from "@/components/TeamSelector"; // Import the new TeamSelector
 
 type FileStatus = "idle" | "uploading" | "success" | "error";
 
@@ -25,24 +25,14 @@ interface UploadedFile {
   type: string;
   progress: number;
   status: FileStatus;
-  teamId: string;
   error?: string;
 }
-
-// Sample team data - replace with your actual teams
-const teams = [
-  { id: "team1", name: "Sales Team A", memberCount: 12 },
-  { id: "team2", name: "Sales Team B", memberCount: 8 },
-  { id: "team3", name: "Support Team", memberCount: 15 },
-  { id: "team4", name: "Executive Team", memberCount: 5 },
-];
 
 const UploadPage = () => {
   const navigate = useRouter();
   const [activeTab, setActiveTab] = useState("upload-file");
   const [dragActive, setDragActive] = useState(false);
   const [files, setFiles] = useState<UploadedFile[]>([]);
-  const [selectedTeam, setSelectedTeam] = useState(teams[0].id);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -89,7 +79,6 @@ const UploadPage = () => {
         type: file.type,
         progress: 0,
         status: "idle" as FileStatus,
-        teamId: selectedTeam, // Associate the selected team with the file
       }));
 
     if (newFiles.length > 0) {
@@ -327,18 +316,6 @@ const UploadPage = () => {
                             </div>
                           </div>
 
-                          {/* Per-file team selection */}
-                          {file.status === "success" && (
-                            <div className="mt-2 border-t pt-3">
-                              <TeamSelector
-                                teams={teams}
-                                selectedTeamId={file.teamId}
-                                onSelectTeam={(teamId) =>
-                                  updateFileTeam(file.id, teamId)
-                                }
-                              />
-                            </div>
-                          )}
                         </motion.div>
                       ))}
                     </div>

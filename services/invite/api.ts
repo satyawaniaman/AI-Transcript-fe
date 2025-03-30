@@ -1,0 +1,21 @@
+import { api } from "@/utils/axios";
+import { Role } from "@/services/user/api";
+
+interface InviteRequest {
+  email: string;
+  teamIds: string[];
+  organizationId: string;
+  role: Role;
+}
+
+const inviteToOrganisation = async ({ email, teamIds, role, organizationId }: InviteRequest) => {
+  const response = await api.post('/api/invite', {
+    email,
+    teamIds,
+    role,
+    organizationId
+  });
+  return response.data;
+};
+
+export { inviteToOrganisation };
