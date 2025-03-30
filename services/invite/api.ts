@@ -29,5 +29,12 @@ const acceptInvite = async ({ inviteId }: AcceptInviteRequest) => {
   return response.data;
 };
 
+const getInviteDetails = async (inviteId: string) => {
+  const response = await api.get(`/api/invite`, {
+    params: { inviteId }
+  });
+  return response.data;
+};
 
-export { inviteToOrganisation, acceptInvite };
+
+export { inviteToOrganisation, acceptInvite, getInviteDetails };
