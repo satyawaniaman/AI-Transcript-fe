@@ -1,7 +1,13 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Download, Clock, Calendar, User } from "lucide-react";
@@ -15,7 +21,8 @@ const transcriptData = {
   date: "2023-06-15T14:30:00Z",
   duration: "45:23",
   participants: ["John Smith (Sales Rep)", "Sarah Johnson (Prospect)"],
-  summary: "Product demonstration call for enterprise solution. Prospect showed interest but had concerns about implementation timeline and pricing structure. Multiple objections were addressed regarding integration capabilities and support levels.",
+  summary:
+    "Product demonstration call for enterprise solution. Prospect showed interest but had concerns about implementation timeline and pricing structure. Multiple objections were addressed regarding integration capabilities and support levels.",
   sentiment: {
     overall: 0.65, // 0 to 1 scale, where 1 is most positive
     timeline: [
@@ -36,21 +43,24 @@ const transcriptData = {
       id: "obj-1",
       text: "The implementation timeline seems too long for our needs.",
       time: "12:34",
-      response: "We can work on a phased approach that gets you the core functionality within 2 weeks, then build additional features based on your priorities.",
+      response:
+        "We can work on a phased approach that gets you the core functionality within 2 weeks, then build additional features based on your priorities.",
       effectiveness: 0.8,
     },
     {
       id: "obj-2",
       text: "Your pricing is higher than what we budgeted for this quarter.",
       time: "18:45",
-      response: "We offer flexible payment terms that can spread the cost over multiple quarters, and we can start with a smaller package that fits your current budget.",
+      response:
+        "We offer flexible payment terms that can spread the cost over multiple quarters, and we can start with a smaller package that fits your current budget.",
       effectiveness: 0.6,
     },
     {
       id: "obj-3",
       text: "I'm not sure if your solution will integrate with our existing CRM system.",
       time: "27:15",
-      response: "We have pre-built integrations with all major CRM platforms including the one you're using. I can share documentation on the integration process.",
+      response:
+        "We have pre-built integrations with all major CRM platforms including the one you're using. I can share documentation on the integration process.",
       effectiveness: 0.9,
     },
   ],
@@ -59,29 +69,59 @@ const transcriptData = {
     "Technical questions indicate serious interest but need for validation",
     "Decision timeline mentioned as 'within the next month'",
     "Multiple stakeholders will be involved in final decision",
-    "Competitor mentioned twice during pricing discussion"
+    "Competitor mentioned twice during pricing discussion",
   ],
   recommendations: [
     "Follow up with detailed integration documentation",
     "Provide a customized implementation timeline",
     "Schedule a technical deep dive with their IT team",
     "Offer a phased pricing approach aligned with their quarterly budget",
-    "Prepare ROI comparison with the competitor they mentioned"
+    "Prepare ROI comparison with the competitor they mentioned",
   ],
 };
+
+// Define types for the sentiment data
+interface TimelineItem {
+  time: string;
+  score: number;
+}
+
+interface ChartDataItem {
+  name: string;
+  positive: number;
+  neutral: number;
+  negative: number;
+}
+
+// Transform sentiment timeline data to match SentimentChart props format
+const transformSentimentData = (
+  timelineData: TimelineItem[]
+): ChartDataItem[] => {
+  return timelineData.map((item) => ({
+    name: item.time,
+    positive: item.score * 100, // Convert 0-1 scale to percentage
+    neutral: 50, // Dummy value for demonstration
+    negative: 100 - item.score * 100, // Inverse of positive for demonstration
+  }));
+};
+
+// Create sentiment data for the chart
+const sentimentChartData = transformSentimentData(
+  transcriptData.sentiment.timeline
+);
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return date.toLocaleDateString("en-US", {
     year: "numeric",
-    month: "long", 
+    month: "long",
     day: "numeric",
   });
 };
 
 const Analysis = () => {
   const [activeTab, setActiveTab] = useState("overview");
-  
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -91,7 +131,7 @@ const Analysis = () => {
       },
     },
   };
-  
+
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -102,7 +142,7 @@ const Analysis = () => {
       },
     },
   };
-  
+
   return (
     <>
       <motion.div
@@ -113,7 +153,9 @@ const Analysis = () => {
       >
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{transcriptData.title}</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {transcriptData.title}
+            </h1>
             <div className="flex flex-wrap items-center text-gray-600 mt-2 gap-4">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2" />
@@ -134,15 +176,19 @@ const Analysis = () => {
             Download Report
           </Button>
         </div>
-        
-        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
+
+        <Tabs
+          defaultValue="overview"
+          value={activeTab}
+          onValueChange={setActiveTab}
+        >
           <TabsList className="mb-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="sentiment">Sentiment</TabsTrigger>
             <TabsTrigger value="objections">Objections</TabsTrigger>
             <TabsTrigger value="transcript">Full Transcript</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="overview">
             <motion.div
               variants={containerVariants}
@@ -154,36 +200,39 @@ const Analysis = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle>Call Summary</CardTitle>
-                    <CardDescription>AI-generated summary of the call</CardDescription>
+                    <CardDescription>
+                      AI-generated summary of the call
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-700">{transcriptData.summary}</p>
                   </CardContent>
                 </Card>
               </motion.div>
-              
+
               <motion.div variants={itemVariants}>
                 <Card>
                   <CardHeader>
                     <CardTitle>Sentiment Analysis</CardTitle>
-                    <CardDescription>Overall sentiment trend during the call</CardDescription>
+                    <CardDescription>
+                      Overall sentiment trend during the call
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <SentimentChart 
-                      data={transcriptData.sentiment.timeline} 
-                      timeKey="time"
-                      scoreKey="score"
-                      showLegend={true}
-                    />
+                    <div className="h-64">
+                      <SentimentChart data={sentimentChartData} />
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
-              
+
               <motion.div variants={itemVariants}>
                 <Card>
                   <CardHeader>
                     <CardTitle>Key Insights</CardTitle>
-                    <CardDescription>Important takeaways from the conversation</CardDescription>
+                    <CardDescription>
+                      Important takeaways from the conversation
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
@@ -199,30 +248,36 @@ const Analysis = () => {
                   </CardContent>
                 </Card>
               </motion.div>
-              
+
               <motion.div variants={itemVariants}>
                 <Card>
                   <CardHeader>
                     <CardTitle>Recommendations</CardTitle>
-                    <CardDescription>Suggested next steps based on the analysis</CardDescription>
+                    <CardDescription>
+                      Suggested next steps based on the analysis
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      {transcriptData.recommendations.map((recommendation, index) => (
-                        <li key={index} className="flex items-start">
-                          <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-100 text-green-800 text-sm mr-3 mt-0.5 shrink-0">
-                            {index + 1}
-                          </span>
-                          <span className="text-gray-700">{recommendation}</span>
-                        </li>
-                      ))}
+                      {transcriptData.recommendations.map(
+                        (recommendation, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-100 text-green-800 text-sm mr-3 mt-0.5 shrink-0">
+                              {index + 1}
+                            </span>
+                            <span className="text-gray-700">
+                              {recommendation}
+                            </span>
+                          </li>
+                        )
+                      )}
                     </ul>
                   </CardContent>
                 </Card>
               </motion.div>
             </motion.div>
           </TabsContent>
-          
+
           <TabsContent value="sentiment">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -238,11 +293,15 @@ const Analysis = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="mb-6">
-                    <h3 className="text-lg font-medium mb-2">Overall Sentiment</h3>
+                    <h3 className="text-lg font-medium mb-2">
+                      Overall Sentiment
+                    </h3>
                     <div className="w-full bg-gray-200 rounded-full h-4">
-                      <div 
-                        className="bg-blue-600 h-4 rounded-full" 
-                        style={{ width: `${transcriptData.sentiment.overall * 100}%` }}
+                      <div
+                        className="bg-blue-600 h-4 rounded-full"
+                        style={{
+                          width: `${transcriptData.sentiment.overall * 100}%`,
+                        }}
                       />
                     </div>
                     <div className="flex justify-between mt-2 text-sm text-gray-600">
@@ -251,23 +310,20 @@ const Analysis = () => {
                       <span>Positive</span>
                     </div>
                   </div>
-                  
+
                   <div>
-                    <h3 className="text-lg font-medium mb-4">Sentiment Timeline</h3>
+                    <h3 className="text-lg font-medium mb-4">
+                      Sentiment Timeline
+                    </h3>
                     <div className="h-80">
-                      <SentimentChart 
-                        data={transcriptData.sentiment.timeline} 
-                        timeKey="time"
-                        scoreKey="score"
-                        showLegend={true}
-                      />
+                      <SentimentChart data={sentimentChartData} />
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
           </TabsContent>
-          
+
           <TabsContent value="objections">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -287,7 +343,7 @@ const Analysis = () => {
               </Card>
             </motion.div>
           </TabsContent>
-          
+
           <TabsContent value="transcript">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -306,34 +362,48 @@ const Analysis = () => {
                     {/* This would render the full transcript with actual data */}
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <div className="flex justify-between mb-1">
-                        <span className="font-medium">John Smith (Sales Rep)</span>
+                        <span className="font-medium">
+                          John Smith (Sales Rep)
+                        </span>
                         <span className="text-gray-500 text-sm">0:00</span>
                       </div>
                       <p className="text-gray-700">
-                        Hi Sarah, thank you for taking the time to join this call today. I&apos;m excited to show you our product and how it can help solve the challenges we discussed last week.
+                        Hi Sarah, thank you for taking the time to join this
+                        call today. I&apos;m excited to show you our product and
+                        how it can help solve the challenges we discussed last
+                        week.
                       </p>
                     </div>
-                    
+
                     <div className="p-3 bg-blue-50 rounded-lg">
                       <div className="flex justify-between mb-1">
-                        <span className="font-medium">Sarah Johnson (Prospect)</span>
+                        <span className="font-medium">
+                          Sarah Johnson (Prospect)
+                        </span>
                         <span className="text-gray-500 text-sm">0:18</span>
                       </div>
                       <p className="text-gray-700">
-                        Thanks for having me, John. I&apos;ve been looking forward to seeing the solution in action after our initial discussion.
+                        Thanks for having me, John. I&apos;ve been looking
+                        forward to seeing the solution in action after our
+                        initial discussion.
                       </p>
                     </div>
-                    
+
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <div className="flex justify-between mb-1">
-                        <span className="font-medium">John Smith (Sales Rep)</span>
+                        <span className="font-medium">
+                          John Smith (Sales Rep)
+                        </span>
                         <span className="text-gray-500 text-sm">0:32</span>
                       </div>
                       <p className="text-gray-700">
-                        Great! Before we dive into the demo, I&apos;d like to quickly confirm the key points from our last conversation to make sure we&apos;re focusing on what matters most to you.
+                        Great! Before we dive into the demo, I&apos;d like to
+                        quickly confirm the key points from our last
+                        conversation to make sure we&apos;re focusing on what
+                        matters most to you.
                       </p>
                     </div>
-                    
+
                     {/* Add more transcript entries as needed */}
                   </div>
                 </CardContent>
@@ -346,4 +416,4 @@ const Analysis = () => {
   );
 };
 
-export default Analysis; 
+export default Analysis;
