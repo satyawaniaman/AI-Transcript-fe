@@ -15,6 +15,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { generatePresignedUrls } from "./action";
+import { createClient } from "@/utils/supabase/client";
 
 type FileStatus = "idle" | "uploading" | "success" | "error";
 
@@ -26,6 +28,7 @@ interface UploadedFile {
   progress: number;
   status: FileStatus;
   error?: string;
+  originalFile: File;
 }
 
 const UploadPage = () => {
@@ -61,7 +64,7 @@ const UploadPage = () => {
     }
   };
 
-  const handleFiles = (fileList: FileList) => {
+  const handleFiles = async (fileList: FileList) => {
     const allowedTypes = [
       "text/plain", // .txt
       "application/pdf", // .pdf
@@ -79,54 +82,44 @@ const UploadPage = () => {
         type: file.type,
         progress: 0,
         status: "idle" as FileStatus,
+        originalFile: file,
       }));
 
     if (newFiles.length > 0) {
       setFiles((prev) => [...prev, ...newFiles]);
-      simulateFileUpload(newFiles);
+
+      // Get userId from your authentication context or state
+      const supabase = await createClient();
+      const userId = (await supabase.auth.getSession()).data.session?.user.id;
+      console.log(userId); // Replace with actual user ID retrieval logic
+
+      try {
+        const presignedUrls = await generatePresignedUrls(newFiles.map(file => file.name), "application/octet-stream", userId);
+        await uploadFilesToBucket(newFiles, presignedUrls);
+      } catch (error) {
+        console.error("Error uploading files:", error);
+      }
     }
   };
 
-  const simulateFileUpload = (newFiles: UploadedFile[]) => {
-    // Simulate file upload for each file
-    newFiles.forEach((file) => {
-      // Start "uploading"
-      setFiles((files) =>
-        files.map((f) => (f.id === file.id ? { ...f, status: "uploading" } : f))
-      );
+  const uploadFilesToBucket = async (files: UploadedFile[], presignedUrls: string[]) => {
+    await Promise.all(files.map(async (file, index) => {
+      const response = await fetch(presignedUrls[index], {
+        method: 'PUT',
+        body: file.originalFile,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
 
-      // Simulate progress updates
-      const interval = setInterval(() => {
-        setFiles((files) => {
-          const updatedFiles = files.map((f) => {
-            if (f.id === file.id) {
-              const newProgress = Math.min(f.progress + 10, 100);
-              return {
-                ...f,
-                progress: newProgress,
-                // Set to success when it reaches 100%
-                status: newProgress === 100 ? "success" : f.status,
-              };
-            }
-            return f;
-          });
-
-          // If this file is done uploading, clear the interval
-          const currentFile = updatedFiles.find((f) => f.id === file.id);
-          if (currentFile?.progress === 100) {
-            clearInterval(interval);
-          }
-
-          return updatedFiles;
-        });
-      }, 300);
-    });
-  };
-
-  const updateFileTeam = (fileId: string, teamId: string) => {
-    setFiles((files) =>
-      files.map((f) => (f.id === fileId ? { ...f, teamId } : f))
-    );
+      if (response.ok) {
+        // Update file status to success
+        setFiles((prev) => prev.map(f => f.id === file.id ? { ...f, status: "success" } : f));
+      } else {
+        // Handle error
+        setFiles((prev) => prev.map(f => f.id === file.id ? { ...f, status: "error", error: "Upload failed" } : f));
+      }
+    }));
   };
 
   const fileIconMap: Record<string, JSX.Element> = {
