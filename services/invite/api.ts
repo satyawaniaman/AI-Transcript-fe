@@ -18,4 +18,16 @@ const inviteToOrganisation = async ({ email, teamIds, role, organizationId }: In
   return response.data;
 };
 
-export { inviteToOrganisation };
+interface AcceptInviteRequest {
+  inviteId: string;
+}
+
+const acceptInvite = async ({ inviteId }: AcceptInviteRequest) => {
+  const response = await api.post('/api/invite/accept', {
+    inviteId
+  });
+  return response.data;
+};
+
+
+export { inviteToOrganisation, acceptInvite };
