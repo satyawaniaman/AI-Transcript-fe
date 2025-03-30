@@ -94,8 +94,17 @@ const UploadPage = () => {
       console.log(userId); // Replace with actual user ID retrieval logic
 
       try {
-        const presignedUrls = await generatePresignedUrls(newFiles.map(file => file.name), "application/octet-stream", userId);
-        await uploadFilesToBucket(newFiles, presignedUrls);
+        const presignedUrls = await generatePresignedUrls(newFiles.map(file => file.name), "application/octet-stream", userId as string);
+        
+        // Filter out any undefined URLs
+        const validUrls = presignedUrls.filter((url): url is string => url !== undefined);
+
+        if (validUrls.length === 0) {
+          console.log("No valid presigned URLs generated.");
+          return; // Exit if no valid URLs
+        }
+
+        await uploadFilesToBucket(newFiles, validUrls);
       } catch (error) {
         console.error("Error uploading files:", error);
       }
