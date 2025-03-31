@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Video from "next-video";
-
+import demo from "@/videos/demo.mp4";
 interface DemoModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -22,8 +22,7 @@ export function DemoModal({ isOpen, onClose }: DemoModalProps) {
         </DialogHeader>
         <div className="aspect-video w-full">
           <Video
-            src="https://stream.mux.com/SavitEXe1398bxRG4ei8WvSGdgy02T47d2ENhHbBYjFY.m3u8"
-            poster="https://image.mux.com/SavitEXe1398bxRG4ei8WvSGdgy02T47d2ENhHbBYjFY/thumbnail.webp"
+            src="https://stream.mux.com/uZgrdliSCJCQe9pJE1oQVU4vr7chdFJSbZCtyp5n9bk.m3u8"
             controls
             className="w-full h-full"
           />
