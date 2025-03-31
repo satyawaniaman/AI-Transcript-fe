@@ -29,7 +29,7 @@ const Navbar = () => {
               Pricing
             </Link>
             <Link href="/#how-it-works" className="nav-link">
-              Blog
+              How it works
             </Link>
             <Link href="/microApp" className="nav-link">
               Objection Analyzer
@@ -83,7 +83,7 @@ const Navbar = () => {
               className="block nav-link"
               onClick={() => setIsMenuOpen(false)}
             >
-              Blog
+              How it works
             </Link>
             <Link
               href="/microApp"
