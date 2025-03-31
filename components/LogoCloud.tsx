@@ -1,5 +1,5 @@
 "use client";
-import React, { use } from "react";
+import React from "react";
 import Image from "next/image";
 
 const LogoCloud = () => {
@@ -47,11 +47,12 @@ const LogoCloud = () => {
         {/* Logo animation container */}
         <div className="relative">
           {/* Hide scrollbar and overflow */}
-          <div className="overflow-hidden whitespace-nowrap relative">
-            {/* First set of logos */}
-            <div className="inline-block animate-marquee">
+          <div className="overflow-hidden relative">
+            {/* Marquee container */}
+            <div className="flex logo-marquee">
+              {/* First set of logos */}
               {companyLogos.map((company, index) => (
-                <div key={`first-${index}`} className="inline-block mx-8">
+                <div key={`first-${index}`} className="flex-shrink-0 mx-8">
                   <Image
                     src={company.imgSrc}
                     alt={company.alt}
@@ -61,15 +62,23 @@ const LogoCloud = () => {
                   />
                 </div>
               ))}
-            </div>
 
-            {/* Second set of logos for seamless loop */}
-            <div
-              className="inline-block animate-marquee"
-              style={{ animationDelay: "0ms" }}
-            >
+              {/* Duplicate set of logos for seamless loop */}
               {companyLogos.map((company, index) => (
-                <div key={`second-${index}`} className="inline-block mx-8">
+                <div key={`second-${index}`} className="flex-shrink-0 mx-8">
+                  <Image
+                    src={company.imgSrc}
+                    alt={company.alt}
+                    className="h-10 md:h-12 w-auto object-contain filter grayscale opacity-80 hover:opacity-100 hover:grayscale-0 transition-all duration-300"
+                    width={120}
+                    height={60}
+                  />
+                </div>
+              ))}
+
+              {/* Third set to ensure there's always content visible */}
+              {companyLogos.map((company, index) => (
+                <div key={`third-${index}`} className="flex-shrink-0 mx-8">
                   <Image
                     src={company.imgSrc}
                     alt={company.alt}
@@ -88,15 +97,19 @@ const LogoCloud = () => {
       <style jsx global>{`
         @keyframes marquee {
           0% {
-            transform: translateX(0%);
+            transform: translateX(0);
           }
           100% {
-            transform: translateX(-100%);
+            transform: translateX(
+              calc(-1 * (120px + 2rem) * ${companyLogos.length})
+            );
           }
         }
 
-        .animate-marquee {
+        .logo-marquee {
+          display: flex;
           animation: marquee 20s linear infinite;
+          width: fit-content;
         }
       `}</style>
     </section>

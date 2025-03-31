@@ -29,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import SentimentChart from "@/components/SentimentChart";
 import { ObjectionChart } from "@/components/ObjectionChart";
+import { CategoryTrendChart } from "@/components/CategoryTrendChart";
 
 const InsightsPage: React.FC = () => {
   const containerVariants = {
@@ -265,7 +266,8 @@ const InsightsPage: React.FC = () => {
 
               {/* Objection Trends */}
               <motion.div variants={itemVariants}>
-                <ObjectionChart />
+                {/* <ObjectionChart /> */}
+                {<CategoryTrendChart />}
               </motion.div>
 
               {/* Sentiment Trends */}
