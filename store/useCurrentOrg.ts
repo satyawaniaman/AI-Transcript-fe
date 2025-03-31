@@ -1,13 +1,36 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+export interface Organization {
+    name: string;
+    phone: string | null;
+    address: string | null;
+    city: string | null;
+    state: string | null;
+    zip: string | null;
+    country: string | null;
+    createdAt: string; // ISO date string
+    updatedAt: string; // ISO date string
+    id: string;
+}
+
+// interface UserOrganization {
+//     userId: string;
+//     organizationId: string;
+//     role: "ADMIN" | "USER" | "GUEST"; // Add other roles as necessary
+//     organization: Organization;
+// }
+
+// type Organizations = UserOrganization[];
+
+
 const useCurrentOrg = create(
     persist<{
-        currentOrg: string;
-        setCurrentOrg: (org: string) => void;
+        currentOrg: Organization | null;
+        setCurrentOrg: (org: Organization) => void;
     }>(
         (set) => ({
-            currentOrg: "",
+            currentOrg: null,
             setCurrentOrg: (org) => set(() => ({ currentOrg: org })),
         }),
         { name: "currentOrg" }

@@ -31,7 +31,7 @@ import {
 import { createClient } from "@/utils/supabase/client";
 import { useGetUser } from "@/services/user/query";
 import DashboardLayoutSkeleton from "@/components/DashboardLayoutSkeleton";
-import useCurrentOrg from "@/store/useCurrentOrg";
+import useCurrentOrg, { Organization } from "@/store/useCurrentOrg";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -95,8 +95,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const { setCurrentOrg } = useCurrentOrg();
   useEffect(() => {
     if (user) {
-      const currOrg = user.organizations?.[0]?.organization?.name || "";
-      setCurrentOrg(currOrg);
+      const currOrg = user.organizations?.[0]?.organization;
+      setCurrentOrg(currOrg as Organization);
     }
   }, [user]);
 

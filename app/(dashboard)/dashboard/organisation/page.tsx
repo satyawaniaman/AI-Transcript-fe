@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Plus, ArrowRight, Building2 } from "lucide-react";
 import { useGetUser } from "@/services/user/query";
-import useCurrentOrg from "@/store/useCurrentOrg";
+import useCurrentOrg, { Organization } from "@/store/useCurrentOrg";
 import { useGetOrgs } from "@/services/organisation/query";
 
 export default function OrganizationPage() {
@@ -20,7 +20,7 @@ export default function OrganizationPage() {
   const { data: orgs, isLoading } = useGetOrgs();
   const { setCurrentOrg } = useCurrentOrg();
 
-  const handleSelectOrg = (orgName: string) => {
+  const handleSelectOrg = (orgName: Organization) => {
     setCurrentOrg(orgName);
     router.push("/dashboard");
   };
@@ -35,9 +35,9 @@ export default function OrganizationPage() {
     }&backgroundColor=0284c7`;
   };
 
-  const handleOrgInfo = (name: string) => {
-    setCurrentOrg(name);
-    router.push(`/dashboard/organisation/${name}`);
+  const handleOrgInfo = (org: Organization) => {
+    setCurrentOrg(org);
+    router.push(`/dashboard/organisation/${org.id}`);
   };
 
   return (
@@ -79,7 +79,7 @@ export default function OrganizationPage() {
                   <Card
                     key={org.organization.id}
                     className="shadow-sm hover:shadow-md transition-shadow duration-300 transform hover:-translate-y-1 hover:bg-blue-50 cursor-pointer border border-transparent hover:border-blue-200"
-                    onClick={() => handleOrgInfo(org.organization.name)}
+                    onClick={() => handleOrgInfo(org.organization as Organization)}
                   >
                     <CardHeader className="pb-2">
                       <CardTitle>{org.organization.name}</CardTitle>
@@ -111,7 +111,7 @@ export default function OrganizationPage() {
                         className="w-full bg-[#0284c7] hover:bg-blue-600 cursor-pointer transition-colors duration-300"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleSelectOrg(org.organization.name);
+                          handleSelectOrg(org.organization as Organization);
                         }}
                       >
                         Select Organization{" "}
