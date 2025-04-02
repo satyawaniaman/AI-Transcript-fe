@@ -18,35 +18,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGetTeamById } from "@/services/teams/query";
 
-// TypeScript interfaces for our data
-interface TeamMember {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  avatarUrl: string;
-  metrics: {
-    calls: number;
-    objections: number;
-    closingRate: number;
-    transcripts: number;
-  };
-}
-
-interface Team {
-  name: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-  id: string;
-  organizationId: string;
-}
-
-// Define type for TeamMembers object
-interface TeamMembersMap {
-  [key: string]: TeamMember[];
-}
-
 const TeamDetailPage = () => {
   const router = useRouter();
   const params = useParams();
@@ -95,23 +66,6 @@ const TeamDetailPage = () => {
     );
   }
 
-  // dummy data for now
-  const members = [
-    {
-      id: "1",
-      name: "John Doe",
-      email: "john.doe@example.com",
-      role: "sales-rep",
-      avatarUrl: "https://via.placeholder.com/150",
-      metrics: {
-        calls: 100,
-        objections: 50,
-        closingRate: 75,
-        transcripts: 10,
-      },
-    },
-  ];
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -131,14 +85,14 @@ const TeamDetailPage = () => {
 
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{team.data.name}</h1>
-            {team.data.description && (
-              <p className="text-gray-600 mt-1">{team.data.description}</p>
+            <h1 className="text-3xl font-bold text-gray-900">{team.name}</h1>
+            {team.description && (
+              <p className="text-gray-600 mt-1">{team.description}</p>
             )}
             <div className="mt-2 flex flex-wrap gap-2 text-sm text-gray-500">
-              <span>Created: {team.data.createdAt}</span>
+              <span>Created: {team.createdAt}</span>
               <span>•</span>
-              <span>Last active: {team.data.updatedAt}</span>
+              <span>Last active: {team.updatedAt}</span>
               <span>•</span>
               <span>{1} members</span>
             </div>
@@ -152,42 +106,42 @@ const TeamDetailPage = () => {
           <h2 className="text-xl font-semibold text-gray-900">Team Members</h2>
         </div>
 
-        {members.length > 0 ? (
+        { team.members.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
-            {members.map((member) => (
+            {team.members.map((member) => (
               <Card
-                key={member.id}
+                key={member.userId}
                 className="cursor-pointer hover:bg-gray-50 transition-colors duration-200"
-                onClick={() => handleNavigateToMember(member.id)}
+                onClick={() => handleNavigateToMember(member.userId)}
               >
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center">
                     <Avatar className="h-10 w-10 mr-4">
-                      <AvatarImage src={member.avatarUrl} alt={member.name} />
+                      <AvatarImage src={""} alt={member.userOrg.user.firstName} />
                       <AvatarFallback>
-                        {member.name
+                        {member.userOrg.user.firstName
                           .split(" ")
                           .map((n) => n[0])
                           .join("")}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium text-gray-900">{member.name}</p>
-                      <p className="text-sm text-gray-500">{member.email}</p>
+                      <p className="font-medium text-gray-900">{member.userOrg.user.firstName}</p>
+                      <p className="text-sm text-gray-500">{member.userOrg.user.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center text-sm text-gray-600">
                       <Phone className="h-4 w-4 mr-1" />
-                      <span>{member.metrics.calls}</span>
+                      <span>{"3"}</span>
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
                       <AlertCircle className="h-4 w-4 mr-1" />
-                      <span>{member.metrics.objections}</span>
+                      <span>{"5"}</span>
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
                       <FileText className="h-4 w-4 mr-1" />
-                      <span>{member.metrics.transcripts}</span>
+                      <span>{"4"}</span>
                     </div>
                     <ChevronRight className="h-4 w-4 text-gray-400" />
                   </div>
