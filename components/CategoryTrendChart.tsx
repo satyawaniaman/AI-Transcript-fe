@@ -143,7 +143,7 @@ const createCategoryData = () => {
   });
 
   // Competition objections: Cyclical with weekly pattern
-  const competition = chartData.map((item, index) => {
+  const competition = chartData.map((item) => {
     const date = new Date(item.date);
     const dayOfWeek = date.getDay();
     // Higher on weekdays (Mon-Fri), lower on weekends
@@ -161,7 +161,7 @@ const createCategoryData = () => {
   });
 
   // Stakeholder objections: Low volume but with specific event-based spikes
-  const stakeholders = chartData.map((item, index) => {
+  const stakeholders = chartData.map((item) => {
     const date = new Date(item.date);
     const dayOfMonth = date.getDate();
     const monthIndex = date.getMonth();
@@ -277,7 +277,6 @@ export function CategoryTrendChart() {
   };
 
   const trendPercentage = calculateTrendPercentage();
-  const isTrendingUp = parseFloat(trendPercentage.toString()) > 0;
 
   // Define tooltip props interface
   interface TooltipProps {

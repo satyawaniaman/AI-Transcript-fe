@@ -46,7 +46,9 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
 
       <div className="flex flex-col h-full">
         <div className="flex-grow">
-          <p className="text-gray-700 italic mb-6 leading-relaxed">"{quote}"</p>
+          <p className="text-gray-700 italic mb-6 leading-relaxed">
+            {quote.toString()}
+          </p>
         </div>
 
         <div className="flex items-center mt-4">

@@ -5,7 +5,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Video from "next-video";
-import demo from "@/videos/demo.mp4";
 interface DemoModalProps {
   isOpen: boolean;
   onClose: () => void;
