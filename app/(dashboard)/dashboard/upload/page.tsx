@@ -18,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { generatePresignedUrls } from "./action";
 import { createClient } from "@/utils/supabase/client";
 
-type FileStatus = "idle" | "uploading" | "success" | "error";
+type FileStatus = "idle" | "uploading" | "extracting" | "success" | "error";
 
 interface UploadedFile {
   id: string;
@@ -94,10 +94,16 @@ const UploadPage = () => {
       console.log(userId); // Replace with actual user ID retrieval logic
 
       try {
-        const presignedUrls = await generatePresignedUrls(newFiles.map(file => file.name), "application/octet-stream", userId as string);
-        
+        const presignedUrls = await generatePresignedUrls(
+          newFiles.map((file) => file.name),
+          "application/octet-stream",
+          userId as string
+        );
+
         // Filter out any undefined URLs
-        const validUrls = presignedUrls.filter((url): url is string => url !== undefined);
+        const validUrls = presignedUrls.filter(
+          (url): url is string => url !== undefined
+        );
 
         if (validUrls.length === 0) {
           console.log("No valid presigned URLs generated.");
@@ -111,24 +117,85 @@ const UploadPage = () => {
     }
   };
 
-  const uploadFilesToBucket = async (files: UploadedFile[], presignedUrls: string[]) => {
-    await Promise.all(files.map(async (file, index) => {
-      const response = await fetch(presignedUrls[index], {
-        method: 'PUT',
-        body: file.originalFile,
-        headers: {
-          'Content-Type': file.type,
-        },
-      });
+  const uploadFilesToBucket = async (
+    files: UploadedFile[],
+    presignedUrls: string[]
+  ) => {
+    await Promise.all(
+      files.map(async (file, index) => {
+        try {
+          // Update file status to uploading
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.id === file.id ? { ...f, status: "uploading", progress: 0 } : f
+            )
+          );
 
-      if (response.ok) {
-        // Update file status to success
-        setFiles((prev) => prev.map(f => f.id === file.id ? { ...f, status: "success" } : f));
-      } else {
-        // Handle error
-        setFiles((prev) => prev.map(f => f.id === file.id ? { ...f, status: "error", error: "Upload failed" } : f));
-      }
-    }));
+          // Simulate upload progress
+          const progressInterval = setInterval(() => {
+            setFiles((prev) =>
+              prev.map((f) =>
+                f.id === file.id && f.progress < 90
+                  ? { ...f, progress: f.progress + 10 }
+                  : f
+              )
+            );
+          }, 300);
+
+          const response = await fetch(presignedUrls[index], {
+            method: "PUT",
+            body: file.originalFile,
+            headers: {
+              "Content-Type": file.type,
+            },
+          });
+
+          clearInterval(progressInterval);
+
+          if (response.ok) {
+            // Update file status to extracting
+            setFiles((prev) =>
+              prev.map((f) =>
+                f.id === file.id
+                  ? { ...f, status: "extracting", progress: 100 }
+                  : f
+              )
+            );
+
+            // Simulate extraction process
+            setTimeout(() => {
+              setFiles((prev) =>
+                prev.map((f) =>
+                  f.id === file.id ? { ...f, status: "success" } : f
+                )
+              );
+            }, 1500); // Simulate 1.5s extraction time
+          } else {
+            // Handle error
+            setFiles((prev) =>
+              prev.map((f) =>
+                f.id === file.id
+                  ? { ...f, status: "error", error: "Upload failed" }
+                  : f
+              )
+            );
+          }
+        } catch (error) {
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.id === file.id
+                ? { ...f, status: "error", error: "Upload failed" }
+                : f
+            )
+          );
+        }
+      })
+    );
+  };
+
+  // Add removeFile function
+  const removeFile = (fileId: string) => {
+    setFiles((prev) => prev.filter((file) => file.id !== fileId));
   };
 
   const fileIconMap: Record<string, JSX.Element> = {
@@ -215,7 +282,6 @@ const UploadPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-
                 <div
                   className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
                     dragActive
@@ -290,10 +356,13 @@ const UploadPage = () => {
                                     {formatFileSize(file.size)}
                                   </p>
                                 </div>
-                                <div>
-                                  {file.status === "uploading" && (
-                                    <span className="text-blue-500 text-sm">
-                                      Uploading...
+                                <div className="flex items-center">
+                                  {(file.status === "uploading" ||
+                                    file.status === "extracting") && (
+                                    <span className="text-blue-500 text-sm mr-2">
+                                      {file.status === "uploading"
+                                        ? "Uploading..."
+                                        : "Extracting..."}
                                     </span>
                                   )}
                                   {file.status === "success" && (
@@ -302,13 +371,35 @@ const UploadPage = () => {
                                   {file.status === "error" && (
                                     <XCircle className="h-5 w-5 text-red-500" />
                                   )}
+                                  <button
+                                    onClick={() => removeFile(file.id)}
+                                    className="ml-2 text-gray-400 hover:text-gray-600"
+                                    aria-label="Remove file"
+                                  >
+                                    <XCircle className="h-5 w-5" />
+                                  </button>
                                 </div>
                               </div>
-                              {file.status === "uploading" && (
-                                <Progress
-                                  value={file.progress}
-                                  className="h-2 mt-2"
-                                />
+                              {(file.status === "uploading" ||
+                                file.status === "extracting") && (
+                                <div className="mt-2">
+                                  <Progress
+                                    value={file.progress}
+                                    className="h-2"
+                                    // Change color based on status
+                                    style={{
+                                      backgroundColor:
+                                        file.status === "extracting"
+                                          ? "#EBF5FF"
+                                          : undefined,
+                                    }}
+                                  />
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {file.status === "uploading"
+                                      ? "Uploading file to server..."
+                                      : "Extracting content..."}
+                                  </p>
+                                </div>
                               )}
                               {file.error && (
                                 <p className="text-sm text-red-500 mt-1">
@@ -317,7 +408,6 @@ const UploadPage = () => {
                               )}
                             </div>
                           </div>
-
                         </motion.div>
                       ))}
                     </div>
@@ -327,7 +417,10 @@ const UploadPage = () => {
                         variant="default"
                         className="w-full"
                         disabled={files.some(
-                          (f) => f.status === "uploading" || f.status === "idle"
+                          (f) =>
+                            f.status === "uploading" ||
+                            f.status === "extracting" ||
+                            f.status === "idle"
                         )}
                         onClick={handleAnalyzeClick}
                       >
@@ -349,7 +442,6 @@ const UploadPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
