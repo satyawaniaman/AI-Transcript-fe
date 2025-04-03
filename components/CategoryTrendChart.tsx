@@ -255,26 +255,26 @@ const categoryColors = {
 
 export function CategoryTrendChart() {
   // Calculate trend percentage - using the Price category as an example
-  const calculateTrendPercentage = () => {
-    const priceData = categoryData.price;
-    const lastMonthData = priceData.slice(-10);
-    const previousMonthData = priceData.slice(-20, -10);
+  // const calculateTrendPercentage = () => {
+  //   const priceData = categoryData.price;
+  //   const lastMonthData = priceData.slice(-10);
+  //   const previousMonthData = priceData.slice(-20, -10);
 
-    const lastMonthTotal = lastMonthData.reduce(
-      (sum, item) => sum + item.total,
-      0
-    );
-    const previousMonthTotal = previousMonthData.reduce(
-      (sum, item) => sum + item.total,
-      0
-    );
+  //   const lastMonthTotal = lastMonthData.reduce(
+  //     (sum, item) => sum + item.total,
+  //     0
+  //   );
+  //   const previousMonthTotal = previousMonthData.reduce(
+  //     (sum, item) => sum + item.total,
+  //     0
+  //   );
 
-    if (previousMonthTotal === 0) return 0;
+  //   if (previousMonthTotal === 0) return 0;
 
-    const percentageChange =
-      ((lastMonthTotal - previousMonthTotal) / previousMonthTotal) * 100;
-    return percentageChange.toFixed(1).toString();
-  };
+  //   const percentageChange =
+  //     ((lastMonthTotal - previousMonthTotal) / previousMonthTotal) * 100;
+  //   return percentageChange.toFixed(1).toString();
+  // };
 
   // Define tooltip props interface
   interface TooltipProps {
