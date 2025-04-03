@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
-import {toast} from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 
@@ -32,7 +32,8 @@ export default function GoogleSignin() {
         throw error;
       }
     } catch (error) {
-      toast.error("There was an error logging in with Google.")
+      console.log(error);
+      toast.error("There was an error logging in with Google.");
       setIsGoogleLoading(false);
     }
   }

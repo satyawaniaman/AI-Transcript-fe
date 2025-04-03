@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import SentimentChart from "@/components/SentimentChart";
 import LeadMagnetForm from "@/components/LeadMagnetForm";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";

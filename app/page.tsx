@@ -10,17 +10,13 @@ import {
   Shield,
   Upload,
   Sparkles,
-  Check,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import LogoCloud from "@/components/LogoCloud";
 import HeroIllustration from "@/components/HeroIllustration";
 import TestimonialCard from "@/components/TestimonialCard";
-import PricingCard from "@/components/PricingCard";
 import LeadMagnetForm from "@/components/LeadMagnetForm";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { motion } from "framer-motion";
 import LandingPagePricing from "@/components/LandingPagePricing";
 import { useState } from "react";
 import { DemoModal } from "@/components/DemoModal";
@@ -449,10 +445,10 @@ const Index = () => {
 
         {/* Large quote marks */}
         <div className="absolute left-0 top-1/3 text-[120px] font-serif text-blue-500/10 -z-10 hidden lg:block">
-          "
+          &quot;
         </div>
         <div className="absolute right-0 bottom-1/3 text-[120px] font-serif text-blue-500/10 -z-10 hidden lg:block">
-          "
+          &quot;
         </div>
 
         <div className="container mx-auto max-w-7xl relative z-10">

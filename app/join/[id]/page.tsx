@@ -141,7 +141,7 @@ const JoinPage = () => {
                   {invitationDetails.invitationMessage && (
                     <div className="mt-3 pt-3 border-t border-blue-200">
                       <p className="italic text-gray-600 text-sm">
-                        "{invitationDetails.invitationMessage}"
+                        {invitationDetails.invitationMessage}
                       </p>
                     </div>
                   )}
@@ -203,6 +203,7 @@ const LoginForm: React.FC<FormProps> = ({
   invitationId,
   invitationDetails,
 }) => {
+  console.log(invitationId, invitationDetails);
   const schema = zod.object({
     email: zod.string().email("Please enter a valid email address"),
     password: zod.string().min(6, "Password must be at least 6 characters"),
@@ -334,6 +335,7 @@ const SignupForm: React.FC<FormProps> = ({
   invitationId,
   invitationDetails,
 }) => {
+  console.log(invitationId);
   const schema = zod.object({
     firstName: zod.string().min(1, "First name is required"),
     lastName: zod.string().min(1, "Last name is required"),

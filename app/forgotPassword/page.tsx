@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -51,6 +50,7 @@ const ForgotPassword = () => {
         setIsSubmitted(true);
       }
     } catch (error) {
+      console.log(error);
       setServerError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);

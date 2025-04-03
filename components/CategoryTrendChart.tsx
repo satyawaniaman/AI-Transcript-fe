@@ -11,13 +11,11 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { TrendingUp } from "lucide-react";
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -98,7 +96,7 @@ const chartData = [
 // Create category-specific mock data with distinct patterns
 const createCategoryData = () => {
   // Price objections: High volume, seasonal pattern with peaks in mid-month
-  const price = chartData.map((item, index) => {
+  const price = chartData.map((item) => {
     const date = new Date(item.date);
     const dayOfMonth = date.getDate();
     // Create a mid-month peak pattern
@@ -114,7 +112,7 @@ const createCategoryData = () => {
   });
 
   // Timing objections: Spiky pattern with specific peaks
-  const timing = chartData.map((item, index) => {
+  const timing = chartData.map((item) => {
     const date = new Date(item.date);
     const dayOfMonth = date.getDate();
     const isSpike = dayOfMonth % 10 <= 2;

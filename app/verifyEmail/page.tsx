@@ -8,20 +8,22 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const VerifyEmail = () => {
-  const [verificationState, setVerificationState] = useState<"loading" | "success" | "error">("loading");
+  const [verificationState, setVerificationState] = useState<
+    "loading" | "success" | "error"
+  >("loading");
   const location = usePathname();
-  
+
   useEffect(() => {
     // In a real app, extract the token from the URL and verify it with the backend
     const searchParams = new URLSearchParams(window.location.search);
     const token = searchParams.get("token");
-    
+
     // Mock verification process
     const verifyToken = async () => {
       try {
         // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
         // For demo purposes, succeed if there's a token, otherwise fail
         if (token) {
           setVerificationState("success");
@@ -29,13 +31,14 @@ const VerifyEmail = () => {
           setVerificationState("error");
         }
       } catch (error) {
+        console.error("Error verifying token:", error);
         setVerificationState("error");
       }
     };
-    
+
     verifyToken();
   }, [location]);
-  
+
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -47,7 +50,7 @@ const VerifyEmail = () => {
       },
     },
   };
-  
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-50 via-blue-50 to-slate-100 p-4">
       <motion.div
@@ -62,7 +65,7 @@ const VerifyEmail = () => {
               Email Verification
             </h1>
           </div>
-          
+
           {verificationState === "loading" && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -75,7 +78,7 @@ const VerifyEmail = () => {
               </p>
             </motion.div>
           )}
-          
+
           {verificationState === "success" && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -85,17 +88,21 @@ const VerifyEmail = () => {
               <Alert className="bg-green-50 border-green-200">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-700">
-                  Your email has been successfully verified! You can now log in to your account.
+                  Your email has been successfully verified! You can now log in
+                  to your account.
                 </AlertDescription>
               </Alert>
               <div className="mt-6 text-center">
-                <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Button
+                  asChild
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
                   <Link href="/login">Continue to login</Link>
                 </Button>
               </div>
             </motion.div>
           )}
-          
+
           {verificationState === "error" && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -105,7 +112,8 @@ const VerifyEmail = () => {
               <Alert className="bg-red-50 border-red-200">
                 <XCircle className="h-4 w-4 text-red-600" />
                 <AlertDescription className="text-red-700">
-                  We couldn&apos;t verify your email. The verification link may be invalid or expired.
+                  We couldn&apos;t verify your email. The verification link may
+                  be invalid or expired.
                 </AlertDescription>
               </Alert>
               <div className="mt-6 space-y-4 text-center">
@@ -124,4 +132,4 @@ const VerifyEmail = () => {
   );
 };
 
-export default VerifyEmail; 
+export default VerifyEmail;
