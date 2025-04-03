@@ -276,8 +276,6 @@ export function CategoryTrendChart() {
     return percentageChange.toFixed(1).toString();
   };
 
-  const trendPercentage = calculateTrendPercentage();
-
   // Define tooltip props interface
   interface TooltipProps {
     active?: boolean;
