@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack & npx next-video sync -w",
-    "build": "next build && next lint --no-cache || true",
+    "build": "next build && next lint --max-warnings=0 || true",
     "start": "next start",
     "lint": "next lint"
   },
