@@ -1,14 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  Users,
-  PlusCircle,
-  Search,
-  ChevronRight,
-} from "lucide-react";
+import { Users, PlusCircle, Search, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,25 +18,24 @@ import { useGetUser } from "@/services/user/query";
 import { formatDistance } from "date-fns";
 import { useGetTeams } from "@/services/teams/query";
 // TypeScript interfaces for our data
-interface Team {
-  name: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-  id: string;
-  organizationId: string;
-}
+// interface Team {
+//   name: string;
+//   description: string;
+//   createdAt: string;
+//   updatedAt: string;
+//   id: string;
+//   organizationId: string;
+// }
 
 const TeamsPage = () => {
   const router = useRouter();
   // In a real app, this would come from authentication context
-  const [userRole, setUserRole] = useState<"sales-manager" | "sales-rep">(
-    "sales-manager"
+  const [userRole] = useState<"sales-manager" | "sales-rep">("sales-manager");
+  const { data: user } = useGetUser();
+  const { data: teams } = useGetTeams(
+    user?.organizations[0]?.organizationId ?? ""
   );
-  const { data: user, isLoading: userLoading } = useGetUser();
-  const { data: teams, isLoading } = useGetTeams(user?.organizations[0]?.organizationId ?? '');
   const [searchQuery, setSearchQuery] = useState("");
-
 
   // Animation variants
   const containerVariants = {
@@ -116,34 +110,45 @@ const TeamsPage = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {teams && teams.map((team) => (
-            <motion.div key={team.id} variants={itemVariants}>
-              <Link href={`/dashboard/teams/${team.id}`}>
-                <Card className="cursor-pointer hover:shadow-md transition-shadow duration-200">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="flex justify-between items-center">
-                      <span>{team.name}</span>
-                      <Badge variant="outline" className="ml-2">
-                        {0} members
-                      </Badge>
-                    </CardTitle>
-                    <CardDescription>
-                      Created on {formatDistance(new Date(team.createdAt), new Date(), { addSuffix: true })}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex justify-between items-center text-sm text-gray-500">
-                      <span>Last active: {formatDistance(new Date(team.updatedAt), new Date(), { addSuffix: true })}</span>
-                      <ChevronRight className="h-4 w-4" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-          ))}
+          {teams &&
+            teams.map((team) => (
+              <motion.div key={team.id} variants={itemVariants}>
+                <Link href={`/dashboard/teams/${team.id}`}>
+                  <Card className="cursor-pointer hover:shadow-md transition-shadow duration-200">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="flex justify-between items-center">
+                        <span>{team.name}</span>
+                        <Badge variant="outline" className="ml-2">
+                          {0} members
+                        </Badge>
+                      </CardTitle>
+                      <CardDescription>
+                        Created on{" "}
+                        {formatDistance(new Date(team.createdAt), new Date(), {
+                          addSuffix: true,
+                        })}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex justify-between items-center text-sm text-gray-500">
+                        <span>
+                          Last active:{" "}
+                          {formatDistance(
+                            new Date(team.updatedAt),
+                            new Date(),
+                            { addSuffix: true }
+                          )}
+                        </span>
+                        <ChevronRight className="h-4 w-4" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
+            ))}
         </div>
 
-        {(!teams ||  teams.length === 0) && (
+        {(!teams || teams.length === 0) && (
           <div className="text-center py-10">
             <Users className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">

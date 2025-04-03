@@ -32,7 +32,6 @@ interface AuthResponse {
 const JoinPage = () => {
   const params = useParams();
   const invitationId = params.id as string;
-  const router = useRouter();
 
   // State to determine which form to show (login or signup)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -111,7 +110,7 @@ const JoinPage = () => {
               {invitationDetails && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h2 className="text-lg font-semibold text-navy-800 mb-3">
-                    You've been invited to join SalesCoach.guru
+                    Youve been invited to join SalesCoach.guru
                   </h2>
 
                   <div className="flex items-start space-x-2 mb-2">

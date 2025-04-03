@@ -58,11 +58,11 @@ interface Member {
 
 const OrganizationInfoPage = () => {
   const router = useRouter();
-  const [userRole, setUserRole] = useState<"admin" | "member">("admin");
+  const [userRole] = useState<"admin" | "member">("admin");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Mock data for organization
-  const [organization, setOrganization] = useState<Organization>({
+  const [organization] = useState<Organization>({
     id: "org-123",
     name: "Acme Corporation",
     description: "A leading provider of innovative solutions",
@@ -73,7 +73,7 @@ const OrganizationInfoPage = () => {
   });
 
   // Mock data for members
-  const [members, setMembers] = useState<Member[]>([
+  const [members] = useState<Member[]>([
     {
       id: "user-1",
       name: "John Doe",

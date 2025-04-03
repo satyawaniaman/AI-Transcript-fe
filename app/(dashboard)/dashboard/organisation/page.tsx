@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Plus, ArrowRight, Building2 } from "lucide-react";
-import { useGetUser } from "@/services/user/query";
 import useCurrentOrg, { Organization } from "@/store/useCurrentOrg";
 import { useGetOrgs } from "@/services/organisation/query";
 
@@ -79,13 +78,13 @@ export default function OrganizationPage() {
                   <Card
                     key={org.organization.id}
                     className="shadow-sm hover:shadow-md transition-shadow duration-300 transform hover:-translate-y-1 hover:bg-blue-50 cursor-pointer border border-transparent hover:border-blue-200"
-                    onClick={() => handleOrgInfo(org.organization as Organization)}
+                    onClick={() =>
+                      handleOrgInfo(org.organization as Organization)
+                    }
                   >
                     <CardHeader className="pb-2">
                       <CardTitle>{org.organization.name}</CardTitle>
-                      <CardDescription>
-                        {"member"}
-                      </CardDescription>
+                      <CardDescription>{"member"}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="flex items-center mb-4">
@@ -95,16 +94,16 @@ export default function OrganizationPage() {
                             alt={`${org.organization.name} Logo`}
                           />
                           <AvatarFallback className="bg-navy-600 text-white">
-                            {org.organization.name ? org.organization.name.charAt(0).toUpperCase() : "O"}
+                            {org.organization.name
+                              ? org.organization.name.charAt(0).toUpperCase()
+                              : "O"}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <p className="font-medium text-navy-800">
                             {org.organization.name}
                           </p>
-                          <p className="text-sm text-gray-500">
-                            { 1} Members
-                          </p>
+                          <p className="text-sm text-gray-500">{1} Members</p>
                         </div>
                       </div>
                       <Button
@@ -128,7 +127,7 @@ export default function OrganizationPage() {
                       No Organizations Found
                     </h3>
                     <p className="text-gray-500 text-center mb-6 max-w-md">
-                      You don't appear to be a member of any organizations.
+                      You dont appear to be a member of any organizations.
                       Create your first organization to get started.
                     </p>
                     <Button

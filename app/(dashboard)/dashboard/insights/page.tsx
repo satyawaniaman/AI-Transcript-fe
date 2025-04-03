@@ -28,7 +28,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import SentimentChart from "@/components/SentimentChart";
-import { ObjectionChart } from "@/components/ObjectionChart";
 import { CategoryTrendChart } from "@/components/CategoryTrendChart";
 
 const InsightsPage: React.FC = () => {

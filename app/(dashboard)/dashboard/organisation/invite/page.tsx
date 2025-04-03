@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Send, X, Info, Check, Mail } from "lucide-react";
+import { ArrowLeft, Send, X, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,10 +30,10 @@ import { Role } from "@/services/user/api";
 import { useInviteToOrganisationMutation } from "@/services/organisation/mutation";
 import { Textarea } from "@/components/ui/textarea";
 
-interface Team {
-  id: string;
-  name: string;
-}
+// interface Team {
+//   id: string;
+//   name: string;
+// }
 
 interface FormErrors {
   email?: string;

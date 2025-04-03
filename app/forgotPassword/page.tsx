@@ -30,7 +30,6 @@ const ForgotPassword = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [serverError, setServerError] = useState("");
-  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -55,6 +54,7 @@ const ForgotPassword = () => {
       setServerError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
+      console.log(isLoading, serverError);
     }
   };
 
@@ -84,8 +84,9 @@ const ForgotPassword = () => {
               Reset your password
             </h1>
             {!isSubmitted && (
-              <p className="mt-2 text-sm text-gray-600">_=
-                Enter your email address and we&apos;ll send you a link to reset your password.
+              <p className="mt-2 text-sm text-gray-600">
+                _= Enter your email address and we&apos;ll send you a link to
+                reset your password.
               </p>
             )}
           </div>
@@ -99,18 +100,25 @@ const ForgotPassword = () => {
               <Alert className="bg-green-50 border-green-200">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-700">
-                  If an account exists with that email, we&apos;ve sent a password reset link. Please check your inbox.
+                  If an account exists with that email, we&apos;ve sent a
+                  password reset link. Please check your inbox.
                 </AlertDescription>
               </Alert>
               <div className="mt-6 text-center">
-                <Link href="/login" className="text-sm font-medium text-blue-600 hover:text-blue-500">
+                <Link
+                  href="/login"
+                  className="text-sm font-medium text-blue-600 hover:text-blue-500"
+                >
                   Return to login
                 </Link>
               </div>
             </motion.div>
           ) : (
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
                 <FormField
                   control={form.control}
                   name="email"
@@ -135,10 +143,15 @@ const ForgotPassword = () => {
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                   disabled={form.formState.isSubmitting}
                 >
-                  {form.formState.isSubmitting ? "Sending..." : "Send reset link"}
+                  {form.formState.isSubmitting
+                    ? "Sending..."
+                    : "Send reset link"}
                 </Button>
                 <div className="text-center">
-                  <Link href="/login" className="text-sm font-medium text-blue-600 hover:text-blue-500">
+                  <Link
+                    href="/login"
+                    className="text-sm font-medium text-blue-600 hover:text-blue-500"
+                  >
                     Return to login
                   </Link>
                 </div>
@@ -151,4 +164,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword; 
+export default ForgotPassword;
