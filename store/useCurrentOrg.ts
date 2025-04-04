@@ -14,16 +14,6 @@ export interface Organization {
     id: string;
 }
 
-// interface UserOrganization {
-//     userId: string;
-//     organizationId: string;
-//     role: "ADMIN" | "USER" | "GUEST"; // Add other roles as necessary
-//     organization: Organization;
-// }
-
-// type Organizations = UserOrganization[];
-
-
 const useCurrentOrg = create(
     persist<{
         currentOrg: Organization | null;

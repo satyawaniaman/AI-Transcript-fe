@@ -150,6 +150,8 @@ const UploadPage = () => {
             },
           });
 
+          console.log("rosponse of the upload", response.body);
+
           clearInterval(progressInterval);
 
           if (response.ok) {
