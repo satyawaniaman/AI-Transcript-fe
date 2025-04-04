@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, JSX } from "react";
+import { useState, JSX, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { File, Upload as UploadIcon, CheckCircle, XCircle } from "lucide-react";
@@ -17,8 +17,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { generatePresignedUrls } from "./action";
 import { createClient } from "@/utils/supabase/client";
+import { useUploadAsset } from "@/services/callasset/mutation"; 
+import useCurrentOrg from "@/store/useCurrentOrg";
+import { toast } from "react-hot-toast";
 
-type FileStatus = "idle" | "uploading" | "extracting" | "success" | "error";
+type FileStatus = "idle" | "uploading" | "extracting" | "success" | "error" | "analyzing";
 
 interface UploadedFile {
   id: string;
@@ -29,6 +32,7 @@ interface UploadedFile {
   status: FileStatus;
   error?: string;
   originalFile: File;
+  url?: string; // Store the final URL after upload
 }
 
 const UploadPage = () => {
@@ -36,6 +40,16 @@ const UploadPage = () => {
   const [activeTab, setActiveTab] = useState("upload-file");
   const [dragActive, setDragActive] = useState(false);
   const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [transcriptText, setTranscriptText] = useState("");
+  const [isTextSubmitting, setIsTextSubmitting] = useState(false);
+  
+  // Get current organization from state
+  const { currentOrg } = useCurrentOrg();
+  
+  // TanStack mutation for API calls
+  const uploadAssetMutation = useUploadAsset();
+  
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -91,7 +105,11 @@ const UploadPage = () => {
       // Get userId from your authentication context or state
       const supabase = await createClient();
       const userId = (await supabase.auth.getSession()).data.session?.user.id;
-      console.log(userId); // Replace with actual user ID retrieval logic
+      
+      if (!userId) {
+        toast.error("User not authenticated");
+        return;
+      }
 
       try {
         const presignedUrls = await generatePresignedUrls(
@@ -113,6 +131,7 @@ const UploadPage = () => {
         await uploadFilesToBucket(newFiles, validUrls);
       } catch (error) {
         console.error("Error uploading files:", error);
+        toast.error("Error generating upload URLs");
       }
     }
   };
@@ -150,28 +169,80 @@ const UploadPage = () => {
             },
           });
 
-          console.log("rosponse of the upload", response.body);
-
           clearInterval(progressInterval);
 
           if (response.ok) {
-            // Update file status to extracting
+            // Extract the file URL from the presigned URL
+            // The format is typically the URL without the query parameters
+
+            const baseUrl = 'https://olxzxwlzliidocxvlcdq.supabase.co/storage/v1/object/public';
+  
+  // Extract the path after "sign/uploads" from the presigned URL
+  const urlParts = presignedUrls[index].split('/');
+  const signIndex = urlParts.findIndex(part => part === 'sign');
+  
+  // Get the path after "uploads" (should include userId and filename)
+  const relativePath = urlParts.slice(signIndex + 2).join('/').split('?')[0];
+  
+  // Construct the proper public URL
+  const fileUrl = `${baseUrl}/uploads/${relativePath}`;
+            // const fileUrl = presignedUrls[index].split('?')[0];
+            
+            // Update file status to extracting and store the URL
             setFiles((prev) =>
               prev.map((f) =>
                 f.id === file.id
-                  ? { ...f, status: "extracting", progress: 100 }
+                  ? { 
+                      ...f, 
+                      status: "extracting", 
+                      progress: 100,
+                      url: fileUrl 
+                    }
                   : f
               )
             );
 
-            // Simulate extraction process
-            setTimeout(() => {
+            // Call the API with the file URL
+            if (currentOrg && currentOrg.id) {
+              // Update to analyzing status
               setFiles((prev) =>
                 prev.map((f) =>
-                  f.id === file.id ? { ...f, status: "success" } : f
+                  f.id === file.id ? { ...f, status: "analyzing" } : f
                 )
               );
-            }, 1500); // Simulate 1.5s extraction time
+              
+              try {
+                await uploadAssetMutation.mutateAsync({
+                  content: fileUrl,
+                  type: "FILE",
+                  organisationId: currentOrg.id
+                });
+                
+                // Update to success status after API call completes
+                setFiles((prev) =>
+                  prev.map((f) =>
+                    f.id === file.id ? { ...f, status: "success" } : f
+                  )
+                );
+              } catch (apiError) {
+                console.error("API error:", apiError);
+                setFiles((prev) =>
+                  prev.map((f) =>
+                    f.id === file.id
+                      ? { ...f, status: "error", error: "Analysis failed" }
+                      : f
+                  )
+                );
+              }
+            } else {
+              setFiles((prev) =>
+                prev.map((f) =>
+                  f.id === file.id
+                    ? { ...f, status: "error", error: "No organization selected" }
+                    : f
+                )
+              );
+            }
           } else {
             // Handle error
             setFiles((prev) =>
@@ -193,6 +264,40 @@ const UploadPage = () => {
         }
       })
     );
+  };
+
+  // Handle text submission
+  const handleTextSubmit = async () => {
+    if (!transcriptText.trim()) {
+      toast.error("Please enter transcript text");
+      return;
+    }
+    
+    if (!currentOrg || !currentOrg.id) {
+      toast.error("No organization selected");
+      return;
+    }
+    
+    setIsTextSubmitting(true);
+    
+    try {
+      await uploadAssetMutation.mutateAsync({
+        content: transcriptText,
+        type: "TEXT",
+        organisationId: currentOrg.id
+      });
+      
+      // Clear the textarea on success
+      setTranscriptText("");
+      if (textareaRef.current) {
+        textareaRef.current.value = "";
+      }
+      
+    } catch (error) {
+      console.error("Error submitting text:", error);
+    } finally {
+      setIsTextSubmitting(false);
+    }
   };
 
   // Add removeFile function
@@ -237,14 +342,15 @@ const UploadPage = () => {
     else return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
-  const handleAnalyzeClick = () => {
-    // In a real app, this would send the files and their associated teamIds to the backend
-    console.log("Files with team associations:", files);
-
-    // Then redirect to the analysis page after processing
-    setTimeout(() => {
-      navigate.push("/dashboard/analysis");
-    }, 500);
+  const getStatusText = (status: FileStatus) => {
+    switch (status) {
+      case "uploading": return "Uploading...";
+      case "extracting": return "Extracting...";
+      case "analyzing": return "Analyzing...";
+      case "success": return "Completed";
+      case "error": return "Failed";
+      default: return "";
+    }
   };
 
   return (
@@ -360,11 +466,10 @@ const UploadPage = () => {
                                 </div>
                                 <div className="flex items-center">
                                   {(file.status === "uploading" ||
-                                    file.status === "extracting") && (
+                                    file.status === "extracting" ||
+                                    file.status === "analyzing") && (
                                     <span className="text-blue-500 text-sm mr-2">
-                                      {file.status === "uploading"
-                                        ? "Uploading..."
-                                        : "Extracting..."}
+                                      {getStatusText(file.status)}
                                     </span>
                                   )}
                                   {file.status === "success" && (
@@ -383,7 +488,8 @@ const UploadPage = () => {
                                 </div>
                               </div>
                               {(file.status === "uploading" ||
-                                file.status === "extracting") && (
+                                file.status === "extracting" ||
+                                file.status === "analyzing") && (
                                 <div className="mt-2">
                                   <Progress
                                     value={file.progress}
@@ -391,7 +497,7 @@ const UploadPage = () => {
                                     // Change color based on status
                                     style={{
                                       backgroundColor:
-                                        file.status === "extracting"
+                                        file.status === "extracting" || file.status === "analyzing"
                                           ? "#EBF5FF"
                                           : undefined,
                                     }}
@@ -399,7 +505,9 @@ const UploadPage = () => {
                                   <p className="text-xs text-gray-500 mt-1">
                                     {file.status === "uploading"
                                       ? "Uploading file to server..."
-                                      : "Extracting content..."}
+                                      : file.status === "extracting"
+                                      ? "Extracting content..."
+                                      : "Analyzing transcript..."}
                                   </p>
                                 </div>
                               )}
@@ -412,22 +520,6 @@ const UploadPage = () => {
                           </div>
                         </motion.div>
                       ))}
-                    </div>
-
-                    <div className="mt-6">
-                      <Button
-                        variant="default"
-                        className="w-full"
-                        disabled={files.some(
-                          (f) =>
-                            f.status === "uploading" ||
-                            f.status === "extracting" ||
-                            f.status === "idle"
-                        )}
-                        onClick={handleAnalyzeClick}
-                      >
-                        Analyze Transcripts
-                      </Button>
                     </div>
                   </motion.div>
                 )}
@@ -450,12 +542,20 @@ const UploadPage = () => {
                   transition={{ duration: 0.4 }}
                 >
                   <textarea
+                    ref={textareaRef}
                     className="w-full h-64 p-4 border rounded-md"
                     placeholder="Paste your transcript text here..."
+                    onChange={(e) => setTranscriptText(e.target.value)}
+                    value={transcriptText}
                   />
                   <div className="mt-4">
-                    <Button variant="default" className="w-full">
-                      Analyze Text
+                    <Button 
+                      variant="default" 
+                      className="w-full"
+                      onClick={handleTextSubmit}
+                      disabled={isTextSubmitting || !transcriptText.trim() || !currentOrg}
+                    >
+                      {isTextSubmitting ? "Submitting..." : "Submit Transcript"}
                     </Button>
                   </div>
                 </motion.div>
