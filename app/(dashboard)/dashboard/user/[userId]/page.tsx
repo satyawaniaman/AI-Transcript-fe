@@ -326,7 +326,7 @@ const UserDetailPage = () => {
         <div className="text-center py-10">
           <h3 className="text-xl font-medium text-gray-900">Error: {error}</h3>
           <p className="mt-2 text-gray-600">
-            We couldn't find the user you're looking for.
+            We couldnt find the user youre looking for.
           </p>
           <Button onClick={handleBack} className="mt-4">
             Go Back

@@ -1,14 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  Users,
-  PlusCircle,
-  Search,
-  ChevronRight,
-} from "lucide-react";
+import { Users, PlusCircle, Search, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,26 +17,20 @@ import { Badge } from "@/components/ui/badge";
 import { useGetUser } from "@/services/user/query";
 import { formatDistance } from "date-fns";
 import { useGetTeams } from "@/services/teams/query";
-// TypeScript interfaces for our data
-interface Team {
-  name: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-  id: string;
-  organizationId: string;
-}
+import { Skeleton } from "@/components/ui/skeleton";
 
 const TeamsPage = () => {
   const router = useRouter();
   // In a real app, this would come from authentication context
-  const [userRole, setUserRole] = useState<"sales-manager" | "sales-rep">(
-    "sales-manager"
+  const [userRole] = useState<"sales-manager" | "sales-rep">("sales-manager");
+  const { data: user, isLoading: isUserLoading } = useGetUser();
+  const { data: teams, isLoading: isTeamsLoading } = useGetTeams(
+    user?.organizations[0]?.organizationId ?? ""
   );
-  const { data: user, isLoading: userLoading } = useGetUser();
-  const { data: teams, isLoading } = useGetTeams(user?.organizations[0]?.organizationId ?? '');
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Determine if we're in a loading state
+  const isLoading = isUserLoading || isTeamsLoading;
 
   // Animation variants
   const containerVariants = {
@@ -70,6 +59,25 @@ const TeamsPage = () => {
     router.push("/dashboard/teams/new");
   };
 
+  // Skeleton loader for team cards
+  const TeamCardSkeleton = () => (
+    <Card className="cursor-pointer">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-5 w-16 rounded-full" />
+        </div>
+        <Skeleton className="h-4 w-40 mt-2" />
+      </CardHeader>
+      <CardContent>
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-4 w-36" />
+          <Skeleton className="h-4 w-4 rounded-full" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -79,11 +87,15 @@ const TeamsPage = () => {
     >
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Team Management</h1>
-        <p className="text-gray-600 mt-2">
-          {userRole === "sales-manager"
-            ? "Create and manage your sales teams, and track performance metrics."
-            : "View your sales teams and performance metrics."}
-        </p>
+        {isUserLoading ? (
+          <Skeleton className="h-6 w-3/4 mt-2" />
+        ) : (
+          <p className="text-gray-600 mt-2">
+            {userRole === "sales-manager"
+              ? "Create and manage your sales teams, and track performance metrics."
+              : "View your sales teams and performance metrics."}
+          </p>
+        )}
       </div>
 
       <motion.div
@@ -94,15 +106,17 @@ const TeamsPage = () => {
       >
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold text-gray-900">Your Teams</h2>
-          {userRole === "sales-manager" && (
+          {!isUserLoading && userRole === "sales-manager" && (
             <Button
               className="bg-blue-600 hover:bg-blue-700"
               onClick={handleCreateTeam}
+              disabled={isLoading}
             >
               <PlusCircle className="h-4 w-4 mr-2" />
               Create Team
             </Button>
           )}
+          {isUserLoading && <Skeleton className="h-10 w-32" />}
         </div>
 
         <div className="relative">
@@ -112,38 +126,57 @@ const TeamsPage = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
+            disabled={isLoading}
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {teams && teams.map((team) => (
-            <motion.div key={team.id} variants={itemVariants}>
-              <Link href={`/dashboard/teams/${team.id}`}>
-                <Card className="cursor-pointer hover:shadow-md transition-shadow duration-200">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="flex justify-between items-center">
-                      <span>{team.name}</span>
-                      <Badge variant="outline" className="ml-2">
-                        {0} members
-                      </Badge>
-                    </CardTitle>
-                    <CardDescription>
-                      Created on {formatDistance(new Date(team.createdAt), new Date(), { addSuffix: true })}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex justify-between items-center text-sm text-gray-500">
-                      <span>Last active: {formatDistance(new Date(team.updatedAt), new Date(), { addSuffix: true })}</span>
-                      <ChevronRight className="h-4 w-4" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-
-        {(!teams ||  teams.length === 0) && (
+        {isTeamsLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, index) => (
+              <motion.div key={`skeleton-${index}`} variants={itemVariants}>
+                <TeamCardSkeleton />
+              </motion.div>
+            ))}
+          </div>
+        ) : teams && teams.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {teams.map((team) => (
+              <motion.div key={team.id} variants={itemVariants}>
+                <Link href={`/dashboard/teams/${team.id}`}>
+                  <Card className="cursor-pointer hover:shadow-md transition-shadow duration-200">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="flex justify-between items-center">
+                        <span>{team.name}</span>
+                        <Badge variant="outline" className="ml-2">
+                          {0} members
+                        </Badge>
+                      </CardTitle>
+                      <CardDescription>
+                        Created on{" "}
+                        {formatDistance(new Date(team.createdAt), new Date(), {
+                          addSuffix: true,
+                        })}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex justify-between items-center text-sm text-gray-500">
+                        <span>
+                          Last active:{" "}
+                          {formatDistance(
+                            new Date(team.updatedAt),
+                            new Date(),
+                            { addSuffix: true }
+                          )}
+                        </span>
+                        <ChevronRight className="h-4 w-4" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
           <div className="text-center py-10">
             <Users className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">

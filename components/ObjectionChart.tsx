@@ -155,7 +155,7 @@ const chartData = [
 // Create category-specific mock data with distinct patterns
 const createCategoryData = () => {
   // Price objections: High volume, seasonal pattern with peaks in mid-month
-  const price = chartData.map((item, index) => {
+  const price = chartData.map((item) => {
     const date = new Date(item.date);
     const dayOfMonth = date.getDate();
     // Create a mid-month peak pattern
@@ -171,7 +171,7 @@ const createCategoryData = () => {
   });
 
   // Timing objections: Spiky pattern with specific peaks
-  const timing = chartData.map((item, index) => {
+  const timing = chartData.map((item) => {
     const date = new Date(item.date);
     const dayOfMonth = date.getDate();
     const isSpike = dayOfMonth % 10 <= 2;
@@ -203,7 +203,7 @@ const createCategoryData = () => {
   });
 
   // Competition objections: Cyclical with weekly pattern
-  const competition = chartData.map((item, index) => {
+  const competition = chartData.map((item) => {
     const date = new Date(item.date);
     const dayOfWeek = date.getDay();
     // Higher on weekdays (Mon-Fri), lower on weekends
@@ -222,7 +222,7 @@ const createCategoryData = () => {
   });
 
   // Stakeholder objections: Low volume but with specific event-based spikes
-  const stakeholders = chartData.map((item, index) => {
+  const stakeholders = chartData.map((item) => {
     const date = new Date(item.date);
     const dayOfMonth = date.getDate();
     const monthIndex = date.getMonth();

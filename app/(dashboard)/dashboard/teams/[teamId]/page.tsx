@@ -1,5 +1,4 @@
 "use client";
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter, useParams } from "next/navigation";
 import {
@@ -11,10 +10,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGetTeamById } from "@/services/teams/query";
 
@@ -24,8 +20,12 @@ const TeamDetailPage = () => {
   const teamId = params.teamId as string;
 
   // Fetch team data
-  const { data: team, isLoading: teamLoading, error: teamError } = useGetTeamById(teamId);
-    
+  const {
+    data: team,
+    isLoading: teamLoading,
+    error: teamError,
+  } = useGetTeamById(teamId);
+
   const handleNavigateToMember = (memberId: string) => {
     router.push(`/dashboard/user/${memberId}?teamId=${teamId}`);
   };
@@ -54,9 +54,11 @@ const TeamDetailPage = () => {
           Back to Teams
         </Button>
         <div className="text-center py-10">
-          <h3 className="text-xl font-medium text-gray-900">Error: {teamError?.message}</h3>
+          <h3 className="text-xl font-medium text-gray-900">
+            Error: {teamError?.message}
+          </h3>
           <p className="mt-2 text-gray-600">
-            We couldn't find the team you're looking for.
+            We couldnt find the team youre looking for.
           </p>
           <Button onClick={handleBack} className="mt-4">
             Return to Teams
@@ -97,7 +99,6 @@ const TeamDetailPage = () => {
               <span>{1} members</span>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -106,7 +107,7 @@ const TeamDetailPage = () => {
           <h2 className="text-xl font-semibold text-gray-900">Team Members</h2>
         </div>
 
-        { team.members.length > 0 ? (
+        {team.members.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
             {team.members.map((member) => (
               <Card
@@ -117,7 +118,10 @@ const TeamDetailPage = () => {
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center">
                     <Avatar className="h-10 w-10 mr-4">
-                      <AvatarImage src={""} alt={member.userOrg.user.firstName} />
+                      <AvatarImage
+                        src={""}
+                        alt={member.userOrg.user.firstName}
+                      />
                       <AvatarFallback>
                         {member.userOrg.user.firstName
                           .split(" ")
@@ -126,8 +130,12 @@ const TeamDetailPage = () => {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium text-gray-900">{member.userOrg.user.firstName}</p>
-                      <p className="text-sm text-gray-500">{member.userOrg.user.email}</p>
+                      <p className="font-medium text-gray-900">
+                        {member.userOrg.user.firstName}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {member.userOrg.user.email}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">

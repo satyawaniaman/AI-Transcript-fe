@@ -1,8 +1,8 @@
+// next.config.js
 import { withNextVideo } from "next-video/process";
-import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },

@@ -11,13 +11,11 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { TrendingUp } from "lucide-react";
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -98,7 +96,7 @@ const chartData = [
 // Create category-specific mock data with distinct patterns
 const createCategoryData = () => {
   // Price objections: High volume, seasonal pattern with peaks in mid-month
-  const price = chartData.map((item, index) => {
+  const price = chartData.map((item) => {
     const date = new Date(item.date);
     const dayOfMonth = date.getDate();
     // Create a mid-month peak pattern
@@ -114,7 +112,7 @@ const createCategoryData = () => {
   });
 
   // Timing objections: Spiky pattern with specific peaks
-  const timing = chartData.map((item, index) => {
+  const timing = chartData.map((item) => {
     const date = new Date(item.date);
     const dayOfMonth = date.getDate();
     const isSpike = dayOfMonth % 10 <= 2;
@@ -145,7 +143,7 @@ const createCategoryData = () => {
   });
 
   // Competition objections: Cyclical with weekly pattern
-  const competition = chartData.map((item, index) => {
+  const competition = chartData.map((item) => {
     const date = new Date(item.date);
     const dayOfWeek = date.getDay();
     // Higher on weekdays (Mon-Fri), lower on weekends
@@ -163,7 +161,7 @@ const createCategoryData = () => {
   });
 
   // Stakeholder objections: Low volume but with specific event-based spikes
-  const stakeholders = chartData.map((item, index) => {
+  const stakeholders = chartData.map((item) => {
     const date = new Date(item.date);
     const dayOfMonth = date.getDate();
     const monthIndex = date.getMonth();
@@ -257,29 +255,26 @@ const categoryColors = {
 
 export function CategoryTrendChart() {
   // Calculate trend percentage - using the Price category as an example
-  const calculateTrendPercentage = () => {
-    const priceData = categoryData.price;
-    const lastMonthData = priceData.slice(-10);
-    const previousMonthData = priceData.slice(-20, -10);
+  // const calculateTrendPercentage = () => {
+  //   const priceData = categoryData.price;
+  //   const lastMonthData = priceData.slice(-10);
+  //   const previousMonthData = priceData.slice(-20, -10);
 
-    const lastMonthTotal = lastMonthData.reduce(
-      (sum, item) => sum + item.total,
-      0
-    );
-    const previousMonthTotal = previousMonthData.reduce(
-      (sum, item) => sum + item.total,
-      0
-    );
+  //   const lastMonthTotal = lastMonthData.reduce(
+  //     (sum, item) => sum + item.total,
+  //     0
+  //   );
+  //   const previousMonthTotal = previousMonthData.reduce(
+  //     (sum, item) => sum + item.total,
+  //     0
+  //   );
 
-    if (previousMonthTotal === 0) return 0;
+  //   if (previousMonthTotal === 0) return 0;
 
-    const percentageChange =
-      ((lastMonthTotal - previousMonthTotal) / previousMonthTotal) * 100;
-    return percentageChange.toFixed(1).toString();
-  };
-
-  const trendPercentage = calculateTrendPercentage();
-  const isTrendingUp = parseFloat(trendPercentage.toString()) > 0;
+  //   const percentageChange =
+  //     ((lastMonthTotal - previousMonthTotal) / previousMonthTotal) * 100;
+  //   return percentageChange.toFixed(1).toString();
+  // };
 
   // Define tooltip props interface
   interface TooltipProps {

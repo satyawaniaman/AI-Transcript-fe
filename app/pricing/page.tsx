@@ -7,7 +7,7 @@ import PricingCard from "@/components/PricingCard";
 import TestimonialCard from "@/components/TestimonialCard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Check, HelpCircle, ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 // Define types for pricing plans
 interface PricingPlan {
@@ -370,8 +370,8 @@ const Pricing = () => {
                   Frequently Asked Questions
                 </h2>
                 <p className="text-gray-600 mt-4">
-                  Got questions? We've got answers to help you make the right
-                  decision.
+                  Got questions? We&apos;ve got answers to help you make the
+                  right decision.
                 </p>
               </div>
 

@@ -58,14 +58,17 @@ export default function ResetPassword() {
         setServerError(response.message);
       } else {
         // Add success notification before redirecting
-        toast.success("Password reset successful! You can now log in with your new password.");
-        
+        toast.success(
+          "Password reset successful! You can now log in with your new password."
+        );
+
         // Short delay to allow the toast to be visible
         setTimeout(() => {
           router.push("/dashboard");
         }, 1500);
       }
     } catch (error) {
+      console.log(error);
       setServerError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false); // Set loading to false when submission ends

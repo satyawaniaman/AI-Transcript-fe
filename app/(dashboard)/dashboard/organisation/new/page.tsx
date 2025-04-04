@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Building, ChevronRight, PlusCircle } from "lucide-react";
+import { Building, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,

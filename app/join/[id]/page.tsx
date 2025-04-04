@@ -32,7 +32,6 @@ interface AuthResponse {
 const JoinPage = () => {
   const params = useParams();
   const invitationId = params.id as string;
-  const router = useRouter();
 
   // State to determine which form to show (login or signup)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -111,7 +110,7 @@ const JoinPage = () => {
               {invitationDetails && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h2 className="text-lg font-semibold text-navy-800 mb-3">
-                    You've been invited to join SalesCoach.guru
+                    Youve been invited to join SalesCoach.guru
                   </h2>
 
                   <div className="flex items-start space-x-2 mb-2">
@@ -142,7 +141,7 @@ const JoinPage = () => {
                   {invitationDetails.invitationMessage && (
                     <div className="mt-3 pt-3 border-t border-blue-200">
                       <p className="italic text-gray-600 text-sm">
-                        "{invitationDetails.invitationMessage}"
+                        {invitationDetails.invitationMessage}
                       </p>
                     </div>
                   )}
@@ -204,6 +203,7 @@ const LoginForm: React.FC<FormProps> = ({
   invitationId,
   invitationDetails,
 }) => {
+  console.log(invitationId, invitationDetails);
   const schema = zod.object({
     email: zod.string().email("Please enter a valid email address"),
     password: zod.string().min(6, "Password must be at least 6 characters"),
@@ -335,6 +335,7 @@ const SignupForm: React.FC<FormProps> = ({
   invitationId,
   invitationDetails,
 }) => {
+  console.log(invitationId);
   const schema = zod.object({
     firstName: zod.string().min(1, "First name is required"),
     lastName: zod.string().min(1, "Last name is required"),
