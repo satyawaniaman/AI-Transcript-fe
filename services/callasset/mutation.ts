@@ -5,14 +5,12 @@ import { toast } from "react-hot-toast";
 function useUploadAsset() {
     return useMutation({
       mutationFn: (
-        { content, type, status, transcript, userId}:
+        { content, type, organisationId}:
          { 
             content: string;
-            type: string;
-            status: string;
-            transcript: string;
-            userId: string;
-         } ) => uploadAsset(content, type, status, transcript, userId),
+            type: "FILE" | "TEXT";
+            organisationId: string;
+         } ) => uploadAsset(content, type, organisationId),
       onError: () => {
         toast.error("Failed to upload asset");
       },

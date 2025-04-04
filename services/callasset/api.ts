@@ -1,8 +1,8 @@
 import api from "@/utils/axios";
 
-const uploadAsset = async ( content: string, type: string, status: string, transcript: string, userId: string ) => {
+const uploadAsset = async ( content: string, type: "FILE" | "TEXT", organizationId: string ) => {
     const response = await api.post('/api/callasset', { 
-        content, type, status, transcript, userId 
+        content, type, organizationId, 
      });
     return response.data;
 };
