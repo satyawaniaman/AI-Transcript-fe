@@ -36,7 +36,6 @@ interface UploadedFile {
 }
 
 const UploadPage = () => {
-  const navigate = useRouter();
   const [activeTab, setActiveTab] = useState("upload-file");
   const [dragActive, setDragActive] = useState(false);
   const [files, setFiles] = useState<UploadedFile[]>([]);

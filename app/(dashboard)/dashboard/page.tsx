@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
@@ -28,16 +28,53 @@ import { Toaster, toast } from "react-hot-toast";
 import { useGetUser } from "@/services/user/query";
 import DashboardSkeleton from "@/components/DashboardSkeleton";
 import NoOrganizationScreen from "@/components/NoOrganizationScreen";
+import useCurrentOrg from "@/store/useCurrentOrg";
+import {
+  useGetTranscriptsCount,
+  useGetAverageSentiment,
+  useGetObjectionsHandled,
+  useGetTalkRatio,
+  useGetSentimentTrends,
+  useGetCommonObjections,
+  useGetTranscripts,
+} from "@/services/dashboard/query";
 
 const Dashboard = () => {
-  const { data: user, isLoading } = useGetUser();
+  const { data: user, isLoading: userLoading } = useGetUser();
+  const { currentOrg } = useCurrentOrg();
+  const orgId = currentOrg?.id as string;
+  const [page, setPage] = useState(1);
+  const limit = 5;
 
-  if (isLoading || !user) {
+  // Fetch all dashboard data
+  const { data: transcriptsCount, isLoading: countLoading } = useGetTranscriptsCount(orgId);
+  const { data: sentiment, isLoading: sentimentLoading } = useGetAverageSentiment(orgId);
+  const { data: objections, isLoading: objectionsLoading } = useGetObjectionsHandled(orgId);
+  const { data: talkRatio, isLoading: ratioLoading } = useGetTalkRatio(orgId);
+  const { data: sentimentTrends, isLoading: trendsLoading } = useGetSentimentTrends(orgId);
+  const { data: commonObjections, isLoading: commonLoading } = useGetCommonObjections(orgId);
+  const { data: transcripts, isLoading: transcriptsLoading } = useGetTranscripts(orgId, page, limit);
+
+  const isLoading = userLoading || !user;
+
+  if (isLoading) {
     return <DashboardSkeleton />;
   }
 
   if (user.organizations.length === 0) {
     return <NoOrganizationScreen />;
+  }
+
+  if (!orgId) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card>
+          <CardContent className="pt-6">
+            No organization found
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -91,10 +128,11 @@ const Dashboard = () => {
             <FileText className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-navy-800">24</div>
-            <p className="text-xs text-green-600 flex items-center mt-1">
-              +12% from last month
-            </p>
+            {countLoading ? (
+              <div className="text-2xl font-bold text-navy-800">Loading...</div>
+            ) : (
+              <div className="text-2xl font-bold text-navy-800">{transcriptsCount?.count || 0}</div>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -105,10 +143,11 @@ const Dashboard = () => {
             <BarChart className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-navy-800">75%</div>
-            <p className="text-xs text-green-600 flex items-center mt-1">
-              +5% from last month
-            </p>
+            {sentimentLoading ? (
+              <div className="text-2xl font-bold text-navy-800">Loading...</div>
+            ) : (
+              <div className="text-2xl font-bold text-navy-800">{sentiment?.averageSentiment || 0}%</div>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -119,10 +158,16 @@ const Dashboard = () => {
             <MessageSquare className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-navy-800">47</div>
-            <p className="text-xs text-green-600 flex items-center mt-1">
-              +8% from last month
-            </p>
+            {objectionsLoading ? (
+              <div className="text-2xl font-bold text-navy-800">Loading...</div>
+            ) : (
+              <div className="text-2xl font-bold text-navy-800">
+                {objections?.successful || 0}/{objections?.total || 0}
+                <p className="text-xs text-green-600 flex items-center mt-1">
+                  Success Rate: {objections?.rate.toFixed(1) || 0}%
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -133,10 +178,11 @@ const Dashboard = () => {
             <PieChart className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-navy-800">42:58</div>
-            <p className="text-xs text-green-600 flex items-center mt-1">
-              Better than target (50:50)
-            </p>
+            {ratioLoading ? (
+              <div className="text-2xl font-bold text-navy-800">Loading...</div>
+            ) : (
+              <div className="text-2xl font-bold text-navy-800">{talkRatio?.talkRatio || 0}%</div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -161,22 +207,18 @@ const Dashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0 sm:p-6">
-                {" "}
-                {/* Adjusted padding for better display */}
-                <SentimentChart
-                  data={[
-                    { name: "Call 1", positive: 65, neutral: 30, negative: 5 },
-                    { name: "Call 2", positive: 70, neutral: 25, negative: 5 },
-                    { name: "Call 3", positive: 60, neutral: 30, negative: 10 },
-                    { name: "Call 4", positive: 75, neutral: 20, negative: 5 },
-                    { name: "Call 5", positive: 68, neutral: 27, negative: 5 },
-                    { name: "Call 6", positive: 72, neutral: 25, negative: 3 },
-                    { name: "Call 7", positive: 78, neutral: 20, negative: 2 },
-                    { name: "Call 8", positive: 80, neutral: 18, negative: 2 },
-                    { name: "Call 9", positive: 75, neutral: 22, negative: 3 },
-                    { name: "Call 10", positive: 82, neutral: 15, negative: 3 },
-                  ]}
-                />
+                {trendsLoading ? (
+                  <p className="py-8 text-center text-gray-500">Loading sentiment trends...</p>
+                ) : sentimentTrends && sentimentTrends.length > 0 ? (
+                  <SentimentChart data={sentimentTrends.map(item => ({
+                    name: item.name,
+                    positive: parseFloat(item.positive),
+                    neutral: parseFloat(item.neutral),
+                    negative: parseFloat(item.negative)
+                  }))} />
+                ) : (
+                  <p className="py-8 text-center text-gray-500">No sentiment data available</p>
+                )}
               </CardContent>
             </Card>
 
@@ -189,7 +231,13 @@ const Dashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ObjectionsList />
+                {commonLoading ? (
+                  <p className="py-8 text-center text-gray-500">Loading objections...</p>
+                ) : commonObjections ? (
+                  <ObjectionsList  /> // data={commonObjections}
+                ) : (
+                  <p className="py-8 text-center text-gray-500">No objection data available</p>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -210,7 +258,23 @@ const Dashboard = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <RecentTranscriptsList />
+              {transcriptsLoading ? (
+                <p className="py-8 text-center text-gray-500">Loading transcripts...</p>
+              ) : transcripts && transcripts.data && transcripts.data.length > 0 ? (
+                <RecentTranscriptsList data={transcripts.data}  /> // data={transcripts.data}
+              ) : (
+                <p className="py-8 text-center text-gray-500">
+                  No transcripts available. Upload your first transcript to see analysis here.
+                  <div className="flex justify-center mt-4">
+                    <Button asChild>
+                      <Link href="/dashboard/upload">
+                        <PlusCircle className="h-4 w-4 mr-2" />
+                        Upload Transcript
+                      </Link>
+                    </Button>
+                  </div>
+                </p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -224,18 +288,79 @@ const Dashboard = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="py-8 text-center text-gray-500">
-                This section will display a filterable, sortable table of all
-                your transcripts.
-              </p>
-              <div className="flex justify-center">
-                <Button asChild>
-                  <Link href="/upload">
-                    <PlusCircle className="h-4 w-4 mr-2" />
-                    Upload New Transcript
-                  </Link>
-                </Button>
-              </div>
+              {transcriptsLoading ? (
+                <p className="py-8 text-center text-gray-500">Loading transcripts...</p>
+              ) : transcripts && transcripts.data && transcripts.data.length > 0 ? (
+                <div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-2">Name</th>
+                          <th className="text-left py-2">Date</th>
+                          <th className="text-left py-2">Duration</th>
+                          <th className="text-left py-2">Sentiment</th>
+                          <th className="text-left py-2">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {transcripts.data.map((item) => (
+                          <tr key={item.id} className="border-b">
+                            <td className="py-2">{item.name || 'Unnamed'}</td>
+                            <td className="py-2">{item.analysis ? new Date(item.analysis.date).toLocaleDateString() : 'N/A'}</td>
+                            <td className="py-2">{item.analysis?.duration || 'N/A'}</td>
+                            <td className="py-2">{item.analysis ? `${((item.analysis.overallSentiment + 1) / 2 * 100).toFixed(1)}%` : 'N/A'}</td>
+                            <td className="py-2">
+                              <Button size="sm" variant="outline">View</Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  
+                  {/* Pagination */}
+                  {transcripts.pagination && transcripts.pagination.pages > 1 && (
+                    <div className="flex justify-center mt-4">
+                      <div className="flex items-center space-x-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          disabled={page === 1}
+                          onClick={() => setPage(page - 1)}
+                        >
+                          Previous
+                        </Button>
+                        <span className="text-sm">
+                          Page {page} of {transcripts.pagination.pages}
+                        </span>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          disabled={page === transcripts.pagination.pages}
+                          onClick={() => setPage(page + 1)}
+                        >
+                          Next
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <p className="py-8 text-center text-gray-500">
+                    No transcripts available. Upload your first transcript.
+                  </p>
+                  <div className="flex justify-center">
+                    <Button asChild>
+                      <Link href="/dashboard/upload">
+                        <PlusCircle className="h-4 w-4 mr-2" />
+                        Upload New Transcript
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -249,11 +374,38 @@ const Dashboard = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="py-8 text-center text-gray-500">
-                This section will display a comprehensive library of objections
-                categorized by type, along with effectiveness ratings for your
-                responses.
-              </p>
+              {commonLoading ? (
+                <p className="py-8 text-center text-gray-500">Loading objections...</p>
+              ) : commonObjections && commonObjections.types ? (
+                <div>
+                  <h3 className="font-medium mb-2">Objection Types</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                    {Object.entries(commonObjections.types).map(([type, count]) => (
+                      <div key={type} className="border rounded p-3">
+                        <div className="text-sm text-gray-500">{type}</div>
+                        <div className="text-lg font-bold">{count}</div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <h3 className="font-medium mb-2 mt-4">Top Objections</h3>
+                  {commonObjections.topObjections && commonObjections.topObjections.length > 0 ? (
+                    <ul className="list-disc pl-5">
+                      {commonObjections.topObjections.map((obj, index) => (
+                        <li key={index} className="mb-1">
+                          {obj.text} <span className="text-gray-500">({obj.count} times, {obj.type})</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-center text-gray-500">No detailed objection data available</p>
+                  )}
+                </div>
+              ) : (
+                <p className="py-8 text-center text-gray-500">
+                  No objection data available yet. Upload sales calls to see objections detected.
+                </p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -270,6 +422,19 @@ const Dashboard = () => {
               <p className="py-8 text-center text-gray-500">
                 This section will provide AI-generated insights and coaching
                 advice based on patterns observed across your sales calls.
+                {transcriptsCount?.count === 0 && (
+                  <div className="mt-4">
+                    Upload your first transcript to start receiving AI insights.
+                    <div className="flex justify-center mt-4">
+                      <Button asChild>
+                        <Link href="/dashboard/upload">
+                          <PlusCircle className="h-4 w-4 mr-2" />
+                          Upload Transcript
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </p>
             </CardContent>
           </Card>
