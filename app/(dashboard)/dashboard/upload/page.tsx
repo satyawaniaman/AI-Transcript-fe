@@ -252,6 +252,7 @@ const UploadPage = () => {
             );
           }
         } catch (error) {
+          console.log(error);
           setFiles((prev) =>
             prev.map((f) =>
               f.id === file.id
