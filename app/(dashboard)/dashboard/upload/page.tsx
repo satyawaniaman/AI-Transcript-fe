@@ -2,7 +2,6 @@
 
 import { useState, JSX, useRef } from "react";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
 import { File, Upload as UploadIcon, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
