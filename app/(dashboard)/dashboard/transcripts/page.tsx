@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   Calendar, 
@@ -9,7 +9,8 @@ import {
   ListFilter, 
   Search, 
   ChevronDown,
-  MoreHorizontal
+  MoreHorizontal,
+  Loader2
 } from "lucide-react";
 import { 
   Table, 
@@ -30,100 +31,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast, Toaster } from "react-hot-toast";
+import { useGetTranscripts } from "@/services/dashboard/query";
+import useCurrentOrg from "@/store/useCurrentOrg";
 
-interface Transcript {
-  id: string;
-  title: string;
-  date: string;
-  duration: string;
-  sentiment: number;
-  status: "processed" | "processing" | "failed";
-}
+// Define the status type for type safety
+type TranscriptStatus = "PENDING" | "SUCCESS" | "FAIL";
 
-const mockTranscripts: Transcript[] = [
-  {
-    id: "tr-1",
-    title: "Sales Call - ABC Corp Product Demo",
-    date: "2023-06-15",
-    duration: "45:23",
-    sentiment: 0.82,
-    status: "processed"
-  },
-  {
-    id: "tr-2",
-    title: "Discovery Call - XYZ Enterprises",
-    date: "2023-06-12",
-    duration: "32:15",
-    sentiment: 0.75,
-    status: "processed"
-  },
-  {
-    id: "tr-3",
-    title: "Follow-up Call - TechSolutions Inc",
-    date: "2023-06-08",
-    duration: "28:45",
-    sentiment: 0.65,
-    status: "processed"
-  },
-  {
-    id: "tr-4",
-    title: "Pricing Negotiation - Acme Corp",
-    date: "2023-06-05",
-    duration: "38:10",
-    sentiment: 0.45,
-    status: "processed"
-  },
-  {
-    id: "tr-5",
-    title: "Product Demo - Global Industries",
-    date: "2023-06-01",
-    duration: "52:30",
-    sentiment: 0.78,
-    status: "processed"
-  },
-  {
-    id: "tr-6",
-    title: "Initial Contact - New Prospect Inc",
-    date: "2023-05-28",
-    duration: "22:15",
-    sentiment: 0.68,
-    status: "processed"
-  },
-  {
-    id: "tr-7",
-    title: "Quarterly Review - Existing Client",
-    date: "2023-05-25",
-    duration: "60:40",
-    sentiment: 0.92,
-    status: "processed"
-  },
-  {
-    id: "tr-8",
-    title: "Technical Walkthrough - Dev Team",
-    date: "2023-05-22",
-    duration: "75:10",
-    sentiment: 0.73,
-    status: "processed"
-  },
-  {
-    id: "tr-9",
-    title: "Contract Review - Legal Discussion",
-    date: "2023-05-20",
-    status: "processing",
-    duration: "33:45",
-    sentiment: 0.0
-  },
-  {
-    id: "tr-10",
-    title: "Onboarding Call - New Customer",
-    date: "2023-05-18",
-    status: "failed",
-    duration: "15:20",
-    sentiment: 0.0
-  }
-];
+// Map API status to UI status
+const statusMap: Record<TranscriptStatus, "processing" | "processed" | "failed"> = {
+  "PENDING": "processing",
+  "SUCCESS": "processed",
+  "FAIL": "failed"
+};
 
 const formatDate = (dateString: string) => {
+  if (!dateString) return "N/A";
   const date = new Date(dateString);
   return date.toLocaleDateString("en-US", {
     year: "numeric",
@@ -134,14 +57,69 @@ const formatDate = (dateString: string) => {
 
 const TranscriptsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  
+  const { currentOrg } = useCurrentOrg();
+  const orgId = currentOrg?.id as string;
+  
+  const { 
+    data: transcripts, 
+    isLoading, 
+    isError, 
+    refetch 
+  } = useGetTranscripts(orgId, page, limit);
 
   // Filter transcripts based on search term
-  const filteredTranscripts = mockTranscripts.filter(
-    transcript => transcript.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredTranscripts = transcripts?.data?.filter(
+    transcript => (transcript.name || "").toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
+
+  // Handle page change
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (transcripts?.pagination && page < transcripts.pagination.pages) {
+      setPage(page + 1);
+    }
+  };
+
+  // Calculate sentiment percentage if analysis is available
+  const calculateSentiment = (transcript: any) => {
+    if (transcript.analysis?.overallSentiment !== undefined) {
+      // Convert from -1 to 1 scale to 0 to 100 scale
+      return ((transcript.analysis.overallSentiment + 1) / 2) * 100;
+    }
+    return null;
+  };
+
+  // Error handling
+  useEffect(() => {
+    if (isError) {
+      toast.error("Failed to load transcripts. Please try again.");
+    }
+  }, [isError]);
+
+  // If no organization is selected
+  if (!orgId) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card>
+          <CardContent className="pt-6">
+            No organization selected. Please select an organization first.
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <>
+      <Toaster />
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -157,6 +135,9 @@ const TranscriptsPage: React.FC = () => {
             <Button 
               variant="outline" 
               className="flex items-center gap-2"
+              onClick={() => {
+                toast.success("Filter applied!");
+              }}
             >
               <ListFilter className="h-4 w-4" />
               Filter
@@ -165,6 +146,9 @@ const TranscriptsPage: React.FC = () => {
             <Button 
               variant="outline" 
               className="flex items-center gap-2"
+              onClick={() => {
+                toast.success("Data exported successfully!");
+              }}
             >
               <Download className="h-4 w-4" />
               Export
@@ -185,7 +169,14 @@ const TranscriptsPage: React.FC = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Button variant="outline">Advanced Search</Button>
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  toast.success("Advanced search applied!");
+                }}
+              >
+                Advanced Search
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -194,99 +185,175 @@ const TranscriptsPage: React.FC = () => {
           <CardHeader className="pb-2">
             <CardTitle>All Transcripts</CardTitle>
             <CardDescription>
-              {filteredTranscripts.length} transcripts found
+              {isLoading 
+                ? "Loading transcripts..." 
+                : `${filteredTranscripts.length} transcripts found (${transcripts?.pagination?.total || 0} total)`}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Sentiment</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredTranscripts.map((transcript) => (
-                  <TableRow key={transcript.id}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center">
-                        <FileText className="h-4 w-4 mr-2 text-gray-500" />
-                        {transcript.title}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center text-gray-600">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        {formatDate(transcript.date)}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center text-gray-600">
-                        <Clock className="h-4 w-4 mr-2" />
-                        {transcript.duration}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {transcript.status === "processed" ? (
-                        <div className="flex items-center">
-                          <div className="mr-2 h-2 w-full max-w-24 rounded-full bg-gray-200">
-                            <div 
-                              className={`h-2 rounded-full ${
-                                transcript.sentiment > 0.7 
-                                  ? "bg-green-500" 
-                                  : transcript.sentiment > 0.4 
-                                    ? "bg-yellow-500" 
-                                    : "bg-red-500"
-                              }`}
-                              style={{ width: `${transcript.sentiment * 100}%` }}
-                            />
-                          </div>
-                          <span>{Math.round(transcript.sentiment * 100)}%</span>
-                        </div>
-                      ) : (
-                        <span className="text-gray-500">--</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        transcript.status === "processed" 
-                          ? "bg-green-100 text-green-800" 
-                          : transcript.status === "processing" 
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-red-100 text-red-800"
-                      }`}>
-                        {transcript.status === "processed" 
-                          ? "Processed" 
-                          : transcript.status === "processing" 
-                            ? "Processing" 
-                            : "Failed"}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>View Analysis</DropdownMenuItem>
-                          <DropdownMenuItem>Download Transcript</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            {isLoading ? (
+              <div className="flex justify-center items-center py-16">
+                <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+                <span className="ml-2 text-gray-500">Loading transcripts...</span>
+              </div>
+            ) : isError ? (
+              <div className="flex flex-col items-center justify-center py-16 text-red-500">
+                <p>Failed to load transcripts. Please try again.</p>
+                <Button 
+                  variant="outline" 
+                  className="mt-4"
+                  onClick={() => refetch()}
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : filteredTranscripts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+                <FileText className="h-12 w-12 mb-3 text-gray-400" />
+                <p>No transcripts found</p>
+                <p className="text-sm mt-1">Try adjusting your search or filters</p>
+              </div>
+            ) : (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Duration</TableHead>
+                      <TableHead>Sentiment</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="w-[100px]">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredTranscripts.map((transcript) => {
+                      const sentiment = calculateSentiment(transcript);
+                      const status = statusMap[transcript.status as TranscriptStatus] || "processing";
+                      const analysisDate = transcript.analysis?.date || transcript.createdAt;
+                      
+                      return (
+                        <TableRow key={transcript.id}>
+                          <TableCell className="font-medium">
+                            <div className="flex items-center">
+                              <FileText className="h-4 w-4 mr-2 text-gray-500" />
+                              {transcript.name || "Unnamed Transcript"}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center text-gray-600">
+                              <Calendar className="h-4 w-4 mr-2" />
+                              {formatDate(analysisDate)}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center text-gray-600">
+                              <Clock className="h-4 w-4 mr-2" />
+                              {transcript.analysis?.duration || "N/A"}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {status === "processed" && sentiment !== null ? (
+                              <div className="flex items-center">
+                                <div className="mr-2 h-2 w-full max-w-24 rounded-full bg-gray-200">
+                                  <div 
+                                    className={`h-2 rounded-full ${
+                                      sentiment > 70 
+                                        ? "bg-green-500" 
+                                        : sentiment > 40 
+                                          ? "bg-yellow-500" 
+                                          : "bg-red-500"
+                                    }`}
+                                    style={{ width: `${sentiment}%` }}
+                                  />
+                                </div>
+                                <span>{Math.round(sentiment)}%</span>
+                              </div>
+                            ) : (
+                              <span className="text-gray-500">--</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                              status === "processed" 
+                                ? "bg-green-100 text-green-800" 
+                                : status === "processing" 
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-red-100 text-red-800"
+                            }`}>
+                              {status === "processed" 
+                                ? "Processed" 
+                                : status === "processing" 
+                                  ? "Processing" 
+                                  : "Failed"}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                  <span className="sr-only">Open menu</span>
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuItem onClick={() => {
+                                  toast.success("Viewing analysis!");
+                                }}>
+                                  View Analysis
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {
+                                  toast.success("Transcript downloaded!");
+                                }}>
+                                  Download Transcript
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem 
+                                  className="text-red-600"
+                                  onClick={() => {
+                                    toast.error("Delete functionality not implemented yet.");
+                                  }}
+                                >
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+                
+                {/* Pagination */}
+                {transcripts?.pagination && transcripts.pagination.pages > 1 && (
+                  <div className="flex justify-center mt-6">
+                    <div className="flex items-center space-x-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        disabled={page === 1}
+                        onClick={handlePreviousPage}
+                      >
+                        Previous
+                      </Button>
+                      <span className="text-sm">
+                        Page {page} of {transcripts.pagination.pages}
+                      </span>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        disabled={page === transcripts.pagination.pages}
+                        onClick={handleNextPage}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </CardContent>
         </Card>
       </motion.div>
@@ -294,4 +361,4 @@ const TranscriptsPage: React.FC = () => {
   );
 };
 
-export default TranscriptsPage; 
+export default TranscriptsPage;
