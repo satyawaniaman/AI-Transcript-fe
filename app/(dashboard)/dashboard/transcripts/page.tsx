@@ -237,7 +237,7 @@ const TranscriptsPage: React.FC = () => {
                           <TableCell className="font-medium">
                             <div className="flex items-center">
                               <FileText className="h-4 w-4 mr-2 text-gray-500" />
-                              {transcript.name || "Unnamed Transcript"}
+                              {transcript.analysis?.title || "Unnamed Transcript"}
                             </div>
                           </TableCell>
                           <TableCell>
