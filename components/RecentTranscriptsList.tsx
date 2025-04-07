@@ -9,6 +9,7 @@ interface TranscriptItem {
   name?: string | null;
   createdAt: string;
   analysis?: {
+    title?: string;
     date: string;
     duration: string;
     overallSentiment: number;
@@ -99,7 +100,7 @@ const RecentTranscriptsList: React.FC<RecentTranscriptsListProps> = ({
                   <div className="flex items-center">
                     <FileText className="h-4 w-4 text-gray-400 mr-2" />
                     <span className="font-medium text-navy-800">
-                      {transcript.name || 'Unnamed Transcript'}
+                      {transcript.analysis?.title || 'Unnamed Transcript'}
                     </span>
                   </div>
                 </td>

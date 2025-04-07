@@ -192,8 +192,6 @@ const Dashboard = () => {
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="transcripts">Transcripts</TabsTrigger>
-          <TabsTrigger value="objections">Objections</TabsTrigger>
-          <TabsTrigger value="insights">Insights</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -306,12 +304,12 @@ const Dashboard = () => {
                       <tbody>
                         {transcripts.data.map((item) => (
                           <tr key={item.id} className="border-b">
-                            <td className="py-2">{item.name || 'Unnamed'}</td>
+                            <td className="py-2">{item.analysis?.title || 'Unnamed'}</td>
                             <td className="py-2">{item.analysis ? new Date(item.analysis.date).toLocaleDateString() : 'N/A'}</td>
                             <td className="py-2">{item.analysis?.duration || 'N/A'}</td>
                             <td className="py-2">{item.analysis ? `${((item.analysis.overallSentiment + 1) / 2 * 100).toFixed(1)}%` : 'N/A'}</td>
                             <td className="py-2">
-                              <Button size="sm" variant="outline">View</Button>
+                              <Button size="sm" onClick={() => window.open(item.content)} variant="outline">View</Button>
                             </td>
                           </tr>
                         ))}
@@ -365,80 +363,7 @@ const Dashboard = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="objections" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Objection Library</CardTitle>
-              <CardDescription>
-                A catalog of all objections encountered and how you handled them
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {commonLoading ? (
-                <p className="py-8 text-center text-gray-500">Loading objections...</p>
-              ) : commonObjections && commonObjections.types ? (
-                <div>
-                  <h3 className="font-medium mb-2">Objection Types</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                    {Object.entries(commonObjections.types).map(([type, count]) => (
-                      <div key={type} className="border rounded p-3">
-                        <div className="text-sm text-gray-500">{type}</div>
-                        <div className="text-lg font-bold">{count}</div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <h3 className="font-medium mb-2 mt-4">Top Objections</h3>
-                  {commonObjections.topObjections && commonObjections.topObjections.length > 0 ? (
-                    <ul className="list-disc pl-5">
-                      {commonObjections.topObjections.map((obj, index) => (
-                        <li key={index} className="mb-1">
-                          {obj.text} <span className="text-gray-500">({obj.count} times, {obj.type})</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-center text-gray-500">No detailed objection data available</p>
-                  )}
-                </div>
-              ) : (
-                <p className="py-8 text-center text-gray-500">
-                  No objection data available yet. Upload sales calls to see objections detected.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
 
-        <TabsContent value="insights" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>AI-Generated Insights</CardTitle>
-              <CardDescription>
-                Personalized coaching recommendations based on your sales calls
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="py-8 text-center text-gray-500">
-                This section will provide AI-generated insights and coaching
-                advice based on patterns observed across your sales calls.
-                {transcriptsCount?.count === 0 && (
-                  <div className="mt-4">
-                    Upload your first transcript to start receiving AI insights.
-                    <div className="flex justify-center mt-4">
-                      <Button asChild>
-                        <Link href="/dashboard/upload">
-                          <PlusCircle className="h-4 w-4 mr-2" />
-                          Upload Transcript
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </>
   );
