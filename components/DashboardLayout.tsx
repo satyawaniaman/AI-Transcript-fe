@@ -13,7 +13,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  BarChart2,
   FileText,
   HelpCircle,
   LayoutDashboard,
@@ -59,7 +58,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Teams", href: "/dashboard/teams", icon: Users },
     { name: "Upload", href: "/dashboard/upload", icon: Upload },
-    { name: "Analysis", href: "/dashboard/analysis", icon: BarChart2 },
     { name: "Transcripts", href: "/dashboard/transcripts", icon: FileText },
     { name: "Objections", href: "/dashboard/objections", icon: MessageSquare },
     { name: "Insights", href: "/dashboard/insights", icon: PieChart },
