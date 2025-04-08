@@ -75,7 +75,7 @@ const InviteTeamMemberPage = () => {
       const initialSelectedTeams = teamsData.map((team) => ({
         id: team.id,
         name: team.name,
-        selected: teamId === team.id, // Pre-select the team from URL if it matches
+        selected: teamId !== null && teamId === team.id, // Pre-select the team from URL if it matches
       }));
       setSelectedTeams(initialSelectedTeams);
     }
