@@ -46,6 +46,15 @@ const Dashboard = () => {
   const [page, setPage] = useState(1);
   const limit = 5;
 
+  const isLoading = userLoading || !user;
+
+  if (isLoading) {
+    return <DashboardSkeleton />;
+  }
+  
+  if (user.organizations.length === 0) {
+    return <NoOrganizationScreen />;
+  }
   // Fetch all dashboard data
   const { data: transcriptsCount, isLoading: countLoading } = useGetTranscriptsCount(orgId);
   const { data: sentiment, isLoading: sentimentLoading } = useGetAverageSentiment(orgId);
@@ -55,15 +64,7 @@ const Dashboard = () => {
   const { data: commonObjections, isLoading: commonLoading } = useGetCommonObjections(orgId);
   const { data: transcripts, isLoading: transcriptsLoading } = useGetTranscripts(orgId, page, limit);
 
-  const isLoading = userLoading || !user;
 
-  if (isLoading) {
-    return <DashboardSkeleton />;
-  }
-
-  if (user.organizations.length === 0) {
-    return <NoOrganizationScreen />;
-  }
 
   if (!orgId) {
     return (
