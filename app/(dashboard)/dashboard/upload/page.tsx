@@ -173,7 +173,7 @@ const UploadPage = () => {
             // Extract the file URL from the presigned URL
             // The format is typically the URL without the query parameters
 
-            const baseUrl = 'https://olxzxwlzliidocxvlcdq.supabase.co/storage/v1/object/public';
+            const baseUrl = 'https://eszghbzdaorgzigavzkm.supabase.co/storage/v1/object/public';
   
   // Extract the path after "sign/uploads" from the presigned URL
   const urlParts = presignedUrls[index].split('/');
