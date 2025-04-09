@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,11 +13,20 @@ import {
 import { Plus, ArrowRight, Building2 } from "lucide-react";
 import useCurrentOrg, { Organization } from "@/store/useCurrentOrg";
 import { useGetOrgs } from "@/services/organisation/query";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function OrganizationPage() {
   const router = useRouter();
-  const { data: orgs, isLoading } = useGetOrgs();
+  const queryClient = useQueryClient();
+  const { data: orgs, isLoading, refetch } = useGetOrgs();
   const { setCurrentOrg } = useCurrentOrg();
+
+  // Force refetch organizations when this page loads
+  useEffect(() => {
+    refetch();
+
+    queryClient.invalidateQueries({ queryKey: ["organisations"] });
+  }, [refetch, queryClient]);
 
   const handleSelectOrg = (orgName: Organization) => {
     setCurrentOrg(orgName);
