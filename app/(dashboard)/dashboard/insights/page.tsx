@@ -285,76 +285,7 @@ const InsightsPage: React.FC = () => {
                 </Card>
               </motion.div>
 
-              {/* Skill Breakdown */}
-              <motion.div variants={itemVariants}>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Sales Skills Breakdown</CardTitle>
-                    <CardDescription>
-                      Assessment of your key sales competencies based on call
-                      analysis
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-sm font-medium">
-                            Discovery Skills
-                          </span>
-                          <span className="text-sm font-medium">85%</span>
-                        </div>
-                        <Progress value={85} className="h-2" />
-                      </div>
-                      <div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-sm font-medium">
-                            Objection Handling
-                          </span>
-                          <span className="text-sm font-medium">72%</span>
-                        </div>
-                        <Progress value={72} className="h-2" />
-                      </div>
-                      <div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-sm font-medium">
-                            Value Articulation
-                          </span>
-                          <span className="text-sm font-medium">80%</span>
-                        </div>
-                        <Progress value={80} className="h-2" />
-                      </div>
-                      <div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-sm font-medium">
-                            Active Listening
-                          </span>
-                          <span className="text-sm font-medium">90%</span>
-                        </div>
-                        <Progress value={90} className="h-2" />
-                      </div>
-                      <div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-sm font-medium">
-                            Technical Knowledge
-                          </span>
-                          <span className="text-sm font-medium">65%</span>
-                        </div>
-                        <Progress value={65} className="h-2" />
-                      </div>
-                      <div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-sm font-medium">
-                            Closing Techniques
-                          </span>
-                          <span className="text-sm font-medium">78%</span>
-                        </div>
-                        <Progress value={78} className="h-2" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+              
             </motion.div>
           </TabsContent>
 

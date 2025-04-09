@@ -34,6 +34,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast, Toaster } from "react-hot-toast";
 import { useGetTranscripts } from "@/services/dashboard/query";
 import useCurrentOrg from "@/store/useCurrentOrg";
+import Link from "next/link";
 
 // Define the status type for type safety
 type TranscriptStatus = "PENDING" | "SUCCESS" | "FAIL";
@@ -297,10 +298,10 @@ const TranscriptsPage: React.FC = () => {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem onClick={() => {
-                                  toast.success("Viewing analysis!");
-                                }}>
-                                  View Analysis
+                                <DropdownMenuItem >
+                                  <Link href={`/dashboard/analysis/${transcript.id}`}>
+                                    View Analysis                                  
+                                  </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => {
                                   toast.success("Transcript downloaded!");
