@@ -250,7 +250,7 @@ const Dashboard = () => {
                     Loading objections...
                   </p>
                 ) : commonObjections ? (
-                  <ObjectionsList /> // data={commonObjections}
+                  <ObjectionsList objections={[]} /> // data={commonObjections}
                 ) : (
                   <p className="py-8 text-center text-gray-500">
                     No objection data available
@@ -271,7 +271,7 @@ const Dashboard = () => {
                   </CardDescription>
                 </div>
                 <Button asChild variant="ghost" size="sm">
-                  <Link href="/transcripts">View all</Link>
+                  <Link href="/dashboard/transcripts">View all</Link>
                 </Button>
               </div>
             </CardHeader>

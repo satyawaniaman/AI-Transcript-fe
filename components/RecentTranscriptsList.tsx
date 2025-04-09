@@ -119,7 +119,7 @@ const RecentTranscriptsList: React.FC<RecentTranscriptsListProps> = ({
                 </td>
                 <td className="py-3 px-4">
                   <Link 
-                    href={`/transcripts/${transcript.id}`} 
+                    href={`/dashboard/analysis/${transcript.id}`} 
                     className="text-[#0284c7] hover:text-[#0284c7]/90 font-medium flex items-center"
                   >
                     View
