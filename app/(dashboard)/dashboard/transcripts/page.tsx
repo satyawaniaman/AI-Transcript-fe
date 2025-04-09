@@ -58,10 +58,10 @@ const formatDate = (dateString: string) => {
 const TranscriptsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const limit = 10;
   
   const { currentOrg } = useCurrentOrg();
-  const orgId = currentOrg?.id as string;
+  const orgId = currentOrg?.id || "";
   
   const { 
     data: transcripts, 
@@ -102,9 +102,8 @@ const TranscriptsPage: React.FC = () => {
     if (isError) {
       toast.error("Failed to load transcripts. Please try again.");
     }
-  }, [isError]);
+  }, [isError, toast]);
 
-  // If no organization is selected
   if (!orgId) {
     return (
       <div className="flex items-center justify-center min-h-screen">
