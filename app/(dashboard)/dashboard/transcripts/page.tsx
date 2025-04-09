@@ -331,7 +331,11 @@ const TranscriptsPage: React.FC = () => {
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() => {
-                                    toast.success("Transcript downloaded!");
+                                    if(transcript.type === "FILE"){
+                                      window.open(transcript.content)
+                                    } else{
+                                      navigator.clipboard.writeText(transcript.content).then(() => toast.success("Transcript copied successfully"))
+                                    }
                                   }}
                                 >
                                   Download Transcript
