@@ -96,7 +96,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       const currOrg = user.organizations?.[0]?.organization;
       setCurrentOrg(currOrg as Organization);
     }
-  }, [user]);
+  }, [user, setCurrentOrg]);
 
   // Use our skeleton component instead of "Loading..."
   if (isLoading) {
@@ -106,7 +106,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex">
       {/* Sidebar for desktop */}
-      <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
+      <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 z-20">
         <div className="flex flex-col h-full bg-navy-800 overflow-y-auto">
           {/* Sidebar header */}
           <div className="flex items-center h-16 shrink-0 px-4 border-b border-navy-700">
@@ -395,7 +395,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       </div>
 
       {/* Main content */}
-      <div className="md:pl-64 flex flex-col flex-1">
+      <div className="md:pl-64 flex flex-col flex-1 relative w-full">
         {/* Top navigation */}
         <div className="sticky top-0 z-10 md:hidden shrink-0 flex h-16 bg-white border-b border-gray-200">
           <button
@@ -431,7 +431,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </div>
 
         {/* Main content */}
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-6 overflow-x-auto">
+          <div className="max-w-full">{children}</div>
+        </main>
       </div>
     </div>
   );
@@ -451,18 +453,17 @@ const UserMenu = () => {
           variant="outline"
           className="relative h-8 w-8 rounded-full border-gray-200 bg-white hover:bg-sky-100 hover:border-sky-300 transition-all duration-200"
         >
-<Avatar className="h-8 w-8">
-  <AvatarImage 
-    src={`https://ui-avatars.com/api/?name=${user?.firstName}+${user?.lastName}&color=fff&background=102E50`} 
-  />
-  <AvatarFallback className="bg-navy-700 text-white">
-    {isLoading
-      ? "..."
-      : (user?.firstName?.charAt(0).toUpperCase() || "") +
-        (user?.lastName?.charAt(0).toUpperCase() || "")}
-  </AvatarFallback>
-</Avatar>
-
+          <Avatar className="h-8 w-8">
+            <AvatarImage
+              src={`https://ui-avatars.com/api/?name=${user?.firstName}+${user?.lastName}&color=fff&background=102E50`}
+            />
+            <AvatarFallback className="bg-navy-700 text-white">
+              {isLoading
+                ? "..."
+                : (user?.firstName?.charAt(0).toUpperCase() || "") +
+                  (user?.lastName?.charAt(0).toUpperCase() || "")}
+            </AvatarFallback>
+          </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
