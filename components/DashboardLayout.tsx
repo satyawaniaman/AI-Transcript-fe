@@ -45,10 +45,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   const { data: user, isLoading } = useGetUser();
 
+  const {currentOrg} = useCurrentOrg();
+
   // Add mock organization data
-  const orgName = isLoading
-    ? "..."
-    : user?.organizations[0]?.organization?.name || "Acme Corp";
+  const orgName = currentOrg?.name;
   const orgLogo =
     "https://api.dicebear.com/7.x/initials/svg?seed=" +
     (orgName ? orgName[0] : "A") +

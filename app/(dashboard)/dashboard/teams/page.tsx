@@ -18,15 +18,15 @@ import { useGetUser } from "@/services/user/query";
 import { formatDistance } from "date-fns";
 import { useGetTeams } from "@/services/teams/query";
 import { Skeleton } from "@/components/ui/skeleton";
+import useCurrentOrg from "@/store/useCurrentOrg";
 
 const TeamsPage = () => {
   const router = useRouter();
   // In a real app, this would come from authentication context
   const [userRole] = useState<"sales-manager" | "sales-rep">("sales-manager");
   const { data: user, isLoading: isUserLoading } = useGetUser();
-  const { data: teams, isLoading: isTeamsLoading } = useGetTeams(
-    user?.organizations[0]?.organizationId ?? ""
-  );
+  const {currentOrg} = useCurrentOrg(); 
+  const { data: teams, isLoading: isTeamsLoading } = useGetTeams(currentOrg?.id as string);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Determine if we're in a loading state
