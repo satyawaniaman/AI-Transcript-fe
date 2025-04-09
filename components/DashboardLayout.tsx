@@ -96,7 +96,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       const currOrg = user.organizations?.[0]?.organization;
       setCurrentOrg(currOrg as Organization);
     }
-  }, [user]);
+  }, [user, setCurrentOrg]);
 
   // Use our skeleton component instead of "Loading..."
   if (isLoading) {
@@ -451,18 +451,17 @@ const UserMenu = () => {
           variant="outline"
           className="relative h-8 w-8 rounded-full border-gray-200 bg-white hover:bg-sky-100 hover:border-sky-300 transition-all duration-200"
         >
-<Avatar className="h-8 w-8">
-  <AvatarImage 
-    src={`https://ui-avatars.com/api/?name=${user?.firstName}+${user?.lastName}&color=fff&background=102E50`} 
-  />
-  <AvatarFallback className="bg-navy-700 text-white">
-    {isLoading
-      ? "..."
-      : (user?.firstName?.charAt(0).toUpperCase() || "") +
-        (user?.lastName?.charAt(0).toUpperCase() || "")}
-  </AvatarFallback>
-</Avatar>
-
+          <Avatar className="h-8 w-8">
+            <AvatarImage
+              src={`https://ui-avatars.com/api/?name=${user?.firstName}+${user?.lastName}&color=fff&background=102E50`}
+            />
+            <AvatarFallback className="bg-navy-700 text-white">
+              {isLoading
+                ? "..."
+                : (user?.firstName?.charAt(0).toUpperCase() || "") +
+                  (user?.lastName?.charAt(0).toUpperCase() || "")}
+            </AvatarFallback>
+          </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
