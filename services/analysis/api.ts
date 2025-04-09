@@ -63,7 +63,7 @@ interface GetCallAssetResponse {
  * @returns Promise with the call asset and its analysis
  */
 export const getCallAssetWithAnalysis = async (id: string): Promise<GetCallAssetResponse> => {
-  const response = await api.get(`/api/assets/${id}`);
+  const response = await api.get(`/api/callasset/${id}`);
   return response.data;
 };
 
