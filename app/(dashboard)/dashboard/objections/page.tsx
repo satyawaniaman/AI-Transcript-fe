@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   ChevronDown, 
@@ -13,195 +13,138 @@ import {
   Briefcase,
   Users,
 } from "lucide-react";
-import { Card, CardContent,  CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Tabs,  TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/components/ui/use-toast";
+import useOrganization from "@/store/useCurrentOrg"; // Assuming you have this hook
+import { 
+  useGetCategoryCounts,
+  useGetObjections,
+} from "@/services/objections/query";
+import {ObjectionCategory} from "@/services/objections/api"
 
-type ObjectionCategory = "price" | "timing" | "trust" | "competition" | "stakeholders" | "other";
-
-interface Objection {
-  id: string;
-  type: ObjectionCategory;
-  text: string;
-  transcript: string;
-  date: string;
-  response: string;
-  effectiveness: number;
-  color: string;
-  icon: React.ReactNode;
-}
-
-// Helper function to map category to color and icon
-const getCategoryDetails = (category: ObjectionCategory) => {
+// Helper function to map category to icon
+const getCategoryIcon = (category: ObjectionCategory) => {
   switch (category) {
-    case "price":
-      return { 
-        color: "bg-red-100 text-red-600", 
-        icon: <DollarSign className="h-5 w-5" />
-      };
-    case "timing":
-      return { 
-        color: "bg-orange-100 text-orange-600", 
-        icon: <Clock className="h-5 w-5" /> 
-      };
-    case "trust":
-      return { 
-        color: "bg-blue-100 text-blue-600", 
-        icon: <ShieldCheck className="h-5 w-5" /> 
-      };
-    case "competition":
-      return { 
-        color: "bg-purple-100 text-purple-600", 
-        icon: <Briefcase className="h-5 w-5" /> 
-      };
-    case "stakeholders":
-      return { 
-        color: "bg-green-100 text-green-600", 
-        icon: <Users className="h-5 w-5" /> 
-      };
+    case "PRICE":
+      return <DollarSign className="h-5 w-5" />;
+    case "TIMING":
+      return <Clock className="h-5 w-5" />;
+    case "TRUST_RISK":
+      return <ShieldCheck className="h-5 w-5" />;
+    case "COMPETITION":
+      return <Briefcase className="h-5 w-5" />;
+    case "STAKEHOLDERS":
+      return <Users className="h-5 w-5" />;
     default:
-      return { 
-        color: "bg-gray-100 text-gray-600", 
-        icon: <MessageSquare className="h-5 w-5" /> 
-      };
+      return <MessageSquare className="h-5 w-5" />;
   }
 };
 
-// Create mock data
-const generateMockObjections = (): Objection[] => {
-  const objections: Objection[] = [
-    {
-      id: "obj-1",
-      type: "price",
-      text: "Your solution is more expensive than what we've budgeted for this quarter.",
-      transcript: "Sales Call - ABC Corp Product Demo",
-      date: "2023-06-15",
-      response: "We offer flexible payment terms that can split the cost across multiple quarters, and we also have a scaled-down version that could fit your current budget while allowing for expansion later.",
-      effectiveness: 0.75,
-      ...getCategoryDetails("price")
-    },
-    {
-      id: "obj-2",
-      type: "price",
-      text: "The ROI doesn't seem to justify the cost for our company size.",
-      transcript: "Discovery Call - XYZ Enterprises",
-      date: "2023-06-12",
-      response: "For companies in your industry and size range, our customers typically see ROI within 4-6 months. I can share some case studies showing exactly how similar companies have achieved this.",
-      effectiveness: 0.85,
-      ...getCategoryDetails("price")
-    },
-    {
-      id: "obj-3",
-      type: "timing",
-      text: "We're not ready to make a decision until next quarter.",
-      transcript: "Follow-up Call - TechSolutions Inc",
-      date: "2023-06-08",
-      response: "I understand your timeline. What if we started with a pilot program now that requires minimal commitment, so you can evaluate results before making a full decision next quarter?",
-      effectiveness: 0.65,
-      ...getCategoryDetails("timing")
-    },
-    {
-      id: "obj-4",
-      type: "trust",
-      text: "We're concerned about the implementation process and potential disruption.",
-      transcript: "Pricing Negotiation - Acme Corp",
-      date: "2023-06-05",
-      response: "That's a valid concern. We have a dedicated implementation team that works after-hours to minimize disruption. I can walk you through our standard implementation plan that typically takes only 2-3 days of minimal system impact.",
-      effectiveness: 0.9,
-      ...getCategoryDetails("trust")
-    },
-    {
-      id: "obj-5",
-      type: "competition",
-      text: "We're already using Competitor X's solution, and switching seems complicated.",
-      transcript: "Product Demo - Global Industries",
-      date: "2023-06-01",
-      response: "We've actually developed a specialized migration tool specifically for Competitor X users that automates 90% of the data transfer process. We also offer two weeks of parallel running to ensure a smooth transition.",
-      effectiveness: 0.8,
-      ...getCategoryDetails("competition")
-    },
-    {
-      id: "obj-6",
-      type: "stakeholders",
-      text: "I need to get approval from the IT department before we can proceed.",
-      transcript: "Initial Contact - New Prospect Inc",
-      date: "2023-05-28",
-      response: "I'd be happy to join you for that conversation with IT. We have technical documentation and security compliance information ready that addresses most common IT department concerns.",
-      effectiveness: 0.7,
-      ...getCategoryDetails("stakeholders")
-    },
-    {
-      id: "obj-7",
-      type: "trust",
-      text: "How can we be sure your company will still be around in 5 years?",
-      transcript: "Quarterly Review - Existing Client",
-      date: "2023-05-25",
-      response: "That's a fair question. We've been in business for 12 years, are profitable with no debt, and have a client retention rate of 94%. We're also backed by [Major Venture Capital Firm] who has committed to our long-term growth strategy.",
-      effectiveness: 0.95,
-      ...getCategoryDetails("trust")
-    },
-    {
-      id: "obj-8",
-      type: "timing",
-      text: "We just implemented another system, so we need to wait at least six months.",
-      transcript: "Technical Walkthrough - Dev Team",
-      date: "2023-05-22",
-      response: "I understand the change fatigue concern. What if we use this time to do a thorough planning phase? We can start with requirements gathering and configuration now, but delay the actual implementation until your team is ready.",
-      effectiveness: 0.6,
-      ...getCategoryDetails("timing")
-    },
-    {
-      id: "obj-9",
-      type: "stakeholders",
-      text: "Our CEO needs to sign off on any purchase of this size.",
-      transcript: "Contract Review - Legal Discussion",
-      date: "2023-05-20",
-      response: "I'd be happy to prepare an executive summary specifically for your CEO that focuses on the strategic benefits and ROI. I can also make myself available for a brief 15-minute call if that would help in the decision process.",
-      effectiveness: 0.8,
-      ...getCategoryDetails("stakeholders")
-    },
-    {
-      id: "obj-10",
-      type: "price",
-      text: "We've received a lower quote from another vendor.",
-      transcript: "Onboarding Call - New Customer",
-      date: "2023-05-18",
-      response: "I appreciate you sharing that. While I can't speak to their offering specifically, I'd love to understand what features are most important to you so I can show how our solution might provide better long-term value despite the initial price difference.",
-      effectiveness: 0.7,
-      ...getCategoryDetails("price")
-    },
-  ];
-  
-  return objections;
-};
-
-const mockObjections = generateMockObjections();
-
-// Category counts for dashboard
-const categoryCounts = {
-  price: mockObjections.filter(obj => obj.type === "price").length,
-  timing: mockObjections.filter(obj => obj.type === "timing").length,
-  trust: mockObjections.filter(obj => obj.type === "trust").length,
-  competition: mockObjections.filter(obj => obj.type === "competition").length,
-  stakeholders: mockObjections.filter(obj => obj.type === "stakeholders").length,
-  other: mockObjections.filter(obj => obj.type === "other").length,
-};
-
 const ObjectionsPage: React.FC = () => {
+  const { toast } = useToast();
+  const { currentOrg } = useOrganization();
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState("all");
-
-  // Filter objections based on search and active tab
-  const filteredObjections = mockObjections.filter(objection => {
-    const matchesSearch = objection.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          objection.response.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          objection.transcript.toLowerCase().includes(searchTerm.toLowerCase());
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [activeTab, setActiveTab] = useState<"all" | ObjectionCategory>("all");
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
     
-    if (activeTab === "all") return matchesSearch;
-    return matchesSearch && objection.type === activeTab;
-  });
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+  
+  // Reset pagination when search or tab changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, activeTab]);
+
+  // Fetch category counts
+  const { 
+    data: categoryCounts = { 
+      price: 0, 
+      timing: 0, 
+      trust: 0, 
+      competition: 0, 
+      stakeholders: 0, 
+      other: 0 
+    },
+    isLoading: isLoadingCounts,
+    error: countError
+  } = useGetCategoryCounts(currentOrg?.id || "");
+
+  // Fetch objections
+  const {
+    data: objectionsResponse,
+    isLoading: isLoadingObjections,
+    error: objectionsError
+  } = useGetObjections(
+    currentOrg?.id || "",
+    page,
+    limit,
+    debouncedSearch,
+    activeTab,
+    !!currentOrg?.id
+  );
+
+  // Extract objections and add icons
+  const objections = objectionsResponse?.data.map(objection => ({
+    ...objection,
+    icon: getCategoryIcon(objection.type)
+  })) || [];
+
+  // Handle pagination
+  const totalPages = objectionsResponse?.pagination.pages || 1;
+
+  // Handle errors
+  useEffect(() => {
+    if (countError) {
+      toast({
+        title: "Error",
+        description: "Failed to load objection categories",
+        variant: "destructive",
+      });
+    }
+    
+    if (objectionsError) {
+      toast({
+        title: "Error",
+        description: "Failed to load objections",
+        variant: "destructive",
+      });
+    }
+  }, [countError, objectionsError, toast]);
+
+  // Handle search
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Handle tab change
+  const handleTabChange = (value: string) => {
+    setActiveTab(value as "all" | ObjectionCategory);
+  };
+
+  // Handle pagination
+  const handleNextPage = () => {
+    if (page < totalPages) {
+      setPage(page + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  };
 
   return (
     <>
@@ -245,7 +188,7 @@ const ObjectionsPage: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{categoryCounts.price}</div>
+              <div className="text-2xl font-bold">{isLoadingCounts ? "..." : categoryCounts.price}</div>
               <Progress value={categoryCounts.price * 10} className="h-1 mt-2" />
             </CardContent>
           </Card>
@@ -258,7 +201,7 @@ const ObjectionsPage: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{categoryCounts.timing}</div>
+              <div className="text-2xl font-bold">{isLoadingCounts ? "..." : categoryCounts.timing}</div>
               <Progress value={categoryCounts.timing * 10} className="h-1 mt-2" />
             </CardContent>
           </Card>
@@ -271,7 +214,7 @@ const ObjectionsPage: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{categoryCounts.trust}</div>
+              <div className="text-2xl font-bold">{isLoadingCounts ? "..." : categoryCounts.trust}</div>
               <Progress value={categoryCounts.trust * 10} className="h-1 mt-2" />
             </CardContent>
           </Card>
@@ -284,7 +227,7 @@ const ObjectionsPage: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{categoryCounts.competition}</div>
+              <div className="text-2xl font-bold">{isLoadingCounts ? "..." : categoryCounts.competition}</div>
               <Progress value={categoryCounts.competition * 10} className="h-1 mt-2" />
             </CardContent>
           </Card>
@@ -297,7 +240,7 @@ const ObjectionsPage: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{categoryCounts.stakeholders}</div>
+              <div className="text-2xl font-bold">{isLoadingCounts ? "..." : categoryCounts.stakeholders}</div>
               <Progress value={categoryCounts.stakeholders * 10} className="h-1 mt-2" />
             </CardContent>
           </Card>
@@ -310,7 +253,7 @@ const ObjectionsPage: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{categoryCounts.other}</div>
+              <div className="text-2xl font-bold">{isLoadingCounts ? "..." : categoryCounts.other}</div>
               <Progress value={categoryCounts.other * 10} className="h-1 mt-2" />
             </CardContent>
           </Card>
@@ -327,7 +270,7 @@ const ObjectionsPage: React.FC = () => {
                   placeholder="Search objections..." 
                   className="pl-8" 
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={handleSearch}
                 />
               </div>
               <Button variant="outline">Advanced Search</Button>
@@ -338,59 +281,88 @@ const ObjectionsPage: React.FC = () => {
         {/* Objections List */}
         <Card>
           <CardHeader>
-            <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
+            <Tabs value={activeTab} onValueChange={handleTabChange}>
               <TabsList className="w-full sm:w-auto">
                 <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="price">Price</TabsTrigger>
-                <TabsTrigger value="timing">Timing</TabsTrigger>
-                <TabsTrigger value="trust">Trust</TabsTrigger>
-                <TabsTrigger value="competition">Competition</TabsTrigger>
-                <TabsTrigger value="stakeholders">Stakeholders</TabsTrigger>
+                <TabsTrigger value="PRICE">Price</TabsTrigger>
+                <TabsTrigger value="TIMING">Timing</TabsTrigger>
+                <TabsTrigger value="TRUST_RISK">Trust</TabsTrigger>
+                <TabsTrigger value="COMPETITION">Competition</TabsTrigger>
+                <TabsTrigger value="STAKEHOLDERS">Stakeholders</TabsTrigger>
               </TabsList>
             </Tabs>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {filteredObjections.length > 0 ? (
-                filteredObjections.map((objection) => (
-                  <div key={objection.id} className="border rounded-lg p-4">
-                    <div className="flex flex-col md:flex-row md:items-start gap-4">
-                      <div className={`${objection.color} h-10 w-10 rounded-full flex items-center justify-center shrink-0`}>
-                        {objection.icon}
-                      </div>
-                      <div className="grow">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
-                          <h3 className="font-medium text-navy-800">{objection.text}</h3>
-                          <div className="flex items-center">
-                            <div className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded mr-2">
-                              {objection.transcript}
+              {isLoadingObjections ? (
+                <div className="text-center py-8">
+                  <p>Loading objections...</p>
+                </div>
+              ) : objections.length > 0 ? (
+                <>
+                  {objections.map((objection) => (
+                    <div key={objection.id} className="border rounded-lg p-4">
+                      <div className="flex flex-col md:flex-row md:items-start gap-4">
+                        <div className={`${objection.color} h-10 w-10 rounded-full flex items-center justify-center shrink-0`}>
+                          {objection.icon}
+                        </div>
+                        <div className="grow">
+                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
+                            <h3 className="font-medium text-navy-800">{objection.text}</h3>
+                            <div className="flex items-center">
+                              <div className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded mr-2">
+                                {objection.transcript}
+                              </div>
+                              <span className={`text-xs px-2 py-1 rounded ${
+                                objection.effectiveness > 0.8 
+                                  ? "bg-green-100 text-green-800" 
+                                  : objection.effectiveness > 0.6 
+                                    ? "bg-yellow-100 text-yellow-800" 
+                                    : "bg-red-100 text-red-800"
+                              }`}>
+                                {Math.round(objection.effectiveness * 100)}% Effective
+                              </span>
                             </div>
-                            <span className={`text-xs px-2 py-1 rounded ${
-                              objection.effectiveness > 0.8 
-                                ? "bg-green-100 text-green-800" 
-                                : objection.effectiveness > 0.6 
-                                  ? "bg-yellow-100 text-yellow-800" 
-                                  : "bg-red-100 text-red-800"
-                            }`}>
-                              {Math.round(objection.effectiveness * 100)}% Effective
-                            </span>
                           </div>
-                        </div>
-                        <div className="mt-2">
-                          <h4 className="text-sm font-medium text-gray-700">Your Response:</h4>
-                          <p className="text-sm text-gray-600 mt-1">{objection.response}</p>
-                        </div>
-                        <div className="mt-4 text-xs text-gray-500">
-                          From call on {new Date(objection.date).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "short", 
-                            day: "numeric",
-                          })}
+                          <div className="mt-2">
+                            <h4 className="text-sm font-medium text-gray-700">Your Response:</h4>
+                            <p className="text-sm text-gray-600 mt-1">{objection.response}</p>
+                          </div>
+                          <div className="mt-4 text-xs text-gray-500">
+                            From call on {new Date(objection.date).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "short", 
+                              day: "numeric",
+                            })}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                  
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="flex justify-between items-center mt-6">
+                      <Button 
+                        variant="outline" 
+                        onClick={handlePrevPage} 
+                        disabled={page === 1}
+                      >
+                        Previous
+                      </Button>
+                      <div className="text-sm">
+                        Page {page} of {totalPages}
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        onClick={handleNextPage} 
+                        disabled={page === totalPages}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="text-center py-8">
                   <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-3" />
@@ -408,4 +380,4 @@ const ObjectionsPage: React.FC = () => {
   );
 };
 
-export default ObjectionsPage; 
+export default ObjectionsPage;
