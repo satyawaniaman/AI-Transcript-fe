@@ -350,18 +350,32 @@ const AnalysisPage = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4 max-h-[600px] overflow-y-auto p-2">
-                    {/* For transcript content, you'll likely need to parse the asset.content */}
-                    {/* This is just a placeholder - you'll need to implement actual transcript parsing */}
-                    <div className="p-4 text-center text-gray-500">
-                      {asset.content ? (
-                        <div className="whitespace-pre-wrap break-words">{asset.content}</div>
-                      ) : (
-                        <p>Full transcript content is not available</p>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
+  <div className="space-y-4 max-h-[600px] overflow-y-auto p-2">
+    {/* For transcript content, you will parse the asset.content */}
+    <div className="p-4 text-center text-gray-500">
+      {asset.type === 'TEXT' ? (
+        // If the asset type is 'text', display the content directly
+        <div className="whitespace-pre-wrap break-words">
+          {asset.content}
+        </div>
+      ) : asset.type === 'FILE' && asset.content ? (
+        // If the asset type is 'file', and the content is a URL, display the PDF
+        <div className="pdf-viewer">
+          <iframe
+            src={asset.content}
+            width="100%"
+            height="600px"
+            frameBorder="0"
+            title="PDF Viewer"
+          ></iframe>
+        </div>
+      ) : (
+        // If no content is available, show this fallback message
+        <p>Full transcript content is not available</p>
+      )}
+    </div>
+  </div>
+</CardContent>
               </Card>
             </motion.div>
           </TabsContent>
