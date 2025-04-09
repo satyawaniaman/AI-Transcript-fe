@@ -6,13 +6,36 @@ export interface Organisation {
   name: string;
   createdAt: string;
   updatedAt: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  country?: string;
 }
+
+// Mapping function to ensure all required fields are present
+export const mapToOrganization = (apiOrg: any): Organisation => {
+  return {
+    id: apiOrg.id,
+    name: apiOrg.name,
+    createdAt: apiOrg.createdAt,
+    updatedAt: apiOrg.updatedAt,
+    phone: apiOrg.phone || '',
+    address: apiOrg.address || '',
+    city: apiOrg.city || '',
+    state: apiOrg.state || '',
+    zip: apiOrg.zip || '',
+    country: apiOrg.country || ''
+  };
+};
 
 export const createOrganisation = async (
   name: string
 ): Promise<Organisation> => {
   const response = await api.post("/api/organisation", { name });
-  return response.data;
+  // Extract the organisation and map it to ensure it has all required fields
+  return mapToOrganization(response.data.organisation);
 };
 
 export const getOrgs = async (): Promise<{ userId: string; organizationId: string; role: string; organization: Organisation }[]> => {

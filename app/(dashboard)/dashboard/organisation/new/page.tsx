@@ -17,6 +17,7 @@ import useCreateOrganisationMutation from "@/services/organisation/mutation";
 import { toast } from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import useCurrentOrg from "@/store/useCurrentOrg";
 
 const CreateOrganizationPage = () => {
   const router = useRouter();
@@ -25,6 +26,7 @@ const CreateOrganizationPage = () => {
   const [error, setError] = useState("");
   const { mutateAsync: createOrganisation } = useCreateOrganisationMutation();
   const queryClient = useQueryClient();
+  const { setCurrentOrg } = useCurrentOrg();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,22 +39,37 @@ const CreateOrganizationPage = () => {
     setIsLoading(true);
     setError("");
 
-    createOrganisation(
-      { name: orgName },
-      {
-        onSuccess: () => {
-          toast.success("Organization created successfully");
-          queryClient.invalidateQueries({ queryKey: ["user"] });
-          setIsLoading(false);
+    try {
+      // Call the mutation function
+      const newOrg = await createOrganisation({ name: orgName });
+
+      // If we got a valid organization object back, set it as current
+      if (newOrg && newOrg.id) {
+        // Type assertion to match Organization interface expected by setCurrentOrg
+        setCurrentOrg(newOrg as any);
+
+        // Invalidate queries to refresh user data
+        await queryClient.invalidateQueries({ queryKey: ["user"] });
+        await queryClient.invalidateQueries({ queryKey: ["organisations"] });
+
+        toast.success("Organization created successfully");
+
+        // Short delay before redirect to ensure state is updated
+        setTimeout(() => {
           router.push("/dashboard");
-        },
-        onError: () => {
-          toast.error("Failed to create organization. Please try again.");
-          setError("Failed to create organization. Please try again.");
-          setIsLoading(false);
-        },
+        }, 300);
+      } else {
+        // If we didn't get a valid org back, something went wrong
+        console.error("Invalid organization data received:", newOrg);
+        throw new Error("Invalid organization data received");
       }
-    );
+    } catch (err) {
+      console.error("Error creating organization:", err);
+      toast.error("Failed to create organization. Please try again.");
+      setError("Failed to create organization. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
