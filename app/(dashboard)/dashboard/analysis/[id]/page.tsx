@@ -18,6 +18,7 @@ import { transformSentimentData, formatDate } from "@/services/analysis/api";
 import { useGetCallAssetWithAnalysis } from "@/services/analysis/query";
 import { useToast } from "@/components/ui/use-toast";
 import { LoadingCircle } from "@/components/LoadingCircle"; // Assuming you have this component
+import { Objection } from "@/services/objections/api";
 
 const AnalysisPage = () => {
   const { id } = useParams();
@@ -324,7 +325,7 @@ const AnalysisPage = () => {
                 </CardHeader>
                 <CardContent>
                   {analysis.objections.length > 0 ? (
-                    <ObjectionsList objections={analysis.objections} />
+                    <ObjectionsList objections={analysis.objections as Objection[]} />
                   ) : (
                     <div className="text-center py-6">
                       <p>No objections were detected in this call.</p>
