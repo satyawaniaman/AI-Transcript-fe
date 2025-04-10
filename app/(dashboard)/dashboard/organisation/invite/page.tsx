@@ -159,7 +159,7 @@ const InviteTeamMemberPage = () => {
           {
             email,
             role: selectedRole as Role,
-            organisationId: organizationId,
+            organizationId: organizationId,
             teamIds: selectedTeamIds,
           },
           {

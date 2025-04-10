@@ -7,76 +7,70 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "react-hot-toast";
-import { ArrowLeft, Building, User, Loader2 } from "lucide-react";
+import { ArrowLeft, Building, User, Loader2, Users } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GoogleSignin from "@/app/login/GoogleSignin";
-import zod from "zod";
-
-// Define invitation details type
-interface InvitationDetails {
-  id: string;
-  organizationName: string;
-  inviterName: string;
-  inviterRole: string;
-  invitationMessage?: string;
-}
-
-// Define auth response type
-interface AuthResponse {
-  success: boolean;
-  error?: boolean;
-  message?: string;
-}
+import { z } from "zod";
+import { useGetInviteDetailsQuery } from "@/services/invite/query";
+import { useAcceptInviteMutation } from "@/services/invite/mutation";
+import { createClient } from "@/utils/supabase/client";
 
 const JoinPage = () => {
   const params = useParams();
-  const invitationId = params.id as string;
+  const inviteId = params.id as string;
+  const router = useRouter();
+  const supabase = createClient();
 
   // State to determine which form to show (login or signup)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
-  const [invitationDetails, setInvitationDetails] =
-    useState<InvitationDetails | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Fetch invitation details
+  const { 
+    data: invitationDetails, 
+    isLoading: isLoadingInvite, 
+    error: inviteError 
+  } = useGetInviteDetailsQuery(inviteId);
 
+  // Accept invitation mutation
+  const acceptInviteMutation = useAcceptInviteMutation();
+
+  // Check if user is logged in
   useEffect(() => {
-    const getInvitationDetails = async () => {
-      try {
-        // Replace with your actual API call
-        const details = await fetchInvitationDetails(invitationId);
-        setInvitationDetails(details);
-      } catch (error) {
-        console.error("Failed to fetch invitation details:", error);
-        toast.error("Could not load invitation details");
-      } finally {
-        setLoading(false);
+    const checkUserSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        setIsLoggedIn(true);
+        const { data: userData } = await supabase.auth.getUser();
+        setCurrentUser(userData.user);
+      }
+    };
+    
+    checkUserSession();
+  }, [supabase]);
+
+  // Auto-accept invitation if user is logged in
+  useEffect(() => {
+    const acceptInviteIfLoggedIn = async () => {
+      if (isLoggedIn && currentUser && invitationDetails && !isProcessing) {
+        setIsProcessing(true);
+        try {
+          await acceptInviteMutation.mutateAsync({ inviteId });
+          toast.success("You've been added to the organization!");
+          router.push("/dashboard");
+        } catch (error) {
+          console.error("Failed to automatically accept invite:", error);
+          setIsProcessing(false);
+        }
       }
     };
 
-    if (invitationId) {
-      getInvitationDetails();
-    }
-  }, [invitationId]);
+    acceptInviteIfLoggedIn();
+  }, [isLoggedIn, currentUser, invitationDetails, inviteId, acceptInviteMutation, router, isProcessing]);
 
-  // Mock function to fetch invitation details - replace with your actual API call
-  const fetchInvitationDetails = async (
-    invitationId: string
-  ): Promise<InvitationDetails> => {
-    // Simulate API call with a delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    return {
-      id: invitationId,
-      organizationName: "SalesCoach Enterprise",
-      inviterName: "John Smith",
-      inviterRole: "Sales Manager",
-      invitationMessage:
-        "Join our sales team on SalesCoach.guru to boost your productivity!",
-    };
-  };
-
-  if (loading) {
+  if (isLoadingInvite) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
@@ -84,6 +78,24 @@ const JoinPage = () => {
           <div className="flex flex-col items-center space-y-4">
             <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
             <p>Loading invitation details...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (inviteError) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="grow flex items-center justify-center">
+          <div className="flex flex-col items-center space-y-4 max-w-md text-center">
+            <div className="text-red-500 text-lg font-semibold">Invitation Error</div>
+            <p>There was a problem loading this invitation. It may have expired or been revoked.</p>
+            <Button asChild>
+              <Link href="/">Return to Home</Link>
+            </Button>
           </div>
         </div>
         <Footer />
@@ -110,7 +122,7 @@ const JoinPage = () => {
               {invitationDetails && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h2 className="text-lg font-semibold text-navy-800 mb-3">
-                    Youve been invited to join SalesCoach.guru
+                    You've been invited to join SalesCoach.guru
                   </h2>
 
                   <div className="flex items-start space-x-2 mb-2">
@@ -132,17 +144,22 @@ const JoinPage = () => {
                         Invited by
                       </p>
                       <p className="text-gray-600 text-sm">
-                        {invitationDetails.inviterName} (
-                        {invitationDetails.inviterRole})
+                        {invitationDetails.inviterName}
                       </p>
                     </div>
                   </div>
 
-                  {invitationDetails.invitationMessage && (
-                    <div className="mt-3 pt-3 border-t border-blue-200">
-                      <p className="italic text-gray-600 text-sm">
-                        {invitationDetails.invitationMessage}
-                      </p>
+                  {invitationDetails.teams && invitationDetails.teams.length > 0 && (
+                    <div className="flex items-start space-x-2 mb-3">
+                      <Users className="h-4 w-4 text-blue-600 mt-0.5" />
+                      <div>
+                        <p className="font-medium text-navy-700 text-sm">
+                          Teams
+                        </p>
+                        <p className="text-gray-600 text-sm">
+                          {invitationDetails.teams.map((team: { name: string }) => team.name).join(", ")}
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -173,13 +190,19 @@ const JoinPage = () => {
             <div className="bg-white rounded-lg shadow-md p-5">
               {isLoggedIn ? (
                 <LoginForm
-                  invitationId={invitationId}
+                  invitationId={inviteId}
                   invitationDetails={invitationDetails}
+                  onSuccess={() => {
+                    setCurrentUser(true);
+                  }}
                 />
               ) : (
                 <SignupForm
-                  invitationId={invitationId}
+                  invitationId={inviteId}
                   invitationDetails={invitationDetails}
+                  onSuccess={() => {
+                    setCurrentUser(true);
+                  }}
                 />
               )}
             </div>
@@ -195,18 +218,19 @@ const JoinPage = () => {
 // Define props for form components
 interface FormProps {
   invitationId: string;
-  invitationDetails: InvitationDetails | null;
+  invitationDetails: any;
+  onSuccess: () => void;
 }
 
 // Login Form Component
 const LoginForm: React.FC<FormProps> = ({
   invitationId,
   invitationDetails,
+  onSuccess
 }) => {
-  console.log(invitationId, invitationDetails);
-  const schema = zod.object({
-    email: zod.string().email("Please enter a valid email address"),
-    password: zod.string().min(6, "Password must be at least 6 characters"),
+  const schema = z.object({
+    email: z.string().email("Please enter a valid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
   });
 
   const [errors, setErrors] = useState({
@@ -234,18 +258,17 @@ const LoginForm: React.FC<FormProps> = ({
       // Validate form data against schema
       schema.parse(formData);
 
-      // Simulate login success
-      const response: AuthResponse = { success: true };
+      // Call the server action
+      const response = await login(formData);
 
-      if (!response.success) {
-        toast.error("Login failed. Please check your credentials.");
+      if (response.error) {
+        toast.error(response.message || "Login failed. Please check your credentials.");
       } else {
         toast.success("Logged in successfully!");
-        // Redirect to dashboard
-        router.push("/dashboard");
+        onSuccess();
       }
     } catch (error) {
-      if (error instanceof zod.ZodError) {
+      if (error instanceof z.ZodError) {
         // Extract and set validation errors
         const newErrors = { email: "", password: "" };
 
@@ -270,14 +293,19 @@ const LoginForm: React.FC<FormProps> = ({
     <div>
       <div className="mb-4">
         <h1 className="text-xl font-bold text-navy-800 mb-1">Welcome back</h1>
-        <p className="text-gray-600 text-sm">Log in to your account</p>
+        <p className="text-gray-600 text-sm">Log in to accept invitation</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-3">
           <div className="space-y-1">
             <Label htmlFor="email">Email address</Label>
-            <Input id="email" type="email" required />
+            <Input 
+              id="email" 
+              type="email" 
+              required 
+              defaultValue={invitationDetails?.email || ""}
+            />
             {errors.email && (
               <p className="text-xs text-red-500">{errors.email}</p>
             )}
@@ -307,7 +335,7 @@ const LoginForm: React.FC<FormProps> = ({
               Please wait
             </>
           ) : (
-            "Log in"
+            "Log in & Accept Invitation"
           )}
         </Button>
 
@@ -334,13 +362,13 @@ const LoginForm: React.FC<FormProps> = ({
 const SignupForm: React.FC<FormProps> = ({
   invitationId,
   invitationDetails,
+  onSuccess
 }) => {
-  console.log(invitationId);
-  const schema = zod.object({
-    firstName: zod.string().min(1, "First name is required"),
-    lastName: zod.string().min(1, "Last name is required"),
-    email: zod.string().email("Please enter a valid email address"),
-    password: zod
+  const schema = z.object({
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    email: z.string().email("Please enter a valid email address"),
+    password: z
       .string()
       .min(8, "Password must be at least 8 characters")
       .regex(/[0-9]/, "Password must include a number")
@@ -380,24 +408,17 @@ const SignupForm: React.FC<FormProps> = ({
       // Validate form data against schema
       schema.parse(formData);
 
-      // This would be your actual registration action
-      // const response = await registerUser({
-      //   ...formData,
-      //   invitationId
-      // });
+      // Call the server action
+      const response = await registerUser(formData);
 
-      // Simulate registration success
-      const response: AuthResponse = { success: true };
-
-      if (!response.success) {
-        toast.error("Registration failed. Please try again.");
+      if (response.error) {
+        toast.error(response.message || "Registration failed. Please try again.");
       } else {
-        toast.success("Account created successfully!");
-        // Redirect to dashboard
-        router.push("/dashboard");
+        toast.success(response.message || "Account created successfully!");
+        onSuccess();
       }
     } catch (error) {
-      if (error instanceof zod.ZodError) {
+      if (error instanceof z.ZodError) {
         // Extract and set validation errors
         const newErrors = {
           firstName: "",
@@ -459,7 +480,14 @@ const SignupForm: React.FC<FormProps> = ({
             <Label htmlFor="email" className="text-sm">
               Email address
             </Label>
-            <Input id="email" type="email" required className="h-9" />
+            <Input 
+              id="email" 
+              type="email" 
+              required 
+              className="h-9" 
+              defaultValue={invitationDetails?.email || ""}
+              readOnly={!!invitationDetails?.email}
+            />
             {errors.email && (
               <p className="text-xs text-red-500">{errors.email}</p>
             )}
@@ -486,7 +514,7 @@ const SignupForm: React.FC<FormProps> = ({
               Please wait
             </>
           ) : (
-            "Create account"
+            "Create account & Accept Invitation"
           )}
         </Button>
 
@@ -519,6 +547,65 @@ const SignupForm: React.FC<FormProps> = ({
       </p>
     </div>
   );
+};
+
+// Import server actions
+const login = async ({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) => {
+  // This would normally call the server action
+  // For now, we'll simulate the behavior
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    
+    return await response.json();
+  } catch (error) {
+    return {
+      error: true,
+      message: "Failed to login. Please try again.",
+    };
+  }
+};
+
+const registerUser = async ({
+  email,
+  password,
+  firstName,
+  lastName,
+}: {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}) => {
+  // This would normally call the server action
+  // For now, we'll simulate the behavior
+  try {
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password, firstName, lastName }),
+    });
+    
+    return await response.json();
+  } catch (error) {
+    return {
+      error: true,
+      message: "Failed to register. Please try again.",
+    };
+  }
 };
 
 export default JoinPage;

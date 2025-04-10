@@ -17,14 +17,14 @@ export function useInviteToOrganisationMutation() {
     mutationFn: ({
       email,
       role,
-      organisationId,
+      organizationId,
       teamIds,
     }: {
       email: string;
       role: Role;
-      organisationId: string;
+      organizationId: string;
       teamIds: string[];
-    }) => inviteToOrganisation(email, role, organisationId, teamIds),
+    }) => inviteToOrganisation(email, role, organizationId, teamIds),
     onSuccess: () => {
       toast.success("Invitation sent successfully");
     },

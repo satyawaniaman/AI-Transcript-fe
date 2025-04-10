@@ -46,13 +46,13 @@ export const getOrgs = async (): Promise<{ userId: string; organizationId: strin
 export const inviteToOrganisation = async (
   email: string,
   role: Role,
-  organisationId: string,
+  organizationId: string,
   teamIds: string[]
 ): Promise<any> => {
-  const response = await api.post("/api/organisation/invite", {
+  const response = await api.post("/api/invite", {
     email,
     role,
-    organisationId,
+    organizationId,
     teamIds,
   });
   return response.data;
