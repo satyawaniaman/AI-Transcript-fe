@@ -39,27 +39,25 @@ import {
   useGetTranscripts,
 } from "@/services/dashboard/query";
 import { DoubleLineLoader, SkeletonLoader } from "@/components/SkeletonLoader";
-
-const ANALYSIS_COMPLETE_EVENT = "analysis_complete";
-
 import {
+  ANALYSIS_COMPLETE_EVENT,
   getAnalysisStartPage,
   clearAnalysisStartPage,
-} from "../../../utils/analysisTracking";
+} from "@/utils/analysisTracking";
 
 const Dashboard = () => {
   const { toast } = useToast();
   const { data: user, isLoading: userLoading } = useGetUser();
   const { currentOrg } = useCurrentOrg();
   const orgId = currentOrg?.id || "";
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState<number>(1);
   const limit = 5;
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
 
   // Setup listener for analysis complete events
   useEffect(() => {
     // Function to handle the analysis complete event
-    const handleAnalysisComplete = () => {
+    const handleAnalysisComplete = (): void => {
       // Increment the refresh trigger to force react-query to refetch
       setRefreshTrigger((prev) => prev + 1);
 

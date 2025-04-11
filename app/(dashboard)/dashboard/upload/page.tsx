@@ -16,25 +16,19 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { generatePresignedUrls } from "./action";
 import { createClient } from "@/utils/supabase/client";
-import { useUploadAsset } from "@/services/callasset/mutation";
+import { useUploadAsset } from "@/services/callasset/mutation"; 
 import useCurrentOrg from "@/store/useCurrentOrg";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter, usePathname } from "next/navigation";
 import { ToastAction } from "@/components/ui/toast";
-import {
+import { 
   setAnalysisStartPage,
   getAnalysisStartPage,
   clearAnalysisStartPage,
   notifyAnalysisComplete,
 } from "@/utils/analysisTracking";
 
-type FileStatus =
-  | "idle"
-  | "uploading"
-  | "extracting"
-  | "success"
-  | "error"
-  | "analyzing";
+type FileStatus = "idle" | "uploading" | "extracting" | "success" | "error" | "analyzing";
 
 interface UploadedFile {
   id: string;
@@ -58,18 +52,18 @@ const UploadPage = () => {
   const [transcriptText, setTranscriptText] = useState("");
   const [isTextSubmitting, setIsTextSubmitting] = useState(false);
   const [hasRedirected, setHasRedirected] = useState(false);
-
+  
   // Get current organization from state
   const { currentOrg } = useCurrentOrg();
-
+  
   // TanStack mutation for API calls
   const uploadAssetMutation = useUploadAsset();
-
+  
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Store the current path when component mounts
   useEffect(() => {
-    if (pathname && pathname.includes("/upload")) {
+    if (pathname && pathname.includes('/upload')) {
       setAnalysisStartPage(pathname);
     }
   }, [pathname]);
@@ -77,27 +71,27 @@ const UploadPage = () => {
   // Effect to redirect when an analysis completes
   useEffect(() => {
     // Check if any file has a 'success' status and we haven't redirected yet
-    const hasSuccessFile = files.some((file) => file.status === "success");
-
+    const hasSuccessFile = files.some(file => file.status === "success");
+    
     if (hasSuccessFile && !hasRedirected) {
       setHasRedirected(true);
-
+      
       // Notify that analysis is complete
       notifyAnalysisComplete();
-
+      
       // Get the page where analysis started
       const startPage = getAnalysisStartPage();
-
+      
       // Only redirect if the user is still on the upload page
       if (pathname === startPage) {
         toast({
           title: "Analysis complete!",
           description: "Redirecting to dashboard...",
         });
-
+        
         // Clear the stored path
         clearAnalysisStartPage();
-
+        
         // Redirect to dashboard
         router.push("/dashboard");
       } else {
@@ -106,10 +100,7 @@ const UploadPage = () => {
           title: "Analysis complete!",
           description: "Your transcript analysis is ready to view.",
           action: (
-            <ToastAction
-              altText="View results"
-              onClick={() => router.push("/dashboard")}
-            >
+            <ToastAction altText="View results" onClick={() => router.push("/dashboard")}>
               View results
             </ToastAction>
           ),
@@ -172,7 +163,7 @@ const UploadPage = () => {
       // Get userId from your authentication context or state
       const supabase = await createClient();
       const userId = (await supabase.auth.getSession()).data.session?.user.id;
-
+      
       if (!userId) {
         toast({
           title: "Error",
@@ -203,7 +194,7 @@ const UploadPage = () => {
       } catch (error) {
         console.error("Error uploading files:", error);
         toast({
-          title: "Error",
+          title: "Error", 
           description: "Error generating upload URLs",
           variant: "destructive",
         });
@@ -250,31 +241,27 @@ const UploadPage = () => {
             // Extract the file URL from the presigned URL
             // The format is typically the URL without the query parameters
 
-            const baseUrl =
-              "https://eszghbzdaorgzigavzkm.supabase.co/storage/v1/object/public";
-
+            const baseUrl = 'https://eszghbzdaorgzigavzkm.supabase.co/storage/v1/object/public';
+  
             // Extract the path after "sign/uploads" from the presigned URL
-            const urlParts = presignedUrls[index].split("/");
-            const signIndex = urlParts.findIndex((part) => part === "sign");
-
+            const urlParts = presignedUrls[index].split('/');
+            const signIndex = urlParts.findIndex(part => part === 'sign');
+            
             // Get the path after "uploads" (should include userId and filename)
-            const relativePath = urlParts
-              .slice(signIndex + 2)
-              .join("/")
-              .split("?")[0];
-
+            const relativePath = urlParts.slice(signIndex + 2).join('/').split('?')[0];
+            
             // Construct the proper public URL
             const fileUrl = `${baseUrl}/uploads/${relativePath}`;
-
+            
             // Update file status to extracting and store the URL
             setFiles((prev) =>
               prev.map((f) =>
                 f.id === file.id
-                  ? {
-                      ...f,
-                      status: "extracting",
+                  ? { 
+                      ...f, 
+                      status: "extracting", 
                       progress: 100,
-                      url: fileUrl,
+                      url: fileUrl 
                     }
                   : f
               )
@@ -288,21 +275,21 @@ const UploadPage = () => {
                   f.id === file.id ? { ...f, status: "analyzing" } : f
                 )
               );
-
+              
               try {
                 await uploadAssetMutation.mutateAsync({
                   content: fileUrl,
                   type: "FILE",
-                  organisationId: currentOrg.id,
+                  organisationId: currentOrg.id
                 });
-
+                
                 // Update to success status after API call completes
                 setFiles((prev) =>
                   prev.map((f) =>
                     f.id === file.id ? { ...f, status: "success" } : f
                   )
                 );
-
+                
                 // Notification and redirect are handled in the useEffect
               } catch (apiError) {
                 console.error("API error:", apiError);
@@ -313,7 +300,7 @@ const UploadPage = () => {
                       : f
                   )
                 );
-
+                
                 toast({
                   title: "Analysis failed",
                   description: "There was an error analyzing your file.",
@@ -324,17 +311,13 @@ const UploadPage = () => {
               setFiles((prev) =>
                 prev.map((f) =>
                   f.id === file.id
-                    ? {
-                        ...f,
-                        status: "error",
-                        error: "No organization selected",
-                      }
+                    ? { ...f, status: "error", error: "No organization selected" }
                     : f
                 )
               );
-
+              
               toast({
-                title: "Error",
+                title: "Error", 
                 description: "No organization selected",
                 variant: "destructive",
               });
@@ -348,9 +331,9 @@ const UploadPage = () => {
                   : f
               )
             );
-
+            
             toast({
-              title: "Upload failed",
+              title: "Upload failed", 
               description: "Failed to upload file to server.",
               variant: "destructive",
             });
@@ -364,9 +347,9 @@ const UploadPage = () => {
                 : f
             )
           );
-
+          
           toast({
-            title: "Upload failed",
+            title: "Upload failed", 
             description: "An unexpected error occurred.",
             variant: "destructive",
           });
@@ -379,51 +362,51 @@ const UploadPage = () => {
   const handleTextSubmit = async () => {
     if (!transcriptText.trim()) {
       toast({
-        title: "Error",
+        title: "Error", 
         description: "Please enter transcript text",
         variant: "destructive",
       });
       return;
     }
-
+    
     if (!currentOrg || !currentOrg.id) {
       toast({
-        title: "Error",
+        title: "Error", 
         description: "No organization selected",
         variant: "destructive",
       });
       return;
     }
-
+    
     setIsTextSubmitting(true);
-
+    
     try {
       await uploadAssetMutation.mutateAsync({
         content: transcriptText,
         type: "TEXT",
-        organisationId: currentOrg.id,
+        organisationId: currentOrg.id
       });
-
+      
       // Clear the textarea on success
       setTranscriptText("");
       if (textareaRef.current) {
         textareaRef.current.value = "";
       }
-
+      
       toast({
         title: "Analysis complete!",
         description: "Redirecting to dashboard...",
       });
-
+      
       // Notify that analysis is complete
       notifyAnalysisComplete();
-
+      
       // Redirect to dashboard
       router.push("/dashboard");
     } catch (error) {
       console.error("Error submitting text:", error);
       toast({
-        title: "Error",
+        title: "Error", 
         description: "Error submitting text",
         variant: "destructive",
       });
@@ -476,18 +459,12 @@ const UploadPage = () => {
 
   const getStatusText = (status: FileStatus) => {
     switch (status) {
-      case "uploading":
-        return "Uploading...";
-      case "extracting":
-        return "Extracting...";
-      case "analyzing":
-        return "Analyzing...";
-      case "success":
-        return "Completed";
-      case "error":
-        return "Failed";
-      default:
-        return "";
+      case "uploading": return "Uploading...";
+      case "extracting": return "Extracting...";
+      case "analyzing": return "Analyzing...";
+      case "success": return "Completed";
+      case "error": return "Failed";
+      default: return "";
     }
   };
 
@@ -635,8 +612,7 @@ const UploadPage = () => {
                                     // Change color based on status
                                     style={{
                                       backgroundColor:
-                                        file.status === "extracting" ||
-                                        file.status === "analyzing"
+                                        file.status === "extracting" || file.status === "analyzing"
                                           ? "#EBF5FF"
                                           : undefined,
                                     }}
@@ -688,15 +664,11 @@ const UploadPage = () => {
                     value={transcriptText}
                   />
                   <div className="mt-4">
-                    <Button
-                      variant="default"
+                    <Button 
+                      variant="default" 
                       className="w-full"
                       onClick={handleTextSubmit}
-                      disabled={
-                        isTextSubmitting ||
-                        !transcriptText.trim() ||
-                        !currentOrg
-                      }
+                      disabled={isTextSubmitting || !transcriptText.trim() || !currentOrg}
                     >
                       {isTextSubmitting ? "Submitting..." : "Submit Transcript"}
                     </Button>
