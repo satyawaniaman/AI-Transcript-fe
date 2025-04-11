@@ -233,132 +233,150 @@ const TranscriptsPage: React.FC = () => {
               </div>
             ) : (
               <>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Duration</TableHead>
-                      <TableHead>Sentiment</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="w-[100px]">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredTranscripts.map((transcript) => {
-                      const sentiment = calculateSentiment(transcript);
-                      const status =
-                        statusMap[transcript.status as TranscriptStatus] ||
-                        "processing";
-                      const analysisDate =
-                        transcript.analysis?.date || transcript.createdAt;
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="max-w-[200px]">Title</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Duration</TableHead>
+                        <TableHead>Sentiment</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="w-[80px] text-right">
+                          Actions
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredTranscripts.map((transcript) => {
+                        const sentiment = calculateSentiment(transcript);
+                        const status =
+                          statusMap[transcript.status as TranscriptStatus] ||
+                          "processing";
+                        const analysisDate =
+                          transcript.analysis?.date || transcript.createdAt;
 
-                      return (
-                        <TableRow key={transcript.id}>
-                          <TableCell className="font-medium">
-                            <div className="flex items-center">
-                              <FileText className="h-4 w-4 mr-2 text-gray-500" />
-                              {transcript.analysis?.title ||
-                                "Unnamed Transcript"}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center text-gray-600">
-                              <Calendar className="h-4 w-4 mr-2" />
-                              {formatDate(analysisDate)}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center text-gray-600">
-                              <Clock className="h-4 w-4 mr-2" />
-                              {transcript.analysis?.duration || "N/A"}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {status === "processed" && sentiment !== null ? (
-                              <div className="flex items-center">
-                                <div className="mr-2 h-2 w-full max-w-24 rounded-full bg-gray-200">
-                                  <div
-                                    className={`h-2 rounded-full ${
-                                      sentiment > 70
-                                        ? "bg-green-500"
-                                        : sentiment > 40
-                                        ? "bg-yellow-500"
-                                        : "bg-red-500"
-                                    }`}
-                                    style={{ width: `${sentiment}%` }}
-                                  />
-                                </div>
-                                <span>{Math.round(sentiment)}%</span>
+                        return (
+                          <TableRow key={transcript.id}>
+                            <TableCell className="font-medium max-w-[200px]">
+                              <Link
+                                href={`/dashboard/analysis/${transcript.id}`}
+                                className="hover:underline flex items-center truncate"
+                              >
+                                <FileText className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
+                                <span className="truncate">
+                                  {transcript.analysis?.title ||
+                                    "Unnamed Transcript"}
+                                </span>
+                              </Link>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center text-gray-600">
+                                <Calendar className="h-4 w-4 mr-2" />
+                                {formatDate(analysisDate)}
                               </div>
-                            ) : (
-                              <span className="text-gray-500">--</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div
-                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                status === "processed"
-                                  ? "bg-green-100 text-green-800"
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center text-gray-600">
+                                <Clock className="h-4 w-4 mr-2" />
+                                {transcript.analysis?.duration || "N/A"}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {status === "processed" && sentiment !== null ? (
+                                <div className="flex items-center">
+                                  <div className="mr-2 h-2 w-full max-w-24 rounded-full bg-gray-200">
+                                    <div
+                                      className={`h-2 rounded-full ${
+                                        sentiment > 70
+                                          ? "bg-green-500"
+                                          : sentiment > 40
+                                          ? "bg-yellow-500"
+                                          : "bg-red-500"
+                                      }`}
+                                      style={{ width: `${sentiment}%` }}
+                                    />
+                                  </div>
+                                  <span>{Math.round(sentiment)}%</span>
+                                </div>
+                              ) : (
+                                <span className="text-gray-500">--</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div
+                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                  status === "processed"
+                                    ? "bg-green-100 text-green-800"
+                                    : status === "processing"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : "bg-red-100 text-red-800"
+                                }`}
+                              >
+                                {status === "processed"
+                                  ? "Processed"
                                   : status === "processing"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : "bg-red-100 text-red-800"
-                              }`}
-                            >
-                              {status === "processed"
-                                ? "Processed"
-                                : status === "processing"
-                                ? "Processing"
-                                : "Failed"}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                  <span className="sr-only">Open menu</span>
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem>
-                                  <Link
-                                    href={`/dashboard/analysis/${transcript.id}`}
+                                  ? "Processing"
+                                  : "Failed"}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0"
                                   >
-                                    View Analysis
-                                  </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    if(transcript.type === "FILE"){
-                                      window.open(transcript.content)
-                                    } else{
-                                      navigator.clipboard.writeText(transcript.content).then(() => toast.success("Transcript copied successfully"))
-                                    }
-                                  }}
-                                >
-                                  Download Transcript
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  className="text-red-600"
-                                  onClick={() => {
-                                    toast.error(
-                                      "Delete functionality not implemented yet."
-                                    );
-                                  }}
-                                >
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                                    <span className="sr-only">Open menu</span>
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem>
+                                    <Link
+                                      href={`/dashboard/analysis/${transcript.id}`}
+                                    >
+                                      View Analysis
+                                    </Link>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      if (transcript.type === "FILE") {
+                                        window.open(transcript.content);
+                                      } else {
+                                        navigator.clipboard
+                                          .writeText(transcript.content)
+                                          .then(() =>
+                                            toast.success(
+                                              "Transcript copied successfully"
+                                            )
+                                          );
+                                      }
+                                    }}
+                                  >
+                                    Download Transcript
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="text-red-600"
+                                    onClick={() => {
+                                      toast.error(
+                                        "Delete functionality not implemented yet."
+                                      );
+                                    }}
+                                  >
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
 
                 {/* Pagination */}
                 {transcripts?.pagination &&
