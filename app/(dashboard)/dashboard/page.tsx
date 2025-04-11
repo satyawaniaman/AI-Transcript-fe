@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
@@ -24,7 +24,7 @@ import {
 import SentimentChart from "@/components/SentimentChart";
 import ObjectionsList from "@/components/ObjectionsList";
 import RecentTranscriptsList from "@/components/RecentTranscriptsList";
-import { Toaster, toast } from "react-hot-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useGetUser } from "@/services/user/query";
 import DashboardSkeleton from "@/components/DashboardSkeleton";
 import NoOrganizationScreen from "@/components/NoOrganizationScreen";
@@ -40,27 +40,119 @@ import {
 } from "@/services/dashboard/query";
 import { DoubleLineLoader, SkeletonLoader } from "@/components/SkeletonLoader";
 
+const ANALYSIS_COMPLETE_EVENT = "analysis_complete";
+
+import {
+  getAnalysisStartPage,
+  clearAnalysisStartPage,
+} from "../../../utils/analysisTracking";
+
 const Dashboard = () => {
+  const { toast } = useToast();
   const { data: user, isLoading: userLoading } = useGetUser();
   const { currentOrg } = useCurrentOrg();
   const orgId = currentOrg?.id || "";
   const [page, setPage] = useState(1);
   const limit = 5;
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Setup listener for analysis complete events
+  useEffect(() => {
+    // Function to handle the analysis complete event
+    const handleAnalysisComplete = () => {
+      // Increment the refresh trigger to force react-query to refetch
+      setRefreshTrigger((prev) => prev + 1);
+
+      // Get and clear the stored starting page path
+      const startPage = getAnalysisStartPage();
+      if (startPage) {
+        clearAnalysisStartPage();
+      }
+
+      toast({
+        title: "New analysis added!",
+        description: "Dashboard has been updated with latest data.",
+      });
+    };
+
+    // Add event listener
+    window.addEventListener(ANALYSIS_COMPLETE_EVENT, handleAnalysisComplete);
+
+    // Clean up
+    return () => {
+      window.removeEventListener(
+        ANALYSIS_COMPLETE_EVENT,
+        handleAnalysisComplete
+      );
+    };
+  }, [toast]);
 
   // Move all hook calls here, before any conditional returns
-  const { data: transcriptsCount, isLoading: countLoading } =
-    useGetTranscriptsCount(orgId);
-  const { data: sentiment, isLoading: sentimentLoading } =
-    useGetAverageSentiment(orgId);
-  const { data: objections, isLoading: objectionsLoading } =
-    useGetObjectionsHandled(orgId);
-  const { data: talkRatio, isLoading: ratioLoading } = useGetTalkRatio(orgId);
-  const { data: sentimentTrends, isLoading: trendsLoading } =
-    useGetSentimentTrends(orgId);
-  const { data: commonObjections, isLoading: commonLoading } =
-    useGetCommonObjections(orgId);
-  const { data: transcripts, isLoading: transcriptsLoading } =
-    useGetTranscripts(orgId, page, limit);
+  const {
+    data: transcriptsCount,
+    isLoading: countLoading,
+    refetch: refetchCount,
+  } = useGetTranscriptsCount(orgId);
+
+  const {
+    data: sentiment,
+    isLoading: sentimentLoading,
+    refetch: refetchSentiment,
+  } = useGetAverageSentiment(orgId);
+
+  const {
+    data: objections,
+    isLoading: objectionsLoading,
+    refetch: refetchObjections,
+  } = useGetObjectionsHandled(orgId);
+
+  const {
+    data: talkRatio,
+    isLoading: ratioLoading,
+    refetch: refetchRatio,
+  } = useGetTalkRatio(orgId);
+
+  const {
+    data: sentimentTrends,
+    isLoading: trendsLoading,
+    refetch: refetchTrends,
+  } = useGetSentimentTrends(orgId);
+
+  const {
+    data: commonObjections,
+    isLoading: commonLoading,
+    refetch: refetchCommon,
+  } = useGetCommonObjections(orgId);
+
+  const {
+    data: transcripts,
+    isLoading: transcriptsLoading,
+    refetch: refetchTranscripts,
+  } = useGetTranscripts(orgId, page, limit);
+
+  // Effect to trigger refetches when refreshTrigger changes
+  useEffect(() => {
+    if (refreshTrigger > 0 && orgId) {
+      // Refetch all data
+      refetchCount();
+      refetchSentiment();
+      refetchObjections();
+      refetchRatio();
+      refetchTrends();
+      refetchCommon();
+      refetchTranscripts();
+    }
+  }, [
+    refreshTrigger,
+    orgId,
+    refetchCount,
+    refetchSentiment,
+    refetchObjections,
+    refetchRatio,
+    refetchTrends,
+    refetchCommon,
+    refetchTranscripts,
+  ]);
 
   const isLoading = userLoading || !user;
 
@@ -84,7 +176,6 @@ const Dashboard = () => {
 
   return (
     <>
-      <Toaster />
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-navy-800">Dashboard</h1>
@@ -97,7 +188,10 @@ const Dashboard = () => {
             variant="outline"
             className="flex items-center gap-2"
             onClick={() => {
-              toast.success("Your dashboard data has been filtered.");
+              toast({
+                title: "Filter applied",
+                description: "Your dashboard data has been filtered.",
+              });
             }}
           >
             <ListFilter className="h-4 w-4" />
@@ -108,7 +202,10 @@ const Dashboard = () => {
             variant="outline"
             className="flex items-center gap-2"
             onClick={() => {
-              toast.success("Your dashboard report has been downloaded.");
+              toast({
+                title: "Export complete",
+                description: "Your dashboard report has been downloaded.",
+              });
             }}
           >
             <Download className="h-4 w-4" />
