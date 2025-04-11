@@ -6,8 +6,10 @@ import { ArrowLeft, Mail, Search, HelpCircle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/router";
 
 const Help = () => {
+  const router = useRouter();
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -15,9 +17,13 @@ const Help = () => {
       <div className="container mx-auto px-4 py-8 flex-1">
         <div className="flex justify-between items-center mb-8">
           <Link href="/">
-            <Button variant="ghost" className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              className="flex items-center gap-2"
+              onClick={() => router.back()}
+            >
               <ArrowLeft className="h-4 w-4" />
-              Back to Home
+              Back
             </Button>
           </Link>
         </div>
