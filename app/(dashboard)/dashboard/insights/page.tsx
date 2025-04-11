@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
 import SentimentChart from "@/components/SentimentChart";
 import { CategoryTrendChart } from "@/components/CategoryTrendChart";
 
