@@ -38,6 +38,7 @@ import {
   useGetCommonObjections,
   useGetTranscripts,
 } from "@/services/dashboard/query";
+import { DoubleLineLoader, SkeletonLoader } from "@/components/SkeletonLoader";
 
 const Dashboard = () => {
   const { data: user, isLoading: userLoading } = useGetUser();
@@ -133,7 +134,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             {countLoading ? (
-              <div className="text-2xl font-bold text-navy-800">Loading...</div>
+              <SkeletonLoader height="h-8" width="w-16" />
             ) : (
               <div className="text-2xl font-bold text-navy-800">
                 {transcriptsCount?.count || 0}
@@ -150,7 +151,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             {sentimentLoading ? (
-              <div className="text-2xl font-bold text-navy-800">Loading...</div>
+              <SkeletonLoader height="h-8" width="w-20" />
             ) : (
               <div className="text-2xl font-bold text-navy-800">
                 {sentiment?.averageSentiment || 0}%
@@ -167,7 +168,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             {objectionsLoading ? (
-              <div className="text-2xl font-bold text-navy-800">Loading...</div>
+              <DoubleLineLoader />
             ) : (
               <div className="text-2xl font-bold text-navy-800">
                 {objections?.successful || 0}/{objections?.total || 0}
@@ -187,7 +188,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             {ratioLoading ? (
-              <div className="text-2xl font-bold text-navy-800">Loading...</div>
+              <SkeletonLoader height="h-8" width="w-16" />
             ) : (
               <div className="text-2xl font-bold text-navy-800">
                 {talkRatio?.talkRatio || 0}%
