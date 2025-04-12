@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, JSX, useRef } from "react";
+import { useState, JSX, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { File, Upload as UploadIcon, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,15 @@ import { generatePresignedUrls } from "./action";
 import { createClient } from "@/utils/supabase/client";
 import { useUploadAsset } from "@/services/callasset/mutation"; 
 import useCurrentOrg from "@/store/useCurrentOrg";
-import { toast } from "react-hot-toast";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter, usePathname } from "next/navigation";
+import { ToastAction } from "@/components/ui/toast";
+import { 
+  setAnalysisStartPage,
+  getAnalysisStartPage,
+  clearAnalysisStartPage,
+  notifyAnalysisComplete,
+} from "@/utils/analysisTracking";
 
 type FileStatus = "idle" | "uploading" | "extracting" | "success" | "error" | "analyzing";
 
@@ -35,11 +43,15 @@ interface UploadedFile {
 }
 
 const UploadPage = () => {
+  const router = useRouter();
+  const pathname = usePathname(); // Get current path
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("upload-file");
   const [dragActive, setDragActive] = useState(false);
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [transcriptText, setTranscriptText] = useState("");
   const [isTextSubmitting, setIsTextSubmitting] = useState(false);
+  const [hasRedirected, setHasRedirected] = useState(false);
   
   // Get current organization from state
   const { currentOrg } = useCurrentOrg();
@@ -48,6 +60,54 @@ const UploadPage = () => {
   const uploadAssetMutation = useUploadAsset();
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Store the current path when component mounts
+  useEffect(() => {
+    if (pathname && pathname.includes('/upload')) {
+      setAnalysisStartPage(pathname);
+    }
+  }, [pathname]);
+
+  // Effect to redirect when an analysis completes
+  useEffect(() => {
+    // Check if any file has a 'success' status and we haven't redirected yet
+    const hasSuccessFile = files.some(file => file.status === "success");
+    
+    if (hasSuccessFile && !hasRedirected) {
+      setHasRedirected(true);
+      
+      // Notify that analysis is complete
+      notifyAnalysisComplete();
+      
+      // Get the page where analysis started
+      const startPage = getAnalysisStartPage();
+      
+      // Only redirect if the user is still on the upload page
+      if (pathname === startPage) {
+        toast({
+          title: "Analysis complete!",
+          description: "Redirecting to dashboard...",
+        });
+        
+        // Clear the stored path
+        clearAnalysisStartPage();
+        
+        // Redirect to dashboard
+        router.push("/dashboard");
+      } else {
+        // If user navigated away, just show a toast with an option to go to dashboard
+        toast({
+          title: "Analysis complete!",
+          description: "Your transcript analysis is ready to view.",
+          action: (
+            <ToastAction altText="View results" onClick={() => router.push("/dashboard")}>
+              View results
+            </ToastAction>
+          ),
+        });
+      }
+    }
+  }, [files, hasRedirected, router, toast, pathname]);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -105,7 +165,11 @@ const UploadPage = () => {
       const userId = (await supabase.auth.getSession()).data.session?.user.id;
       
       if (!userId) {
-        toast.error("User not authenticated");
+        toast({
+          title: "Error",
+          description: "User not authenticated",
+          variant: "destructive",
+        });
         return;
       }
 
@@ -129,7 +193,11 @@ const UploadPage = () => {
         await uploadFilesToBucket(newFiles, validUrls);
       } catch (error) {
         console.error("Error uploading files:", error);
-        toast.error("Error generating upload URLs");
+        toast({
+          title: "Error", 
+          description: "Error generating upload URLs",
+          variant: "destructive",
+        });
       }
     }
   };
@@ -175,16 +243,15 @@ const UploadPage = () => {
 
             const baseUrl = 'https://eszghbzdaorgzigavzkm.supabase.co/storage/v1/object/public';
   
-  // Extract the path after "sign/uploads" from the presigned URL
-  const urlParts = presignedUrls[index].split('/');
-  const signIndex = urlParts.findIndex(part => part === 'sign');
-  
-  // Get the path after "uploads" (should include userId and filename)
-  const relativePath = urlParts.slice(signIndex + 2).join('/').split('?')[0];
-  
-  // Construct the proper public URL
-  const fileUrl = `${baseUrl}/uploads/${relativePath}`;
-            // const fileUrl = presignedUrls[index].split('?')[0];
+            // Extract the path after "sign/uploads" from the presigned URL
+            const urlParts = presignedUrls[index].split('/');
+            const signIndex = urlParts.findIndex(part => part === 'sign');
+            
+            // Get the path after "uploads" (should include userId and filename)
+            const relativePath = urlParts.slice(signIndex + 2).join('/').split('?')[0];
+            
+            // Construct the proper public URL
+            const fileUrl = `${baseUrl}/uploads/${relativePath}`;
             
             // Update file status to extracting and store the URL
             setFiles((prev) =>
@@ -222,6 +289,8 @@ const UploadPage = () => {
                     f.id === file.id ? { ...f, status: "success" } : f
                   )
                 );
+                
+                // Notification and redirect are handled in the useEffect
               } catch (apiError) {
                 console.error("API error:", apiError);
                 setFiles((prev) =>
@@ -231,6 +300,12 @@ const UploadPage = () => {
                       : f
                   )
                 );
+                
+                toast({
+                  title: "Analysis failed",
+                  description: "There was an error analyzing your file.",
+                  variant: "destructive",
+                });
               }
             } else {
               setFiles((prev) =>
@@ -240,6 +315,12 @@ const UploadPage = () => {
                     : f
                 )
               );
+              
+              toast({
+                title: "Error", 
+                description: "No organization selected",
+                variant: "destructive",
+              });
             }
           } else {
             // Handle error
@@ -250,6 +331,12 @@ const UploadPage = () => {
                   : f
               )
             );
+            
+            toast({
+              title: "Upload failed", 
+              description: "Failed to upload file to server.",
+              variant: "destructive",
+            });
           }
         } catch (error) {
           console.log(error);
@@ -260,6 +347,12 @@ const UploadPage = () => {
                 : f
             )
           );
+          
+          toast({
+            title: "Upload failed", 
+            description: "An unexpected error occurred.",
+            variant: "destructive",
+          });
         }
       })
     );
@@ -268,12 +361,20 @@ const UploadPage = () => {
   // Handle text submission
   const handleTextSubmit = async () => {
     if (!transcriptText.trim()) {
-      toast.error("Please enter transcript text");
+      toast({
+        title: "Error", 
+        description: "Please enter transcript text",
+        variant: "destructive",
+      });
       return;
     }
     
     if (!currentOrg || !currentOrg.id) {
-      toast.error("No organization selected");
+      toast({
+        title: "Error", 
+        description: "No organization selected",
+        variant: "destructive",
+      });
       return;
     }
     
@@ -292,8 +393,23 @@ const UploadPage = () => {
         textareaRef.current.value = "";
       }
       
+      toast({
+        title: "Analysis complete!",
+        description: "Redirecting to dashboard...",
+      });
+      
+      // Notify that analysis is complete
+      notifyAnalysisComplete();
+      
+      // Redirect to dashboard
+      router.push("/dashboard");
     } catch (error) {
       console.error("Error submitting text:", error);
+      toast({
+        title: "Error", 
+        description: "Error submitting text",
+        variant: "destructive",
+      });
     } finally {
       setIsTextSubmitting(false);
     }
