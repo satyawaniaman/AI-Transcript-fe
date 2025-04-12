@@ -17,6 +17,7 @@ interface ObjectionsHandledResponse {
 
 interface TalkRatioResponse {
   talkRatio: number;
+  callsAnalyzed: number;
 }
 
 interface SentimentTrendItem {
@@ -27,6 +28,31 @@ interface SentimentTrendItem {
 }
 
 type SentimentTrendsResponse = SentimentTrendItem[];
+
+// New response types for questions rate and topic coherence
+interface QuestionsRateResponse {
+  averageQuestionsRate: number;
+  averageQuestionsPerCall: number;
+  totalCalls: number;
+}
+
+interface TopicCoherenceResponse {
+  averageCoherence: number;
+  totalCalls: number;
+}
+
+// Type for the objection categories trend data
+interface ObjectionCategoryTrendItem {
+  date: string;
+  price: number;
+  timing: number;
+  trust: number;
+  competition: number;
+  stakeholders: number;
+  other: number;
+}
+
+type ObjectionCategoriesTrendResponse = ObjectionCategoryTrendItem[];
 
 interface Analysis {
   id: string;
@@ -43,6 +69,10 @@ interface Analysis {
   callAssetId: string;
   objections: Objection[];
   sentimentEntries: SentimentEntry[];
+  // New fields
+  questionsRate?: number;
+  totalQuestions?: number;
+  topicCoherence?: number;
 }
 
 interface Objection {
@@ -208,6 +238,52 @@ const getTranscripts = async (
   return response.data;
 };
 
+/**
+ * Fetches questions rate metrics
+ * @param orgId The organization ID
+ * @returns Promise with questions rate data
+ */
+const getQuestionsRate = async (orgId: string): Promise<QuestionsRateResponse> => {
+  const response = await api.get('/api/dashboard/questionsRate', {
+    params: { orgId }
+  });
+  return response.data;
+};
+
+/**
+ * Fetches topic coherence metrics
+ * @param orgId The organization ID
+ * @returns Promise with topic coherence data
+ */
+const getTopicCoherence = async (orgId: string): Promise<TopicCoherenceResponse> => {
+  const response = await api.get('/api/dashboard/topicCoherence', {
+    params: { orgId }
+  });
+  return response.data;
+};
+
+/**
+ * Fetches objection categories trend data
+ * @param orgId The organization ID
+ * @param startDate Optional start date (YYYY-MM-DD)
+ * @param endDate Optional end date (YYYY-MM-DD)
+ * @returns Promise with objection categories trend data
+ */
+const getObjectionCategoriesTrend = async (
+  orgId: string,
+  startDate?: string,
+  endDate?: string
+): Promise<ObjectionCategoriesTrendResponse> => {
+  const response = await api.get('/api/dashboard/objectionCategoriesTrend', {
+    params: { 
+      orgId,
+      ...(startDate && { startDate }),
+      ...(endDate && { endDate })
+    }
+  });
+  return response.data;
+};
+
 export {
   getTranscriptsCount,
   getAverageSentiment,
@@ -216,6 +292,9 @@ export {
   getSentimentTrends,
   getCommonObjections,
   getTranscripts,
+  getQuestionsRate,
+  getTopicCoherence,
+  getObjectionCategoriesTrend,
   // Export types for use in other files
   type TranscriptsCountResponse,
   type AverageSentimentResponse,
@@ -225,6 +304,10 @@ export {
   type SentimentTrendsResponse,
   type TranscriptsResponse,
   type CommonObjectionsResponse,
+  type QuestionsRateResponse,
+  type TopicCoherenceResponse,
+  type ObjectionCategoriesTrendResponse,
+  type ObjectionCategoryTrendItem,
   type CallAsset,
   type Analysis,
   type Objection,
