@@ -7,4 +7,9 @@ const uploadAsset = async ( content: string, type: "FILE" | "TEXT", organization
     return response.data;
 };
 
-export { uploadAsset };
+const deleteAsset = async (id: string ) => {
+    const response = await api.delete(`/api/callasset/${id}`);
+    return response.data;
+}
+
+export { uploadAsset, deleteAsset };

@@ -41,6 +41,7 @@ import { toast, Toaster } from "react-hot-toast";
 import { useGetTranscripts } from "@/services/dashboard/query";
 import useCurrentOrg from "@/store/useCurrentOrg";
 import Link from "next/link";
+import { useDeleteAsset } from '@/services/callasset/mutation'
 
 // Define the status type for type safety
 type TranscriptStatus = "PENDING" | "SUCCESS" | "FAIL";
@@ -126,6 +127,8 @@ const TranscriptsPage: React.FC = () => {
       </div>
     );
   }
+
+  const { mutate: deleteAsset } = useDeleteAsset();
 
   return (
     <>
@@ -344,9 +347,7 @@ const TranscriptsPage: React.FC = () => {
                                 <DropdownMenuItem
                                   className="text-red-600"
                                   onClick={() => {
-                                    toast.error(
-                                      "Delete functionality not implemented yet."
-                                    );
+                                    deleteAsset({ id: transcript.id });
                                   }}
                                 >
                                   Delete

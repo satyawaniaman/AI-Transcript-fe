@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { uploadAsset } from "./api";
+import { uploadAsset, deleteAsset } from "./api";
 import { toast } from "react-hot-toast";
 
 function useUploadAsset() {
@@ -20,4 +20,20 @@ function useUploadAsset() {
     });
 }
 
-export { useUploadAsset };
+function useDeleteAsset() {
+  return useMutation({
+    mutationFn: (
+      { id }:
+       {
+        id: string 
+       } ) => deleteAsset(id),
+    onError: () => {
+      toast.error("Failed to delete asset");
+    },
+    onSuccess: () => {
+      toast.success("Successfully deleted asset")
+    }
+  });
+}
+
+export { useUploadAsset, useDeleteAsset };
