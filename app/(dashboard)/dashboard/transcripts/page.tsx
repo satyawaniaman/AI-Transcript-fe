@@ -41,7 +41,7 @@ import { toast, Toaster } from "react-hot-toast";
 import { useGetTranscripts } from "@/services/dashboard/query";
 import useCurrentOrg from "@/store/useCurrentOrg";
 import Link from "next/link";
-import { useDeleteAsset } from '@/services/callasset/mutation'
+import { useDeleteAsset } from "@/services/callasset/mutation";
 
 // Define the status type for type safety
 type TranscriptStatus = "PENDING" | "SUCCESS" | "FAIL";
@@ -116,6 +116,9 @@ const TranscriptsPage: React.FC = () => {
     }
   }, [isError]);
 
+  // Move the hook call before any conditional return statements
+  const { mutate: deleteAsset } = useDeleteAsset();
+
   if (!orgId) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -127,8 +130,6 @@ const TranscriptsPage: React.FC = () => {
       </div>
     );
   }
-
-  const { mutate: deleteAsset } = useDeleteAsset();
 
   return (
     <>
@@ -330,39 +331,6 @@ const TranscriptsPage: React.FC = () => {
                                     variant="ghost"
                                     className="h-8 w-8 p-0"
                                   >
-<<<<<<< HEAD
-                                    View Analysis
-                                  </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    if(transcript.type === "FILE"){
-                                      window.open(transcript.content)
-                                    } else{
-                                      navigator.clipboard.writeText(transcript.content).then(() => toast.success("Transcript copied successfully"))
-                                    }
-                                  }}
-                                >
-                                  Download Transcript
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  className="text-red-600"
-                                  onClick={() => {
-                                    deleteAsset({ id: transcript.id });
-                                  }}
-                                >
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-=======
                                     <span className="sr-only">Open menu</span>
                                     <MoreHorizontal className="h-4 w-4" />
                                   </Button>
@@ -397,8 +365,9 @@ const TranscriptsPage: React.FC = () => {
                                   <DropdownMenuItem
                                     className="text-red-600"
                                     onClick={() => {
-                                      toast.error(
-                                        "Delete functionality not implemented yet."
+                                      deleteAsset({ id: transcript.id });
+                                      toast.success(
+                                        "Transcript deleted successfully"
                                       );
                                     }}
                                   >
@@ -413,7 +382,6 @@ const TranscriptsPage: React.FC = () => {
                     </TableBody>
                   </Table>
                 </div>
->>>>>>> 12e384a902278de47d0e3f410efa430c7e227ba1
 
                 {/* Pagination */}
                 {transcripts?.pagination &&
