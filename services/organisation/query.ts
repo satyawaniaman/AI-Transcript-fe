@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getOrgs } from "./api";
+import { getOrgs, getOrgbyId } from "./api";
 
 export const useGetOrgs = () => {
   return useQuery({
@@ -9,5 +9,17 @@ export const useGetOrgs = () => {
     refetchOnWindowFocus: false,
     refetchOnMount: true,
     refetchOnReconnect: false,
+  });
+};
+
+export const useGetOrgByID = (id: string) => {
+  return useQuery({
+    queryKey: ['organization', id],
+    queryFn: () => getOrgbyId(id),
+    enabled: !!id,
+    staleTime: 1000 * 60 * 60,
+    retry: 2,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
   });
 };
