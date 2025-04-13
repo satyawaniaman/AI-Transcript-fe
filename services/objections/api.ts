@@ -1,7 +1,17 @@
 import { api } from "@/utils/axios";
 
 // Types for objections data
-type ObjectionCategory = "PRICE" | "TIMING" | "TRUST_RISK" | "COMPETITION" | "STAKEHOLDERS" | "OTHERS";
+type ObjectionCategory =
+  | "PRICE"
+  | "TIMING"
+  | "TRUST_RISK"
+  | "COMPETITION"
+  | "STAKEHOLDERS"
+  | "OTHERS"
+  | "TECHNICAL"
+  | "IMPLEMENTATION"
+  | "VALUE"
+  | "all";
 
 interface Objection {
   id: string;
@@ -41,9 +51,11 @@ interface ObjectionsResponse {
  * @param orgId The organization ID
  * @returns Promise with counts of objections by category
  */
-export const getCategoryCounts = async (orgId: string): Promise<CategoryCounts> => {
-  const response = await api.get('/api/objections/categoryCounts', {
-    params: { orgId }
+export const getCategoryCounts = async (
+  orgId: string
+): Promise<CategoryCounts> => {
+  const response = await api.get("/api/objections/categoryCounts", {
+    params: { orgId },
   });
   return response.data;
 };
@@ -58,20 +70,20 @@ export const getCategoryCounts = async (orgId: string): Promise<CategoryCounts> 
  * @returns Promise with paginated objection data
  */
 export const getObjections = async (
-  orgId: string, 
-  page: number = 1, 
+  orgId: string,
+  page: number = 1,
   limit: number = 10,
-  search: string = '',
-  type: 'all' | ObjectionCategory = 'all'
+  search: string = "",
+  type: "all" | ObjectionCategory = "all"
 ): Promise<ObjectionsResponse> => {
-  const response = await api.get('/api/objections', {
-    params: { 
+  const response = await api.get("/api/objections", {
+    params: {
       orgId,
       page,
       limit,
       search,
-      type
-    }
+      type,
+    },
   });
   return response.data;
 };
@@ -82,9 +94,12 @@ export const getObjections = async (
  * @param id The objection ID
  * @returns Promise with the objection data
  */
-export const getObjectionById = async (orgId: string, id: string): Promise<Objection> => {
+export const getObjectionById = async (
+  orgId: string,
+  id: string
+): Promise<Objection> => {
   const response = await api.get(`/api/objections/${id}`, {
-    params: { orgId }
+    params: { orgId },
   });
   return response.data;
 };
@@ -97,5 +112,5 @@ export type {
   Objection,
   CategoryCounts,
   PaginationInfo,
-  ObjectionsResponse
+  ObjectionsResponse,
 };
