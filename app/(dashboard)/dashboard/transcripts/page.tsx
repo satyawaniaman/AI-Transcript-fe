@@ -366,9 +366,6 @@ const TranscriptsPage: React.FC = () => {
                                     className="text-red-600"
                                     onClick={() => {
                                       deleteAsset({ id: transcript.id });
-                                      toast.success(
-                                        "Transcript deleted successfully"
-                                      );
                                     }}
                                   >
                                     Delete
