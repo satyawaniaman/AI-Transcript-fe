@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { 
   Bell, 
@@ -15,7 +15,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { 
@@ -28,6 +27,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { useGetUser } from "@/services/user/query";
+import { useUpdateUser } from "@/services/user/mutation";
 
 const SettingsPage: React.FC = () => {
   const { data: user, isLoading, isError } = useGetUser();
@@ -46,6 +46,28 @@ const SettingsPage: React.FC = () => {
       </>
     )
   }
+  const { mutate: updateUser, isPending } = useUpdateUser();
+  const [firstName, setFirstName] = useState(user?.firstName || "");
+  const [lastName, setLastName] = useState(user?.lastName || "");
+  const [phone, setPhone] = useState(user?.phone || "");
+
+  const handleSave = () => {
+    if (!user) return;
+  
+    const updatedFields: Record<string, any> = {};
+  
+    if (firstName !== user.firstName) updatedFields.firstName = firstName;
+    if (lastName !== user.lastName) updatedFields.lastName = lastName;
+    if (phone !== user.phone) updatedFields.phone = phone;
+  
+    // Email is excluded from update
+    if (Object.keys(updatedFields).length === 0) {
+      console.log("No changes to update");
+      return;
+    }
+  
+    updateUser(updatedFields);
+  };
   return (
     <>
       <motion.div
@@ -97,17 +119,17 @@ const SettingsPage: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" defaultValue={user?.firstName} />
+                    <Input id="firstName" defaultValue={user?.firstName} onChange={(e) => setFirstName(e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" defaultValue={user?.lastName as string} />
+                    <Input id="lastName" defaultValue={user?.lastName as string} onChange={(e) => setLastName(e.target.value)} />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" defaultValue={user?.email} />
+                  <Input id="email" type="email" defaultValue={user?.email} disabled/>
                   <p className="text-xs text-gray-500">
                     This email will be used for all communications.
                   </p>
@@ -126,7 +148,7 @@ const SettingsPage: React.FC = () => {
                 </div> */}
                 
                 <div className="flex justify-end">
-                  <Button>
+                  <Button onClick={handleSave} disabled={isPending} >
                     <Save className="h-4 w-4 mr-2" />
                     Save Changes
                   </Button>
