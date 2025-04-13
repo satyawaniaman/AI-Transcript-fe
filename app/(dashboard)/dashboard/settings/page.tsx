@@ -250,61 +250,6 @@ const SettingsPage: React.FC = () => {
                   </Button>
                 </div>
                 
-                <div className="border-t pt-6 space-y-4">
-                  <h3 className="text-sm font-medium">Two-Factor Authentication</h3>
-                  
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <Label htmlFor="twoFactor" className="text-sm font-normal">
-                        Enable Two-Factor Authentication
-                      </Label>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Add an extra layer of security to your account
-                      </p>
-                    </div>
-                    <Switch id="twoFactor" />
-                  </div>
-                  
-                  <Button variant="outline" className="w-fit">
-                    <Lock className="h-4 w-4 mr-2" />
-                    Set Up Two-Factor
-                  </Button>
-                </div>
-                
-                <div className="border-t pt-6 space-y-4">
-                  <h3 className="text-sm font-medium">Active Sessions</h3>
-                  
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium">Current Session</p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          MacBook Pro • San Francisco, CA • Started 2 hours ago
-                        </p>
-                      </div>
-                      <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                        Active Now
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium">iPhone 13</p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          iOS 16 • New York, NY • Started 3 days ago
-                        </p>
-                      </div>
-                      <Button variant="ghost" size="sm">Sign Out</Button>
-                    </div>
-                  </div>
-                  
-                  <Button variant="outline" className="w-fit">
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out All Devices
-                  </Button>
-                </div>
               </CardContent>
             </Card>
           </TabsContent>
