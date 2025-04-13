@@ -6,13 +6,10 @@ import {
   CreditCard, 
   Download, 
   Key, 
-  Lock, 
-  LogOut, 
   Save, 
   Settings as SettingsIcon, 
   Shield, 
   User,
-  Upload
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,7 +18,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Select, 
   SelectContent, 
@@ -31,8 +27,25 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { useGetUser } from "@/services/user/query";
 
 const SettingsPage: React.FC = () => {
+  const { data: user, isLoading, isError } = useGetUser();
+  if (isError){
+    return (
+      <>
+        <h1>error occured</h1>
+      </>
+    )
+  }
+
+  if (isLoading){
+    return (
+      <>
+        <h1>Loading</h1>
+      </>
+    )
+  }
   return (
     <>
       <motion.div
@@ -84,23 +97,23 @@ const SettingsPage: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" defaultValue="John" />
+                    <Input id="firstName" defaultValue={user?.firstName} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" defaultValue="Doe" />
+                    <Input id="lastName" defaultValue={user?.lastName as string} />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" defaultValue="john.doe@example.com" />
+                  <Input id="email" type="email" defaultValue={user?.email} />
                   <p className="text-xs text-gray-500">
                     This email will be used for all communications.
                   </p>
                 </div>
                 
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label htmlFor="bio">Bio</Label>
                   <Textarea 
                     id="bio" 
@@ -110,7 +123,7 @@ const SettingsPage: React.FC = () => {
                   <p className="text-xs text-gray-500">
                     Brief description for your profile.
                   </p>
-                </div>
+                </div> */}
                 
                 <div className="flex justify-end">
                   <Button>
