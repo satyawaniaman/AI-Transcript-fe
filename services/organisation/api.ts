@@ -14,6 +14,31 @@ export interface Organisation {
   country?: string;
 }
 
+// User inside the organization
+export interface OrgUser {
+  userId: string;
+  organizationId: string;
+  role: Role;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    isEmailVerified: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+// Response format for getOrgbyId
+export interface GetOrgByIdResponse {
+  organization: Organisation & {
+    users: OrgUser[];
+  };
+}
+
+
 // Mapping function to ensure all required fields are present
 export const mapToOrganization = (apiOrg: any): Organisation => {
   return {
@@ -57,3 +82,10 @@ export const inviteToOrganisation = async (
   });
   return response.data;
 };
+
+export const getOrgbyId = async (
+  id: string
+): Promise<GetOrgByIdResponse> => {
+  const response = await api.get(`/api/organisation/${id}`);
+  return response.data;
+}

@@ -45,9 +45,19 @@ interface User {
   }>;
 }
 
+export interface UpdateUserPayload {
+  firstName?: string;
+  lastName?: string | null;
+}
+
 const getUser = async (): Promise<User> => {
   const response = await api.get('/api/user');
   return response.data;
 };
 
-export { getUser, Role };
+const updateUser = async (payload: UpdateUserPayload): Promise<User> => {
+  const response = await api.put('/api/user', payload);
+  return response.data;
+};
+
+export { getUser, Role, updateUser };

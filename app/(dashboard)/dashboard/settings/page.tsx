@@ -1,38 +1,68 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  Bell, 
-  CreditCard, 
-  Download, 
-  Key, 
-  Save, 
-  Settings as SettingsIcon, 
-  Shield, 
+import {
+  Bell,
+  CreditCard,
+  Download,
+  Key,
+  Save,
+  Settings as SettingsIcon,
+  Shield,
   User,
 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { 
-  Select, 
-  SelectContent, 
-  SelectGroup, 
-  SelectItem, 
-  SelectLabel, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { useGetUser } from "@/services/user/query";
+import { useUpdateUser } from "@/services/user/mutation";
 
 const SettingsPage: React.FC = () => {
   const { data: user, isLoading, isError } = useGetUser();
-  
+  const { mutate: updateUser, isPending } = useUpdateUser();
+
+  const [firstName, setFirstName] = useState(user?.firstName || "");
+  const [lastName, setLastName] = useState(user?.lastName || "");
+  const [phone, setPhone] = useState(user?.phone || "");
+
+  const handleSave = () => {
+    if (!user) return;
+
+    const updatedFields: Record<string, any> = {};
+
+    if (firstName !== user.firstName) updatedFields.firstName = firstName;
+    if (lastName !== user.lastName) updatedFields.lastName = lastName;
+    if (phone !== user.phone) updatedFields.phone = phone;
+
+    // Email is excluded from update
+    if (Object.keys(updatedFields).length === 0) {
+      console.log("No changes to update");
+      return;
+    }
+
+    updateUser(updatedFields);
+  };
+
   let content;
-  
+
   if (isError) {
     content = (
       <div className="container mx-auto p-6">
@@ -55,7 +85,9 @@ const SettingsPage: React.FC = () => {
       >
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-navy-800">Settings</h1>
-          <p className="text-gray-600">Manage your account settings and preferences</p>
+          <p className="text-gray-600">
+            Manage your account settings and preferences
+          </p>
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
@@ -76,12 +108,15 @@ const SettingsPage: React.FC = () => {
               <CreditCard className="h-4 w-4" />
               Billing
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2">
+            <TabsTrigger
+              value="notifications"
+              className="flex items-center gap-2"
+            >
               <Bell className="h-4 w-4" />
               Notifications
             </TabsTrigger>
           </TabsList>
-          
+
           {/* Profile Tab */}
           <TabsContent value="profile">
             <Card>
@@ -92,26 +127,38 @@ const SettingsPage: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" defaultValue={user?.firstName} />
+                    <Input
+                      id="firstName"
+                      defaultValue={user?.firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" defaultValue={user?.lastName as string} />
+                    <Input
+                      id="lastName"
+                      defaultValue={user?.lastName as string}
+                      onChange={(e) => setLastName(e.target.value)}
+                    />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" defaultValue={user?.email} />
+                  <Input
+                    id="email"
+                    type="email"
+                    defaultValue={user?.email}
+                    disabled
+                  />
                   <p className="text-xs text-gray-500">
                     This email will be used for all communications.
                   </p>
                 </div>
-                
+
                 {/* <div className="space-y-2">
                   <Label htmlFor="bio">Bio</Label>
                   <Textarea 
@@ -123,9 +170,9 @@ const SettingsPage: React.FC = () => {
                     Brief description for your profile.
                   </p>
                 </div> */}
-                
+
                 <div className="flex justify-end">
-                  <Button>
+                  <Button onClick={handleSave} disabled={isPending}>
                     <Save className="h-4 w-4 mr-2" />
                     Save Changes
                   </Button>
@@ -133,7 +180,7 @@ const SettingsPage: React.FC = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           {/* Account Tab */}
           <TabsContent value="account">
             <Card>
@@ -162,7 +209,7 @@ const SettingsPage: React.FC = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="timezone">Timezone</Label>
                   <Select defaultValue="America/New_York">
@@ -170,22 +217,33 @@ const SettingsPage: React.FC = () => {
                       <SelectValue placeholder="Select a timezone" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="America/New_York">Eastern Time (US & Canada)</SelectItem>
-                      <SelectItem value="America/Chicago">Central Time (US & Canada)</SelectItem>
-                      <SelectItem value="America/Denver">Mountain Time (US & Canada)</SelectItem>
-                      <SelectItem value="America/Los_Angeles">Pacific Time (US & Canada)</SelectItem>
+                      <SelectItem value="America/New_York">
+                        Eastern Time (US & Canada)
+                      </SelectItem>
+                      <SelectItem value="America/Chicago">
+                        Central Time (US & Canada)
+                      </SelectItem>
+                      <SelectItem value="America/Denver">
+                        Mountain Time (US & Canada)
+                      </SelectItem>
+                      <SelectItem value="America/Los_Angeles">
+                        Pacific Time (US & Canada)
+                      </SelectItem>
                       <SelectItem value="Europe/London">London</SelectItem>
                       <SelectItem value="Europe/Paris">Paris</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium">Data Preferences</h3>
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="analytics" className="text-sm font-normal">
+                      <Label
+                        htmlFor="analytics"
+                        className="text-sm font-normal"
+                      >
                         Share usage data
                       </Label>
                       <p className="text-xs text-gray-500 mt-1">
@@ -194,10 +252,13 @@ const SettingsPage: React.FC = () => {
                     </div>
                     <Switch id="analytics" defaultChecked />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="newsletter" className="text-sm font-normal">
+                      <Label
+                        htmlFor="newsletter"
+                        className="text-sm font-normal"
+                      >
                         Receive newsletter
                       </Label>
                       <p className="text-xs text-gray-500 mt-1">
@@ -207,17 +268,16 @@ const SettingsPage: React.FC = () => {
                     <Switch id="newsletter" defaultChecked />
                   </div>
                 </div>
-                
+
                 <div className="border-t pt-6 mt-6">
                   <h3 className="text-sm font-medium mb-4">Danger Zone</h3>
-                  <Button variant="destructive">
-                    Delete Account
-                  </Button>
+                  <Button variant="destructive">Delete Account</Button>
                   <p className="text-xs text-gray-500 mt-2">
-                    This will permanently delete your account and all associated data.
+                    This will permanently delete your account and all associated
+                    data.
                   </p>
                 </div>
-                
+
                 <div className="flex justify-end">
                   <Button>
                     <Save className="h-4 w-4 mr-2" />
@@ -227,7 +287,7 @@ const SettingsPage: React.FC = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           {/* Security Tab */}
           <TabsContent value="security">
             <Card>
@@ -240,32 +300,33 @@ const SettingsPage: React.FC = () => {
               <CardContent className="space-y-6">
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium">Change Password</h3>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="currentPassword">Current Password</Label>
                     <Input id="currentPassword" type="password" />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="newPassword">New Password</Label>
                     <Input id="newPassword" type="password" />
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                    <Label htmlFor="confirmPassword">
+                      Confirm New Password
+                    </Label>
                     <Input id="confirmPassword" type="password" />
                   </div>
-                  
+
                   <Button className="w-fit">
                     <Key className="h-4 w-4 mr-2" />
                     Update Password
                   </Button>
                 </div>
-                
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           {/* Billing Tab */}
           <TabsContent value="billing">
             <Card>
@@ -280,18 +341,21 @@ const SettingsPage: React.FC = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="font-medium">Current Plan: Pro</h3>
-                      <p className="text-sm text-gray-600 mt-1">$49/month, billed monthly</p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        $49/month, billed monthly
+                      </p>
                     </div>
                     <Button variant="outline">Change Plan</Button>
                   </div>
                   <div className="mt-4 text-xs text-gray-500">
-                    Your next billing date is <span className="font-medium">August 1, 2023</span>
+                    Your next billing date is{" "}
+                    <span className="font-medium">August 1, 2023</span>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium">Payment Method</h3>
-                  
+
                   <div className="border rounded-lg p-4">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center">
@@ -305,27 +369,37 @@ const SettingsPage: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm">Edit</Button>
+                      <Button variant="ghost" size="sm">
+                        Edit
+                      </Button>
                     </div>
                   </div>
-                  
+
                   <Button variant="outline" className="w-fit">
                     <CreditCard className="h-4 w-4 mr-2" />
                     Add Payment Method
                   </Button>
                 </div>
-                
+
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium">Billing History</h3>
-                  
+
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b">
-                          <th className="text-left py-2 px-1 font-medium">Date</th>
-                          <th className="text-left py-2 px-1 font-medium">Description</th>
-                          <th className="text-right py-2 px-1 font-medium">Amount</th>
-                          <th className="text-right py-2 px-1 font-medium">Receipt</th>
+                          <th className="text-left py-2 px-1 font-medium">
+                            Date
+                          </th>
+                          <th className="text-left py-2 px-1 font-medium">
+                            Description
+                          </th>
+                          <th className="text-right py-2 px-1 font-medium">
+                            Amount
+                          </th>
+                          <th className="text-right py-2 px-1 font-medium">
+                            Receipt
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -334,7 +408,11 @@ const SettingsPage: React.FC = () => {
                           <td className="py-2 px-1">Pro Plan Subscription</td>
                           <td className="text-right py-2 px-1">$49.00</td>
                           <td className="text-right py-2 px-1">
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
                               <Download className="h-4 w-4" />
                             </Button>
                           </td>
@@ -344,7 +422,11 @@ const SettingsPage: React.FC = () => {
                           <td className="py-2 px-1">Pro Plan Subscription</td>
                           <td className="text-right py-2 px-1">$49.00</td>
                           <td className="text-right py-2 px-1">
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
                               <Download className="h-4 w-4" />
                             </Button>
                           </td>
@@ -354,7 +436,11 @@ const SettingsPage: React.FC = () => {
                           <td className="py-2 px-1">Pro Plan Subscription</td>
                           <td className="text-right py-2 px-1">$49.00</td>
                           <td className="text-right py-2 px-1">
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
                               <Download className="h-4 w-4" />
                             </Button>
                           </td>
@@ -366,7 +452,7 @@ const SettingsPage: React.FC = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           {/* Notifications Tab */}
           <TabsContent value="notifications">
             <Card>
@@ -379,11 +465,14 @@ const SettingsPage: React.FC = () => {
               <CardContent className="space-y-6">
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium">Email Notifications</h3>
-                  
+
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label htmlFor="email-transcripts" className="text-sm font-normal">
+                        <Label
+                          htmlFor="email-transcripts"
+                          className="text-sm font-normal"
+                        >
                           New Transcript Analysis
                         </Label>
                         <p className="text-xs text-gray-500 mt-1">
@@ -392,22 +481,29 @@ const SettingsPage: React.FC = () => {
                       </div>
                       <Switch id="email-transcripts" defaultChecked />
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label htmlFor="email-insights" className="text-sm font-normal">
+                        <Label
+                          htmlFor="email-insights"
+                          className="text-sm font-normal"
+                        >
                           Weekly Insights
                         </Label>
                         <p className="text-xs text-gray-500 mt-1">
-                          Receive a weekly summary of your sales performance insights
+                          Receive a weekly summary of your sales performance
+                          insights
                         </p>
                       </div>
                       <Switch id="email-insights" defaultChecked />
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label htmlFor="email-product" className="text-sm font-normal">
+                        <Label
+                          htmlFor="email-product"
+                          className="text-sm font-normal"
+                        >
                           Product Updates
                         </Label>
                         <p className="text-xs text-gray-500 mt-1">
@@ -416,28 +512,35 @@ const SettingsPage: React.FC = () => {
                       </div>
                       <Switch id="email-product" defaultChecked />
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label htmlFor="email-marketing" className="text-sm font-normal">
+                        <Label
+                          htmlFor="email-marketing"
+                          className="text-sm font-normal"
+                        >
                           Marketing Communications
                         </Label>
                         <p className="text-xs text-gray-500 mt-1">
-                          Receive tips, promotions, and other marketing materials
+                          Receive tips, promotions, and other marketing
+                          materials
                         </p>
                       </div>
                       <Switch id="email-marketing" />
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="border-t pt-6 space-y-4">
                   <h3 className="text-sm font-medium">In-App Notifications</h3>
-                  
+
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label htmlFor="app-transcripts" className="text-sm font-normal">
+                        <Label
+                          htmlFor="app-transcripts"
+                          className="text-sm font-normal"
+                        >
                           New Transcript Analysis
                         </Label>
                         <p className="text-xs text-gray-500 mt-1">
@@ -446,10 +549,13 @@ const SettingsPage: React.FC = () => {
                       </div>
                       <Switch id="app-transcripts" defaultChecked />
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label htmlFor="app-insights" className="text-sm font-normal">
+                        <Label
+                          htmlFor="app-insights"
+                          className="text-sm font-normal"
+                        >
                           New Insights
                         </Label>
                         <p className="text-xs text-gray-500 mt-1">
@@ -458,10 +564,13 @@ const SettingsPage: React.FC = () => {
                       </div>
                       <Switch id="app-insights" defaultChecked />
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label htmlFor="app-product" className="text-sm font-normal">
+                        <Label
+                          htmlFor="app-product"
+                          className="text-sm font-normal"
+                        >
                           Product Updates
                         </Label>
                         <p className="text-xs text-gray-500 mt-1">
@@ -472,7 +581,7 @@ const SettingsPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex justify-end">
                   <Button>
                     <Save className="h-4 w-4 mr-2" />

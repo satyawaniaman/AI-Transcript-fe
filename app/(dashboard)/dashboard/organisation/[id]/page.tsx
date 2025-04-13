@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   Users,
   UserPlus,
@@ -12,6 +12,8 @@ import {
   MoreHorizontal,
   Edit,
   Trash2,
+  Phone,
+  MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,17 +37,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-// TypeScript interfaces for our data
-interface Organization {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: string;
-  industry: string;
-  memberCount: number;
-  plan: string;
-}
+import { useGetOrgByID } from "@/services/organisation/query";
+import { Role } from "@/services/user/api";
+import { OrgUser } from "@/services/organisation/api";
+import { Loader2 } from "lucide-react";
 
 interface Member {
   id: string;
@@ -58,21 +53,44 @@ interface Member {
 
 const OrganizationInfoPage = () => {
   const router = useRouter();
-  const [userRole] = useState<"admin" | "member">("admin");
   const [searchQuery, setSearchQuery] = useState("");
+  const params = useParams();
+  const id = params.id as string;
 
-  // Mock data for organization
-  const [organization] = useState<Organization>({
-    id: "org-123",
-    name: "Acme Corporation",
-    description: "A leading provider of innovative solutions",
-    createdAt: "2023-06-15T10:00:00Z",
-    industry: "Technology",
-    memberCount: 24,
-    plan: "Enterprise",
-  });
+  const { data, isLoading } = useGetOrgByID(id);
+  const org = data?.organization;
 
-  const [members] = useState<Member[]>([]);
+  // Get current user role - assuming the first user is the current user
+  // In a real app, you'd compare with the authenticated user ID
+  const userRole = getUserRole();
+
+  function getUserRole(): "admin" | "member" {
+    if (!org?.users || org.users.length === 0) return "member";
+
+    // In a real app, you'd match this with the authenticated user ID
+    // Here we're just assuming the first user with ADMIN role is the current user
+    const adminUser = org.users.find((user) => user.role === "ADMIN");
+    return adminUser ? "admin" : "member";
+  }
+
+  // Transform API users to members format
+  const transformedMembers: Member[] =
+    org?.users?.map((orgUser: OrgUser) => ({
+      id: orgUser.user.id,
+      name: `${orgUser.user.firstName} ${orgUser.user.lastName}`,
+      email: orgUser.user.email,
+      role: orgUser.role === "ADMIN" ? "Admin" : "Member",
+      joinedAt: orgUser.user.createdAt,
+      avatar: "",
+    })) || [];
+
+  // Filter members based on search query
+  const filteredMembers = transformedMembers.filter(
+    (member) =>
+      member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.role.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Animation variants
   const containerVariants = {
@@ -96,13 +114,32 @@ const OrganizationInfoPage = () => {
     },
   };
 
-  // Filter members based on search query
-  const filteredMembers = members.filter(
-    (member) =>
-      member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.role.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <span className="ml-2">Loading organization details...</span>
+      </div>
+    );
+  }
+
+  if (!org) {
+    return (
+      <div className="container mx-auto py-10">
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center p-10">
+            <h2 className="text-2xl font-bold mb-2">Organization not found</h2>
+            <p className="text-gray-500 mb-4">
+              The requested organization could not be found.
+            </p>
+            <Button onClick={() => router.push("/dashboard")}>
+              Return to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -157,19 +194,43 @@ const OrganizationInfoPage = () => {
                     <Building className="h-5 w-5 text-gray-500" />
                     <div>
                       <p className="text-sm font-medium text-gray-500">Name</p>
-                      <p className="text-base">{organization.name}</p>
+                      <p className="text-base">{org.name}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-5 w-5 text-gray-500" />
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">
-                        Industry
-                      </p>
-                      <p className="text-base">{organization.industry}</p>
+                  {org.phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-5 w-5 text-gray-500" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">
+                          Phone
+                        </p>
+                        <p className="text-base">{org.phone}</p>
+                      </div>
                     </div>
-                  </div>
+                  )}
+
+                  {(org.address || org.city || org.state || org.country) && (
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-5 w-5 text-gray-500" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">
+                          Address
+                        </p>
+                        <p className="text-base">
+                          {[
+                            org.address,
+                            org.city,
+                            org.state,
+                            org.zip,
+                            org.country,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-2">
                     <Calendar className="h-5 w-5 text-gray-500" />
@@ -178,11 +239,9 @@ const OrganizationInfoPage = () => {
                         Created
                       </p>
                       <p className="text-base">
-                        {formatDistance(
-                          new Date(organization.createdAt),
-                          new Date(),
-                          { addSuffix: true }
-                        )}
+                        {formatDistance(new Date(org.createdAt), new Date(), {
+                          addSuffix: true,
+                        })}
                       </p>
                     </div>
                   </div>
@@ -194,14 +253,14 @@ const OrganizationInfoPage = () => {
                         Members
                       </p>
                       <p className="text-base">
-                        {organization.memberCount} active members
+                        {transformedMembers.length} active members
                       </p>
                     </div>
                   </div>
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between border-t pt-6">
-                <Badge variant="outline">{organization.plan} Plan</Badge>
+                <Badge variant="outline">Organization</Badge>
                 {userRole === "admin" && (
                   <Button variant="outline">
                     <Edit className="h-4 w-4 mr-2" />
@@ -328,9 +387,7 @@ const OrganizationInfoPage = () => {
                   <div className="rounded-md bg-blue-50 p-4">
                     <div className="flex">
                       <div className="flex-shrink-0">
-                        <Badge className="bg-blue-600">
-                          {organization.plan}
-                        </Badge>
+                        <Badge className="bg-blue-600">Standard</Badge>
                       </div>
                       <div className="ml-3">
                         <h3 className="text-sm font-medium text-blue-800">
@@ -338,8 +395,8 @@ const OrganizationInfoPage = () => {
                         </h3>
                         <div className="mt-2 text-sm text-blue-700">
                           <p>
-                            You are currently on the {organization.plan} plan
-                            with {organization.memberCount} members.
+                            You are currently on the Standard plan with{" "}
+                            {transformedMembers.length} members.
                           </p>
                         </div>
                       </div>
