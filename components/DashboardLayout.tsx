@@ -45,7 +45,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   const { data: user, isLoading } = useGetUser();
 
-  const {currentOrg} = useCurrentOrg();
+  const { currentOrg } = useCurrentOrg();
 
   // Add mock organization data
   const orgName = currentOrg?.name;
@@ -473,7 +473,7 @@ const UserMenu = () => {
         <DropdownMenuSeparator />
         <DropdownMenuItem className="p-0 focus:bg-transparent focus:text-inherit">
           <Link
-            href="/profile"
+            href="/settings"
             className="flex w-full items-center px-2 py-1.5 text-sm rounded-sm text-navy-800 hover:text-navy-900 hover:bg-sky-100 transition-colors"
           >
             <User className="mr-2 h-4 w-4" />

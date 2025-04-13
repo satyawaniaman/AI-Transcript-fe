@@ -15,7 +15,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { 
@@ -31,23 +30,23 @@ import { useGetUser } from "@/services/user/query";
 
 const SettingsPage: React.FC = () => {
   const { data: user, isLoading, isError } = useGetUser();
-  if (isError){
-    return (
-      <>
+  
+  let content;
+  
+  if (isError) {
+    content = (
+      <div className="container mx-auto p-6">
         <h1>error occured</h1>
-      </>
-    )
-  }
-
-  if (isLoading){
-    return (
-      <>
+      </div>
+    );
+  } else if (isLoading) {
+    content = (
+      <div className="container mx-auto p-6">
         <h1>Loading</h1>
-      </>
-    )
-  }
-  return (
-    <>
+      </div>
+    );
+  } else {
+    content = (
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -485,8 +484,10 @@ const SettingsPage: React.FC = () => {
           </TabsContent>
         </Tabs>
       </motion.div>
-    </>
-  );
+    );
+  }
+
+  return <>{content}</>;
 };
 
-export default SettingsPage; 
+export default SettingsPage;

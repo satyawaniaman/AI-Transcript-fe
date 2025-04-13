@@ -72,41 +72,7 @@ const OrganizationInfoPage = () => {
     plan: "Enterprise",
   });
 
-  // Mock data for members
-  const [members] = useState<Member[]>([
-    {
-      id: "user-1",
-      name: "John Doe",
-      email: "john.doe@acme.com",
-      role: "Admin",
-      joinedAt: "2023-06-15T10:00:00Z",
-      avatar: "",
-    },
-    {
-      id: "user-2",
-      name: "Jane Smith",
-      email: "jane.smith@acme.com",
-      role: "Member",
-      joinedAt: "2023-07-21T14:30:00Z",
-      avatar: "",
-    },
-    {
-      id: "user-3",
-      name: "Robert Johnson",
-      email: "robert.johnson@acme.com",
-      role: "Member",
-      joinedAt: "2023-08-05T09:15:00Z",
-      avatar: "",
-    },
-    {
-      id: "user-4",
-      name: "Emily Davis",
-      email: "emily.davis@acme.com",
-      role: "Member",
-      joinedAt: "2023-09-12T11:45:00Z",
-      avatar: "",
-    },
-  ]);
+  const [members] = useState<Member[]>([]);
 
   // Animation variants
   const containerVariants = {
@@ -279,6 +245,7 @@ const OrganizationInfoPage = () => {
                             <AvatarFallback>
                               {member.name
                                 .split(" ")
+                                .filter((part) => part && part !== "null")
                                 .map((n) => n[0])
                                 .join("")}
                             </AvatarFallback>
