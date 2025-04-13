@@ -77,7 +77,7 @@ const OrganizationInfoPage = () => {
   const transformedMembers: Member[] =
     org?.users?.map((orgUser: OrgUser) => ({
       id: orgUser.user.id,
-      name: `${orgUser.user.firstName} ${orgUser.user.lastName}`,
+      name: `${orgUser.user.firstName || ''} ${orgUser.user.lastName || ''}`.trim(),
       email: orgUser.user.email,
       role: orgUser.role === "ADMIN" ? "Admin" : "Member",
       joinedAt: orgUser.user.createdAt,
