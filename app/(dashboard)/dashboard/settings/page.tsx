@@ -80,21 +80,6 @@ const SettingsPage: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                  <Avatar className="h-24 w-24">
-                    <AvatarImage src="/placeholder-user.jpg" alt="Profile" />
-                    <AvatarFallback>JD</AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col gap-2">
-                    <Button variant="outline" size="sm" className="w-fit">
-                      <Upload className="h-4 w-4 mr-2" />
-                      Change Photo
-                    </Button>
-                    <p className="text-xs text-gray-500">
-                      JPG, GIF or PNG. 1MB max.
-                    </p>
-                  </div>
-                </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -113,16 +98,6 @@ const SettingsPage: React.FC = () => {
                   <p className="text-xs text-gray-500">
                     This email will be used for all communications.
                   </p>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="title">Job Title</Label>
-                  <Input id="title" defaultValue="Sales Manager" />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="company">Company</Label>
-                  <Input id="company" defaultValue="Acme Inc." />
                 </div>
                 
                 <div className="space-y-2">
