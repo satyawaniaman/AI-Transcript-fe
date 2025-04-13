@@ -41,19 +41,6 @@ interface TopicCoherenceResponse {
   totalCalls: number;
 }
 
-// Type for the objection categories trend data
-interface ObjectionCategoryTrendItem {
-  date: string;
-  price: number;
-  timing: number;
-  trust: number;
-  competition: number;
-  stakeholders: number;
-  other: number;
-}
-
-type ObjectionCategoriesTrendResponse = ObjectionCategoryTrendItem[];
-
 interface Analysis {
   id: string;
   title: string;
@@ -147,6 +134,19 @@ interface CommonObjectionsResponse {
     type: string;
   }[];
 }
+
+// Type for the objection categories trend data
+interface ObjectionCategoryTrendItem {
+  date: string;  // ISO date string YYYY-MM-DD
+  price: number; // Count of PRICE objections on this date
+  timing: number; // Count of TIMING objections on this date
+  trust: number; // Count of TRUST_RISK objections on this date
+  competition: number; // Count of COMPETITION objections on this date
+  stakeholders: number; // Count of STAKEHOLDERS objections on this date
+  other: number; // Count of OTHERS objections on this date
+}
+
+type ObjectionCategoriesTrendResponse = ObjectionCategoryTrendItem[];
 
 /**
  * Fetches the total count of transcripts based on user role and organization

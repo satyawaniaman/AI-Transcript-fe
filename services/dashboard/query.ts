@@ -7,7 +7,20 @@ import {
   getSentimentTrends,
   getCommonObjections,
   getTranscripts,
+  getObjectionCategoriesTrend,
+  getQuestionsRate,
+  getTopicCoherence,
 } from './api';
+
+// Common query options to reduce code duplication
+const commonQueryOptions = {
+  staleTime: 1000 * 60 * 5, // 5 minutes
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
+  refetchOnReconnect: false,
+  refetchInterval: false,
+  refetchIntervalInBackground: false,
+};
 
 /**
  * Hook to fetch the total number of transcripts
@@ -16,7 +29,8 @@ export const useGetTranscriptsCount = (orgId: string) => {
   return useQuery({
     queryKey: ['transcriptsCount', orgId],
     queryFn: () => getTranscriptsCount(orgId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: !!orgId,
+    staleTime: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -32,12 +46,13 @@ export const useGetAverageSentiment = (orgId: string) => {
   return useQuery({
     queryKey: ['averageSentiment', orgId],
     queryFn: () => getAverageSentiment(orgId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchInterval: false,
     refetchIntervalInBackground: false,
+    enabled: !!orgId,
   });
 };
 
@@ -48,12 +63,13 @@ export const useGetObjectionsHandled = (orgId: string) => {
   return useQuery({
     queryKey: ['objectionsHandled', orgId],
     queryFn: () => getObjectionsHandled(orgId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchInterval: false,
     refetchIntervalInBackground: false,
+    enabled: !!orgId,
   });
 };
 
@@ -64,12 +80,13 @@ export const useGetTalkRatio = (orgId: string) => {
   return useQuery({
     queryKey: ['talkRatio', orgId],
     queryFn: () => getTalkRatio(orgId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchInterval: false,
     refetchIntervalInBackground: false,
+    enabled: !!orgId,
   });
 };
 
@@ -80,12 +97,13 @@ export const useGetSentimentTrends = (orgId: string) => {
   return useQuery({
     queryKey: ['sentimentTrends', orgId],
     queryFn: () => getSentimentTrends(orgId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchInterval: false,
     refetchIntervalInBackground: false,
+    enabled: !!orgId,
   });
 };
 
@@ -96,12 +114,13 @@ export const useGetCommonObjections = (orgId: string) => {
   return useQuery({
     queryKey: ['commonObjections', orgId],
     queryFn: () => getCommonObjections(orgId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchInterval: false,
     refetchIntervalInBackground: false,
+    enabled: !!orgId,
   });
 };
 
@@ -112,11 +131,67 @@ export const useGetTranscripts = (orgId: string, page: number = 1, limit: number
   return useQuery({
     queryKey: ['transcripts', orgId, page, limit],
     queryFn: () => getTranscripts(orgId, page, limit),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchInterval: false,
     refetchIntervalInBackground: false,
+    enabled: !!orgId,
+  });
+};
+
+/**
+ * Hook to fetch questions rate metrics
+ */
+export const useGetQuestionsRate = (orgId: string) => {
+  return useQuery({
+    queryKey: ['questionsRate', orgId],
+    queryFn: () => getQuestionsRate(orgId),
+    staleTime: 1000 * 60 * 60,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchInterval: false,
+    refetchIntervalInBackground: false,
+    enabled: !!orgId,
+  });
+};
+
+/**
+ * Hook to fetch topic coherence metrics
+ */
+export const useGetTopicCoherence = (orgId: string) => {
+  return useQuery({
+    queryKey: ['topicCoherence', orgId],
+    queryFn: () => getTopicCoherence(orgId),
+    staleTime: 1000 * 60 * 60,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchInterval: false,
+    refetchIntervalInBackground: false,
+    enabled: !!orgId,
+  });
+};
+
+/**
+ * Hook to fetch objection categories trend data
+ */
+export const useGetObjectionCategoriesTrend = (
+  orgId: string,
+  startDate?: string,
+  endDate?: string
+) => {
+  return useQuery({
+    queryKey: ['objectionCategoriesTrend', orgId, startDate, endDate],
+    queryFn: () => getObjectionCategoriesTrend(orgId, startDate, endDate),
+    staleTime: 1000 * 60 * 60,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchInterval: false,
+    refetchIntervalInBackground: false,
+    enabled: !!orgId,
   });
 };
