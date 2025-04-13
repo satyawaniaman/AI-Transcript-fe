@@ -21,12 +21,12 @@ import { Button } from "@/components/ui/button";
 import SentimentChart from "@/components/SentimentChart";
 import { CategoryTrendChart } from "@/components/CategoryTrendChart";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  useGetQuestionsRate, 
-  useGetTopicCoherence, 
-  useGetTalkRatio, 
+import {
+  useGetQuestionsRate,
+  useGetTopicCoherence,
+  useGetTalkRatio,
   useGetObjectionsHandled,
-  useGetSentimentTrends 
+  useGetSentimentTrends,
 } from "@/services/dashboard/query";
 import useCurrentOrg from "@/store/useCurrentOrg";
 
@@ -39,26 +39,31 @@ const InsightsPage: React.FC = () => {
     const endDate = new Date();
     const startDate = new Date();
     startDate.setMonth(startDate.getMonth() - 3);
-    
+
     return {
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0]
+      startDate: startDate.toISOString().split("T")[0],
+      endDate: endDate.toISOString().split("T")[0],
     };
   };
 
   const { startDate, endDate } = getDateRange();
 
   // Fetch data from APIs
-  const { data: questionsRateData, isLoading: questionsLoading } = useGetQuestionsRate(orgId);
-  const { data: topicCoherenceData, isLoading: topicLoading } = useGetTopicCoherence(orgId);
-  const { data: talkRatioData, isLoading: talkRatioLoading } = useGetTalkRatio(orgId);
-  const { data: objectionsData, isLoading: objectionsLoading } = useGetObjectionsHandled(orgId);
-  const { data: sentimentTrends, isLoading: sentimentLoading } = useGetSentimentTrends(orgId);
+  const { data: questionsRateData, isLoading: questionsLoading } =
+    useGetQuestionsRate(orgId);
+  const { data: topicCoherenceData, isLoading: topicLoading } =
+    useGetTopicCoherence(orgId);
+  const { data: talkRatioData, isLoading: talkRatioLoading } =
+    useGetTalkRatio(orgId);
+  const { data: objectionsData, isLoading: objectionsLoading } =
+    useGetObjectionsHandled(orgId);
+  const { data: sentimentTrends, isLoading: sentimentLoading } =
+    useGetSentimentTrends(orgId);
 
   // Prepare sentiment data for the chart
   const sentimentChartData = React.useMemo(() => {
     if (!sentimentTrends) return [];
-    return sentimentTrends.map(item => ({
+    return sentimentTrends.map((item) => ({
       name: item.name,
       positive: parseFloat(item.positive),
       neutral: parseFloat(item.neutral),
@@ -91,67 +96,69 @@ const InsightsPage: React.FC = () => {
   const performanceMetrics = [
     {
       name: "Talk Ratio",
-      value: talkRatioLoading 
-        ? "Loading..." 
-        : talkRatioData 
-          ? `${talkRatioData.talkRatio}%` 
-          : "N/A",
+      value: talkRatioLoading
+        ? "Loading..."
+        : talkRatioData
+        ? `${talkRatioData.talkRatio}%`
+        : "N/A",
       change: 0, // You would calculate this from historical data
       target: "50:50",
       description: "Sales rep vs prospect talking time",
       icon: <MessageSquare className="h-5 w-5" />,
       color: "bg-blue-100 text-blue-600",
-      isLoading: talkRatioLoading
+      isLoading: talkRatioLoading,
     },
     {
       name: "Question Rate",
-      value: questionsLoading 
-        ? "Loading..." 
-        : questionsRateData 
-          ? questionsRateData.averageQuestionsRate.toFixed(1) 
-          : "N/A",
+      value: questionsLoading
+        ? "Loading..."
+        : questionsRateData
+        ? questionsRateData.averageQuestionsRate.toFixed(1)
+        : "N/A",
       change: 0, // You would calculate this from historical data
       target: "8+",
-      description: questionsLoading 
-        ? "Loading..." 
-        : questionsRateData 
-          ? `${questionsRateData.averageQuestionsPerCall.toFixed(0)} questions per call`
-          : "No data available",
+      description: questionsLoading
+        ? "Loading..."
+        : questionsRateData
+        ? `${questionsRateData.averageQuestionsPerCall.toFixed(
+            0
+          )} questions per call`
+        : "No data available",
       icon: <BookOpen className="h-5 w-5" />,
       color: "bg-green-100 text-green-600",
-      isLoading: questionsLoading
+      isLoading: questionsLoading,
     },
     {
       name: "Objection Success",
-      value: objectionsLoading 
-        ? "Loading..." 
-        : objectionsData 
-          ? `${objectionsData.rate.toFixed(0)}%` 
-          : "N/A",
+      value: objectionsLoading
+        ? "Loading..."
+        : objectionsData
+        ? `${objectionsData.rate.toFixed(0)}%`
+        : "N/A",
       change: 0, // You would calculate this from historical data
       target: "80%",
-      description: objectionsLoading 
-        ? "Loading..." 
-        : objectionsData 
-          ? `${objectionsData.successful} of ${objectionsData.total} objections handled`
-          : "No data available",
+      description: objectionsLoading
+        ? "Loading..."
+        : objectionsData
+        ? `${objectionsData.successful} of ${objectionsData.total} objections handled`
+        : "No data available",
       icon: <TrendingUp className="h-5 w-5" />,
       color: "bg-yellow-100 text-yellow-600",
-      isLoading: objectionsLoading
+      isLoading: objectionsLoading,
     },
     {
       name: "Topic Coherence",
-      value: topicLoading 
-        ? "Loading..." 
-        : topicCoherenceData 
-          ? `${topicCoherenceData.averageCoherence.toFixed(0)}%` 
-          : "N/A",
+      value: topicLoading
+        ? "Loading..."
+        : topicCoherenceData
+        ? `${topicCoherenceData.averageCoherence.toFixed(0)}%`
+        : "N/A",
       change: 0, // You would calculate this from historical data
       target: "90%",
       description: "Staying on relevant topics during calls",
       icon: <Zap className="h-5 w-5" />,
       color: "bg-purple-100 text-purple-600",
-      isLoading: topicLoading
+      isLoading: topicLoading,
     },
   ];
 
@@ -254,7 +261,7 @@ const InsightsPage: React.FC = () => {
         {/* Objection Trends - Using the real API data */}
         <motion.div variants={itemVariants}>
           {orgId ? (
-            <CategoryTrendChart 
+            <CategoryTrendChart
               organizationId={orgId}
               startDate={startDate}
               endDate={endDate}
@@ -263,7 +270,9 @@ const InsightsPage: React.FC = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Sales Objection Categories</CardTitle>
-                <CardDescription>Select an organization to view data</CardDescription>
+                <CardDescription>
+                  Select an organization to view data
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-64 flex items-center justify-center">
@@ -280,8 +289,8 @@ const InsightsPage: React.FC = () => {
             <CardHeader>
               <CardTitle>Sentiment Trends Over Time</CardTitle>
               <CardDescription>
-                Track how your call sentiment has evolved across your last
-                10 calls
+                Track how your call sentiment has evolved across your last 10
+                calls
               </CardDescription>
             </CardHeader>
             <CardContent className="h-80">
