@@ -22,7 +22,7 @@ export const forgotPassword = async ({ email }: { email: string }) => {
   }
 
   // Get the host from headers instead of using window
-  const headersList =await headers();
+  const headersList = await headers();
   const host = headersList.get("host") || "";
   const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
   const origin = `${protocol}://${host}`;

@@ -11,6 +11,8 @@ import {
   Shield,
   User,
 } from "lucide-react";
+
+import { changePassword } from "./action";
 import {
   Card,
   CardContent,
@@ -42,6 +44,52 @@ const SettingsPage: React.FC = () => {
   const [firstName, setFirstName] = useState(user?.firstName || "");
   const [lastName, setLastName] = useState(user?.lastName || "");
   const [phone, setPhone] = useState(user?.phone || "");
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordStatus, setPasswordStatus] = useState<{
+    type: "success" | "error" | null;
+    message: string;
+  }>({ type: null, message: "" });
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsUpdatingPassword(true);
+    setPasswordStatus({ type: null, message: "" });
+
+    try {
+      const result = await changePassword({
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      });
+
+      if (result.success) {
+        setPasswordStatus({
+          type: "success",
+          message: result.message,
+        });
+        // Clear form fields after success
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        setPasswordStatus({
+          type: "error",
+          message: result.message || "Failed to update password",
+        });
+      }
+    } catch (error) {
+      setPasswordStatus({
+        type: "error",
+        message: "An unexpected error occurred",
+      });
+    } finally {
+      setIsUpdatingPassword(false);
+    }
+  };
 
   const handleSave = () => {
     if (!user) return;
@@ -298,31 +346,71 @@ const SettingsPage: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-4">
+                <form onSubmit={handlePasswordChange} className="space-y-4">
                   <h3 className="text-sm font-medium">Change Password</h3>
+
+                  {passwordStatus.type && (
+                    <div
+                      className={`px-4 py-3 rounded-md text-sm ${
+                        passwordStatus.type === "success"
+                          ? "bg-green-50 border border-green-200 text-green-700"
+                          : "bg-red-50 border border-red-200 text-red-700"
+                      }`}
+                    >
+                      {passwordStatus.message}
+                    </div>
+                  )}
 
                   <div className="space-y-2">
                     <Label htmlFor="currentPassword">Current Password</Label>
-                    <Input id="currentPassword" type="password" />
+                    <Input
+                      id="currentPassword"
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="newPassword">New Password</Label>
-                    <Input id="newPassword" type="password" />
+                    <Input
+                      id="newPassword"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">
                       Confirm New Password
                     </Label>
-                    <Input id="confirmPassword" type="password" />
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                    />
                   </div>
 
-                  <Button className="w-fit">
-                    <Key className="h-4 w-4 mr-2" />
-                    Update Password
+                  <Button
+                    type="submit"
+                    className="w-fit"
+                    disabled={isUpdatingPassword}
+                  >
+                    {isUpdatingPassword ? (
+                      <span>Updating...</span>
+                    ) : (
+                      <>
+                        <Key className="h-4 w-4 mr-2" />
+                        Update Password
+                      </>
+                    )}
                   </Button>
-                </div>
+                </form>
               </CardContent>
             </Card>
           </TabsContent>
