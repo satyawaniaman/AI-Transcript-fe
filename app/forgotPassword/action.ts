@@ -1,55 +1,52 @@
 "use server";
 
 import { z } from "zod";
+import { headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 
-const resetPasswordSchema = z.object({
-  password: z.string().min(6, "Password must be at least 6 characters"),
+const forgotPasswordSchema = z.object({
+  email: z.string().email(),
 });
 
-export const resetPassword = async ({ password }: { password: string }) => {
-  const validation = resetPasswordSchema.safeParse({ password });
+export const forgotPassword = async ({ email }: { email: string }) => {
+  const forgotPasswordValidation = forgotPasswordSchema.safeParse({
+    email,
+  });
 
-  if (!validation.success) {
+  if (!forgotPasswordValidation.success) {
     return {
       error: true,
-      message: validation.error.issues[0]?.message || "Invalid password format",
+      message:
+        forgotPasswordValidation.error.issues[0]?.message ?? "An error occured",
     };
   }
 
-  try {
-    const supabase = await createClient();
+  // Get the host from headers instead of using window
+  const headersList = await headers();
+  const host = headersList.get("host") || "";
+  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+  const origin = `${protocol}://${host}`;
 
-    // This relies on the auth flow - when a user clicks the reset password link
-    // Supabase creates a temporary session that's valid only for password reset
-    const { error } = await supabase.auth.updateUser({
-      password: password,
-    });
+  // supabase authentication from here
+  const supabase = await createClient();
 
-    if (error) {
-      console.error("Password reset error:", error);
-      if (error.message.includes("session")) {
-        return {
-          error: true,
-          message:
-            "Your password reset link has expired. Please request a new one.",
-        };
-      }
-      return {
-        error: true,
-        message: error.message || "Failed to reset password",
-      };
-    }
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/forgotPassword/reset-password`,
+  });
 
-    return {
-      success: true,
-      message: "Password has been successfully reset",
-    };
-  } catch (error) {
-    console.error("Unexpected error during password reset:", error);
+  console.log("err: ", error);
+
+  if (error) {
     return {
       error: true,
-      message: "An unexpected error occurred. Please try again.",
+      message: error.message,
     };
   }
+
+  // User successfully found
+  return {
+    success: true,
+    message:
+      "If an account exists, a password reset email has been sent. Please check your inbox.",
+  };
 };
