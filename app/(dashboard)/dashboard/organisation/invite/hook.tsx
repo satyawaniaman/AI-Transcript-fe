@@ -103,32 +103,26 @@ export function useInviteFlow(inviteId: string) {
  * Custom hook to check if an invitation is valid
  */
 export function useInviteValidity(inviteId?: string) {
-  // If no inviteId is provided, don't attempt to validate
-  if (!inviteId) {
-    return {
-      isValid: false,
-      isLoading: false,
-      isExpired: false,
-      data: null,
-      error: null,
-    };
-  }
-
-  // Rest of your hook logic
-  const { data, isLoading, isError, error } =
-    useGetInviteDetailsQuery(inviteId);
+  const { data, isLoading, isError, error } = useGetInviteDetailsQuery(
+    inviteId || ""
+  );
 
   const isExpired =
-    data?.status === "SUCCESS" ||
-    (data?.timestamp &&
-      new Date(data.timestamp).setDate(new Date(data.timestamp).getDate() + 7) <
-        Date.now());
+    inviteId &&
+    (data?.status === "SUCCESS" ||
+      (data?.timestamp &&
+        new Date(data.timestamp).setDate(
+          new Date(data.timestamp).getDate() + 7
+        ) < Date.now()));
+
+  // Skip query logic if no inviteId is provided
+  const isValid = !!inviteId && !isError && !isExpired && !!data;
 
   return {
-    isValid: !isError && !isExpired && !!data,
-    isLoading,
-    data,
-    error,
-    isExpired,
+    isValid,
+    isLoading: inviteId ? isLoading : false,
+    data: inviteId ? data : null,
+    error: inviteId ? error : null,
+    isExpired: !!isExpired,
   };
 }
