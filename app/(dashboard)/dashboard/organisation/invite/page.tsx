@@ -1,613 +1,391 @@
 "use client";
-import React, { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft, Send, X, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { toast } from "react-hot-toast";
-import { ArrowLeft, Building, User, Loader2, Users } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import GoogleSignin from "@/app/login/GoogleSignin";
-import { z } from "zod";
-import { useInviteFlow, useInviteValidity } from "./hook";
+import { toast } from "@/components/ui/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useGetTeams } from "@/services/teams/query";
+import { useGetUser } from "@/services/user/query";
+import { Role } from "@/services/user/api";
+import { useInviteToOrganisationMutation } from "@/services/organisation/mutation";
+import { Textarea } from "@/components/ui/textarea";
 
-const JoinPage = () => {
-  const params = useParams();
-  const inviteId = params.id as string;
+// interface Team {
+//   id: string;
+//   name: string;
+// }
+
+interface FormErrors {
+  email?: string;
+  emailList?: string;
+  role?: string;
+  [key: string]: string | undefined;
+}
+
+interface SelectedTeam {
+  id: string;
+  name: string;
+  selected: boolean;
+}
+
+const InviteTeamMemberPage = () => {
   const router = useRouter();
-  
-  // Use our custom hooks for invitation handling
-  const { 
-    inviteDetails, 
-    isLoggedIn, 
-    isLoadingInvite, 
-    inviteError, 
-    isProcessing,
-    handleAuthSuccess,
-    setIsLoggedIn
-  } = useInviteFlow(inviteId);
-  
-  // Check if invitation is valid
-  const { isValid, isExpired } = useInviteValidity(inviteId);
+  const searchParams = useSearchParams();
+  const teamId = searchParams.get("teamId");
 
-  if (isLoadingInvite) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <div className="grow flex items-center justify-center">
-          <div className="flex flex-col items-center space-y-4">
-            <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
-            <p>Loading invitation details...</p>
-          </div>
-        </div>
-        <Footer />
-      </div>
+  const { data: user } = useGetUser();
+  const organizationId = user?.organizations?.[0]?.organizationId;
+  const { data: teamsData, isLoading: teamsLoading } = useGetTeams(
+    organizationId || ""
+  );
+
+  const [selectedRole, setSelectedRole] = useState<Role | "">("");
+  const [currentEmail, setCurrentEmail] = useState("");
+  const [emailList, setEmailList] = useState<string[]>([]);
+  const [customMessage, setCustomMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [selectedTeams, setSelectedTeams] = useState<SelectedTeam[]>([]);
+
+  const inviteToOrganisationMutation = useInviteToOrganisationMutation();
+
+  // Initialize selected teams when teams data is loaded
+  useEffect(() => {
+    if (teamsData) {
+      const initialSelectedTeams = teamsData.map((team) => ({
+        id: team.id,
+        name: team.name,
+        selected: teamId !== null && teamId === team.id, // Pre-select the team from URL if it matches
+      }));
+      setSelectedTeams(initialSelectedTeams);
+    }
+  }, [teamsData, teamId]);
+
+  // Add email to the list
+  const addEmail = () => {
+    // Simple email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (currentEmail && emailRegex.test(currentEmail)) {
+      if (!emailList.includes(currentEmail)) {
+        setEmailList([...emailList, currentEmail]);
+        setCurrentEmail("");
+        setFormErrors({ ...formErrors, email: undefined });
+      }
+    } else {
+      setFormErrors({
+        ...formErrors,
+        email: "Please enter a valid email address",
+      });
+    }
+  };
+
+  // Remove email from the list
+  const removeEmail = (email: string) => {
+    setEmailList(emailList.filter((e) => e !== email));
+  };
+
+  // Toggle team selection
+  const toggleTeamSelection = (teamId: string) => {
+    setSelectedTeams((prevTeams) =>
+      prevTeams.map((team) =>
+        team.id === teamId ? { ...team, selected: !team.selected } : team
+      )
     );
-  }
+  };
 
-  if (inviteError || !isValid) {
+  // Validate form before submission
+  const validateForm = (): boolean => {
+    const errors: FormErrors = {};
+    let isValid = true;
+
+    if (emailList.length === 0) {
+      errors.emailList = "Please add at least one email address";
+      isValid = false;
+    }
+
+    if (!selectedRole) {
+      errors.role = "Please select a role";
+      isValid = false;
+    }
+
+    setFormErrors(errors);
+    return isValid;
+  };
+
+  // Handle form submission for email invites
+  const handleEmailInvite = () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    const selectedTeamIds = selectedTeams
+      .filter((team) => team.selected)
+      .map((team) => team.id);
+
+    if (selectedTeamIds.length === 0) {
+      setFormErrors({
+        ...formErrors,
+        teams: "Please select at least one team",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    // For each email in the list, send an invitation
+    emailList.forEach((email) => {
+      if (organizationId && selectedRole) {
+        inviteToOrganisationMutation.mutate(
+          {
+            email,
+            role: selectedRole as Role,
+            organizationId: organizationId,
+            teamIds: selectedTeamIds,
+          },
+          {
+            onSuccess: () => {
+              setIsSubmitting(false);
+              toast({
+                title: "Invitations Sent",
+                description: `Invitations sent to ${emailList.length} recipient(s).`,
+                variant: "default",
+              });
+              router.push("/dashboard/teams");
+            },
+            onError: () => {
+              setIsSubmitting(false);
+            },
+          }
+        );
+      }
+    });
+  };
+
+  // Handle back button click
+  const handleBack = () => {
+    router.push("/dashboard/teams");
+  };
+
+  // Check if the selected team is valid
+  if (teamId && !selectedTeams) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <div className="grow flex items-center justify-center">
-          <div className="flex flex-col items-center space-y-4 max-w-md text-center">
-            <div className="text-red-500 text-lg font-semibold">Invitation Error</div>
-            <p>
-              {isExpired 
-                ? "This invitation has expired or has already been accepted." 
-                : "There was a problem loading this invitation. It may have been revoked."}
-            </p>
-            <Button asChild>
-              <Link href="/">Return to Home</Link>
+      <div className="container mx-auto p-6">
+        <Alert variant="destructive">
+          <Info className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            The specified team could not be found.
+            <Button
+              variant="link"
+              onClick={handleBack}
+              className="p-0 h-auto font-normal"
+            >
+              Return to Teams
             </Button>
-          </div>
-        </div>
-        <Footer />
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="container mx-auto"
+    >
+      <div className="mb-6">
+        <Button
+          variant="ghost"
+          className="mb-4 pl-0 flex items-center text-gray-600"
+          onClick={handleBack}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Teams
+        </Button>
 
-      <div className="grow flex items-center justify-center px-4 py-6">
-        <div className="w-full max-w-4xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-            {/* Left column: Invitation info */}
-            <div>
-              <Button variant="ghost" size="sm" className="mb-4" asChild>
-                <Link href="/" className="flex items-center text-navy-700">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to home
-                </Link>
-              </Button>
+        <h1 className="text-3xl font-bold text-gray-900">
+          Invite People to Organisation
+        </h1>
+        {selectedTeams && (
+          <div className="flex items-center mt-2">
+            <p className="text-gray-600">Organisation</p>
+            <Badge variant="outline" className="ml-2">
+              {"Sales Team"}
+            </Badge>
+          </div>
+        )}
+      </div>
 
-              {inviteDetails && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h2 className="text-lg font-semibold text-navy-800 mb-3">
-                    You've been invited to join {inviteDetails.organizationName || "SalesCoach.guru"}
-                  </h2>
+      <Card>
+        <CardHeader>
+          <CardTitle>Add People to Your Organisation</CardTitle>
+          <CardDescription>
+            Invite people to join your organisation and assign them to teams.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            {/* Email Input Section */}
+            <div className="space-y-2">
+              <Label htmlFor="email-input">Email Addresses</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="email-input"
+                  placeholder="Enter email address"
+                  type="email"
+                  value={currentEmail}
+                  onChange={(e) => setCurrentEmail(e.target.value)}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && (e.preventDefault(), addEmail())
+                  }
+                />
+                <Button onClick={addEmail}>Add</Button>
+              </div>
 
-                  <div className="flex items-start space-x-2 mb-2">
-                    <Building className="h-4 w-4 text-blue-600 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-navy-700 text-sm">
-                        Organization
-                      </p>
-                      <p className="text-gray-600 text-sm">
-                        {inviteDetails.organizationName}
-                      </p>
-                    </div>
+              {formErrors.email && (
+                <p className="text-sm text-red-500 mt-1">{formErrors.email}</p>
+              )}
+
+              {emailList.length > 0 && (
+                <div className="mt-2">
+                  <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-gray-50">
+                    {emailList.map((email) => (
+                      <Badge
+                        key={email}
+                        variant="secondary"
+                        className="flex items-center gap-1"
+                      >
+                        {email}
+                        <button
+                          onClick={() => removeEmail(email)}
+                          className="rounded-full hover:bg-gray-200 p-1"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
                   </div>
-
-                  <div className="flex items-start space-x-2 mb-3">
-                    <User className="h-4 w-4 text-blue-600 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-navy-700 text-sm">
-                        Invited by
-                      </p>
-                      <p className="text-gray-600 text-sm">
-                        {inviteDetails.inviterName}
-                      </p>
-                    </div>
-                  </div>
-
-                  {inviteDetails.teams && inviteDetails.teams.length > 0 && (
-                    <div className="flex items-start space-x-2 mb-3">
-                      <Users className="h-4 w-4 text-blue-600 mt-0.5" />
-                      <div>
-                        <p className="font-medium text-navy-700 text-sm">
-                          Teams
-                        </p>
-                        <p className="text-gray-600 text-sm">
-                        {inviteDetails.teams.map((team: { name: string }) => team.name).join(", ")}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {isProcessing && (
-                    <div className="mt-3 pt-2 border-t border-blue-200 flex items-center justify-center">
-                      <Loader2 className="h-5 w-5 text-blue-600 animate-spin mr-2" />
-                      <p className="text-sm">Processing your invitation...</p>
-                    </div>
-                  )}
                 </div>
               )}
 
-              {/* Toggle buttons */}
-              <div className="flex justify-center space-x-4 mt-4">
-                <Button
-                  variant={isLoggedIn ? "default" : "outline"}
-                  onClick={() => setIsLoggedIn(true)}
-                  size="sm"
-                  className="w-28"
-                  disabled={isProcessing}
-                >
-                  Login
-                </Button>
-                <Button
-                  variant={!isLoggedIn ? "default" : "outline"}
-                  onClick={() => setIsLoggedIn(false)}
-                  size="sm"
-                  className="w-28"
-                  disabled={isProcessing}
-                >
-                  Sign Up
-                </Button>
+              {formErrors.emailList && (
+                <p className="text-sm text-red-500 mt-1">
+                  {formErrors.emailList}
+                </p>
+              )}
+            </div>
+
+            {/* Role Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="role-select">Role</Label>
+              <Select
+                onValueChange={(value) => setSelectedRole(value as Role)}
+                value={selectedRole}
+              >
+                <SelectTrigger id="role-select">
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={Role.ADMIN}>Admin</SelectItem>
+                  <SelectItem value={Role.MANAGER}>Manager</SelectItem>
+                  <SelectItem value={Role.COACH}>Coach</SelectItem>
+                  <SelectItem value={Role.SALES_REP}>Sales Rep</SelectItem>
+                </SelectContent>
+              </Select>
+              {formErrors.role && (
+                <p className="text-sm text-red-500 mt-1">{formErrors.role}</p>
+              )}
+            </div>
+
+            {/* Team Selection */}
+            <div className="space-y-2">
+              <Label>Team Access</Label>
+              <div className="border rounded-md p-4 space-y-2">
+                {teamsLoading ? (
+                  <p className="text-sm text-gray-500">Loading teams...</p>
+                ) : selectedTeams.length > 0 ? (
+                  selectedTeams.map((team) => (
+                    <div key={team.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`team-${team.id}`}
+                        checked={team.selected}
+                        onCheckedChange={() => toggleTeamSelection(team.id)}
+                      />
+                      <Label
+                        htmlFor={`team-${team.id}`}
+                        className="cursor-pointer"
+                      >
+                        {team.name}
+                      </Label>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">No teams available</p>
+                )}
+                {formErrors.teams && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {formErrors.teams}
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* Right column: Form */}
-            <div className="bg-white rounded-lg shadow-md p-5">
-              {isLoggedIn ? (
-                <LoginForm
-                  inviteDetails={inviteDetails}
-                  onSuccess={handleAuthSuccess}
-                  isDisabled={isProcessing}
-                />
-              ) : (
-                <SignupForm
-                  inviteDetails={inviteDetails}
-                  onSuccess={handleAuthSuccess}
-                  isDisabled={isProcessing}
-                />
-              )}
+            {/* Optional Message */}
+            <div className="space-y-2">
+              <Label htmlFor="custom-message">Message (Optional)</Label>
+              <Textarea
+                id="custom-message"
+                placeholder="Add a personal message"
+                value={customMessage}
+                onChange={(e) => setCustomMessage(e.target.value)}
+                className="min-h-[100px]"
+              />
             </div>
-          </div>
-        </div>
-      </div>
 
-      <Footer />
-    </div>
-  );
-};
-
-// Define props for form components
-interface FormProps {
-  inviteDetails: any;
-  onSuccess: (user: any) => void;
-  isDisabled: boolean;
-}
-
-// Login Form Component
-const LoginForm: React.FC<FormProps> = ({
-  inviteDetails,
-  onSuccess,
-  isDisabled
-}) => {
-  const schema = z.object({
-    email: z.string().email("Please enter a valid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-  });
-
-  const [errors, setErrors] = useState({
-    email: "",
-    password: "",
-  });
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // Get form data from the form elements
-    const formData = {
-      email: (e.currentTarget.elements.namedItem("email") as HTMLInputElement)
-        .value,
-      password: (
-        e.currentTarget.elements.namedItem("password") as HTMLInputElement
-      ).value,
-    };
-
-    try {
-      // Validate form data against schema
-      schema.parse(formData);
-
-      // Call the server action
-      const response = await login(formData);
-
-      if (response.error) {
-        toast.error(response.message || "Login failed. Please check your credentials.");
-      } else {
-        toast.success("Logged in successfully!");
-        onSuccess(response.user);
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        // Extract and set validation errors
-        const newErrors = { email: "", password: "" };
-
-        error.errors.forEach((err) => {
-          const path = err.path[0] as keyof typeof newErrors;
-          if (path in newErrors) {
-            newErrors[path] = err.message;
-          }
-        });
-
-        setErrors(newErrors);
-        toast.error("Please fix the form errors");
-      } else {
-        toast.error("An error occurred. Please try again.");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div>
-      <div className="mb-4">
-        <h1 className="text-xl font-bold text-navy-800 mb-1">Welcome back</h1>
-        <p className="text-gray-600 text-sm">Log in to accept invitation</p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <Label htmlFor="email">Email address</Label>
-            <Input 
-              id="email" 
-              type="email" 
-              required 
-              defaultValue={inviteDetails?.email || ""}
-              disabled={isDisabled}
-            />
-            {errors.email && (
-              <p className="text-xs text-red-500">{errors.email}</p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
-              <Link
-                href="/forgotPassword"
-                className="text-xs text-[#0284c7] hover:underline"
+            {/* Submit Button */}
+            <div className="pt-4">
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={handleEmailInvite}
+                disabled={isSubmitting || emailList.length === 0}
               >
-                Forgot?
-              </Link>
+                {isSubmitting ? (
+                  <>Sending...</>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Send Invitations
+                  </>
+                )}
+              </Button>
             </div>
-            <Input 
-              id="password" 
-              type="password" 
-              required 
-              disabled={isDisabled} 
-            />
-            {errors.password && (
-              <p className="text-xs text-red-500">{errors.password}</p>
-            )}
           </div>
-        </div>
-
-        <Button 
-          type="submit" 
-          className="w-full" 
-          disabled={isLoading || isDisabled}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Please wait
-            </>
-          ) : (
-            "Log in & Accept Invitation"
-          )}
-        </Button>
-
-        <div className="relative py-2">
-          <div className="absolute inset-0 flex items-center">
-            <Separator />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="bg-white px-2 text-gray-500 text-xs">
-              Or continue with
-            </span>
-          </div>
-        </div>
-
-        <div className="flex justify-center">
-          <GoogleSignin />
-        </div>
-      </form>
-    </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
-// Signup Form Component
-const SignupForm: React.FC<FormProps> = ({
-  inviteDetails,
-  onSuccess,
-  isDisabled
-}) => {
-  const schema = z.object({
-    firstName: z.string().min(1, "First name is required"),
-    lastName: z.string().min(1, "Last name is required"),
-    email: z.string().email("Please enter a valid email address"),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[0-9]/, "Password must include a number")
-      .regex(/[^a-zA-Z0-9]/, "Password must include a symbol"),
-  });
-
-  const [errors, setErrors] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-  });
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // Get form data from the form elements
-    const formData = {
-      firstName: (
-        e.currentTarget.elements.namedItem("firstName") as HTMLInputElement
-      ).value,
-      lastName: (
-        e.currentTarget.elements.namedItem("lastName") as HTMLInputElement
-      ).value,
-      email: (e.currentTarget.elements.namedItem("email") as HTMLInputElement)
-        .value,
-      password: (
-        e.currentTarget.elements.namedItem("password") as HTMLInputElement
-      ).value,
-    };
-
-    try {
-      // Validate form data against schema
-      schema.parse(formData);
-
-      // Call the server action
-      const response = await registerUser(formData);
-
-      if (response.error) {
-        toast.error(response.message || "Registration failed. Please try again.");
-      } else {
-        toast.success(response.message || "Account created successfully!");
-        onSuccess({
-          id: response.user?.id,
-          email: formData.email
-        });
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        // Extract and set validation errors
-        const newErrors = {
-          firstName: "",
-          lastName: "",
-          email: "",
-          password: "",
-        };
-
-        error.errors.forEach((err) => {
-          const path = err.path[0] as keyof typeof newErrors;
-          if (path in newErrors) {
-            newErrors[path] = err.message;
-          }
-        });
-
-        setErrors(newErrors);
-        toast.error("Please fix the form errors");
-      } else {
-        toast.error("An error occurred. Please try again.");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div>
-      <div className="mb-4">
-        <h1 className="text-xl font-bold text-navy-800 mb-1">Create account</h1>
-        <p className="text-gray-600 text-sm">
-          Join {inviteDetails?.organizationName || "SalesCoach.guru"}
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label htmlFor="firstName" className="text-sm">
-                First name
-              </Label>
-              <Input 
-                id="firstName" 
-                required 
-                className="h-9" 
-                disabled={isDisabled}
-              />
-              {errors.firstName && (
-                <p className="text-xs text-red-500">{errors.firstName}</p>
-              )}
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="lastName" className="text-sm">
-                Last name
-              </Label>
-              <Input 
-                id="lastName" 
-                required 
-                className="h-9" 
-                disabled={isDisabled}
-              />
-              {errors.lastName && (
-                <p className="text-xs text-red-500">{errors.lastName}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="email" className="text-sm">
-              Email address
-            </Label>
-            <Input 
-              id="email" 
-              type="email" 
-              required 
-              className="h-9" 
-              defaultValue={inviteDetails?.email || ""}
-              readOnly={!!inviteDetails?.email}
-              disabled={isDisabled || !!inviteDetails?.email}
-            />
-            {errors.email && (
-              <p className="text-xs text-red-500">{errors.email}</p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="password" className="text-sm">
-              Password
-            </Label>
-            <Input 
-              id="password" 
-              type="password" 
-              required 
-              className="h-9"
-              disabled={isDisabled}
-            />
-            {errors.password && (
-              <p className="text-xs text-red-500">{errors.password}</p>
-            )}
-            <p className="text-xs text-gray-500">
-              Must be at least 8 characters with a number and symbol.
-            </p>
-          </div>
-        </div>
-
-        <Button 
-          type="submit" 
-          className="w-full" 
-          disabled={isLoading || isDisabled}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Please wait
-            </>
-          ) : (
-            "Create account & Accept Invitation"
-          )}
-        </Button>
-
-        <div className="relative py-2">
-          <div className="absolute inset-0 flex items-center">
-            <Separator />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="bg-white px-2 text-gray-500 text-xs">
-              Or continue with
-            </span>
-          </div>
-        </div>
-
-        <div className="flex justify-center">
-          <GoogleSignin />
-        </div>
-      </form>
-
-      <p className="mt-3 text-center text-xs text-gray-500">
-        By signing up, you agree to our{" "}
-        <Link href="/terms" className="text-navy-700 hover:underline">
-          Terms
-        </Link>{" "}
-        and{" "}
-        <Link href="/privacy" className="text-navy-700 hover:underline">
-          Privacy Policy
-        </Link>
-        .
-      </p>
-    </div>
-  );
-};
-
-// Import server actions
-const login = async ({
-  email,
-  password,
-}: {
-  email: string;
-  password: string;
-}) => {
-  // This is a placeholder that would call your server action
-  try {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-    
-    return await response.json();
-  } catch (error) {
-    return {
-      error: true,
-      message: "Failed to login. Please try again.",
-    };
-  }
-};
-
-const registerUser = async ({
-  email,
-  password,
-  firstName,
-  lastName,
-}: {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-}) => {
-  // This is a placeholder that would call your server action
-  try {
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password, firstName, lastName }),
-    });
-    
-    return await response.json();
-  } catch (error) {
-    return {
-      error: true,
-      message: "Failed to register. Please try again.",
-    };
-  }
-};
-
-export default JoinPage;
+export default InviteTeamMemberPage;
