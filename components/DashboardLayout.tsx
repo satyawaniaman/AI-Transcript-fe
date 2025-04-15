@@ -45,7 +45,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   const { data: user, isLoading } = useGetUser();
 
-  const {currentOrg} = useCurrentOrg();
+  const { currentOrg } = useCurrentOrg();
 
   // Add mock organization data
   const orgName = currentOrg?.name;

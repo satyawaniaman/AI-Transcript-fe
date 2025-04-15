@@ -38,7 +38,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetOrgByID } from "@/services/organisation/query";
-import { Role } from "@/services/user/api";
 import { OrgUser } from "@/services/organisation/api";
 import { Loader2 } from "lucide-react";
 
@@ -66,22 +65,23 @@ const OrganizationInfoPage = () => {
 
   function getUserRole(): "admin" | "member" {
     if (!org?.users || org.users.length === 0) return "member";
-    
+
     // In a real app, you'd match this with the authenticated user ID
     // Here we're just assuming the first user with ADMIN role is the current user
-    const adminUser = org.users.find(user => user.role === "ADMIN");
+    const adminUser = org.users.find((user) => user.role === "ADMIN");
     return adminUser ? "admin" : "member";
   }
-  
+
   // Transform API users to members format
-  const transformedMembers: Member[] = org?.users?.map((orgUser: OrgUser) => ({
-    id: orgUser.user.id,
-    name: `${orgUser.user.firstName} ${orgUser.user.lastName}`,
-    email: orgUser.user.email,
-    role: orgUser.role === "ADMIN" ? "Admin" : "Member",
-    joinedAt: orgUser.user.createdAt,
-    avatar: "",
-  })) || [];
+  const transformedMembers: Member[] =
+    org?.users?.map((orgUser: OrgUser) => ({
+      id: orgUser.user.id,
+      name: `${orgUser.user.firstName || ''} ${orgUser.user.lastName || ''}`.trim(),
+      email: orgUser.user.email,
+      role: orgUser.role === "ADMIN" ? "Admin" : "Member",
+      joinedAt: orgUser.user.createdAt,
+      avatar: "",
+    })) || [];
 
   // Filter members based on search query
   const filteredMembers = transformedMembers.filter(
@@ -128,8 +128,12 @@ const OrganizationInfoPage = () => {
         <Card>
           <CardContent className="flex flex-col items-center justify-center p-10">
             <h2 className="text-2xl font-bold mb-2">Organization not found</h2>
-            <p className="text-gray-500 mb-4">The requested organization could not be found.</p>
-            <Button onClick={() => router.push("/dashboard")}>Return to Dashboard</Button>
+            <p className="text-gray-500 mb-4">
+              The requested organization could not be found.
+            </p>
+            <Button onClick={() => router.push("/dashboard")}>
+              Return to Dashboard
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -234,11 +238,9 @@ const OrganizationInfoPage = () => {
                         Created
                       </p>
                       <p className="text-base">
-                        {formatDistance(
-                          new Date(org.createdAt),
-                          new Date(),
-                          { addSuffix: true }
-                        )}
+                        {formatDistance(new Date(org.createdAt), new Date(), {
+                          addSuffix: true,
+                        })}
                       </p>
                     </div>
                   </div>
@@ -301,6 +303,7 @@ const OrganizationInfoPage = () => {
                             <AvatarFallback>
                               {member.name
                                 .split(" ")
+                                .filter((part) => part && part !== "null")
                                 .map((n) => n[0])
                                 .join("")}
                             </AvatarFallback>
@@ -383,9 +386,7 @@ const OrganizationInfoPage = () => {
                   <div className="rounded-md bg-blue-50 p-4">
                     <div className="flex">
                       <div className="flex-shrink-0">
-                        <Badge className="bg-blue-600">
-                          Standard
-                        </Badge>
+                        <Badge className="bg-blue-600">Standard</Badge>
                       </div>
                       <div className="ml-3">
                         <h3 className="text-sm font-medium text-blue-800">
@@ -393,8 +394,8 @@ const OrganizationInfoPage = () => {
                         </h3>
                         <div className="mt-2 text-sm text-blue-700">
                           <p>
-                            You are currently on the Standard plan
-                            with {transformedMembers.length} members.
+                            You are currently on the Standard plan with{" "}
+                            {transformedMembers.length} members.
                           </p>
                         </div>
                       </div>

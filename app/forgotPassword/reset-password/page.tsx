@@ -1,13 +1,13 @@
 "use client";
 
+import { useState } from "react";
+import { z } from "zod";
+import { motion } from "framer-motion";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -16,124 +16,156 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { resetPasswordFunc } from "./action";
-import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
-import { toast } from "react-hot-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CheckCircle, XCircle } from "lucide-react";
+import { resetPassword } from "./action";
 
-const formSchema = z.object({
-  password: z.string().min(6),
-  passwordConfirm: z.string().min(6),
-});
+const formSchema = z
+  .object({
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
-export default function ResetPassword() {
-  const [serverError, setServerError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false); // Add loading state
+const ResetPassword = () => {
   const router = useRouter();
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [serverError, setServerError] = useState("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       password: "",
-      passwordConfirm: "",
+      confirmPassword: "",
     },
   });
 
-  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    setServerError(null);
-    setIsLoading(true); // Set loading to true when submission starts
-
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    setServerError("");
     try {
-      const response = await resetPasswordFunc({
+      const response = await resetPassword({
         password: data.password,
-        passwordConfirm: data.passwordConfirm,
       });
 
       if (response.error) {
         setServerError(response.message);
       } else {
-        // Add success notification before redirecting
-        toast.success(
-          "Password reset successful! You can now log in with your new password."
-        );
-
-        // Short delay to allow the toast to be visible
+        setIsSubmitted(true);
+        // Redirect after a short delay
         setTimeout(() => {
-          router.push("/dashboard");
-        }, 1500);
+          router.push("/login");
+        }, 3000);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setServerError("An unexpected error occurred. Please try again.");
-    } finally {
-      setIsLoading(false); // Set loading to false when submission ends
     }
   };
 
   return (
-    <main className="flex justify-center items-center min-h-screen">
-      <Card className="w-[380px]">
-        <CardHeader>
-          <CardTitle>Password Reset</CardTitle>
-          <CardDescription>
-            Enter your new password to update your password
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleSubmit)}
-              className="flex flex-col gap-2"
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-50 via-blue-50 to-slate-100 p-4">
+      <motion.div
+        className="bg-white w-full max-w-md rounded-xl shadow-lg p-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="space-y-6">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+              Set New Password
+            </h1>
+            {!isSubmitted && (
+              <p className="mt-2 text-sm text-gray-600">
+                Please enter your new password below.
+              </p>
+            )}
+          </div>
+
+          {serverError && (
+            <Alert className="bg-red-50 border-red-200">
+              <XCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-700">
+                {serverError}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {isSubmitted ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
             >
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>New password</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="password" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="passwordConfirm"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password confirm</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="password" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {serverError && (
-                <p className="text-red-500 text-sm mt-2">{serverError}</p>
-              )}
-              {/* <Button type="submit">Register</Button> */}
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Please wait
-                  </>
-                ) : (
-                  "Submit"
-                )}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </main>
+              <Alert className="bg-green-50 border-green-200">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-700">
+                  Your password has been successfully reset. You'll be
+                  redirected to the login page shortly.
+                </AlertDescription>
+              </Alert>
+            </motion.div>
+          ) : (
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>New Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          {...field}
+                          className="block w-full"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          {...field}
+                          className="block w-full"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting
+                    ? "Updating..."
+                    : "Reset Password"}
+                </Button>
+              </form>
+            </Form>
+          )}
+        </div>
+      </motion.div>
+    </div>
   );
-}
+};
+
+export default ResetPassword;
