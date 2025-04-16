@@ -16,6 +16,7 @@ import {
   FileText,
   HelpCircle,
   LayoutDashboard,
+  Loader2,
   LogOut,
   Menu,
   MessageSquare,
@@ -35,6 +36,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { useUploadAsset } from "@/services/callasset/mutation";
 import { generatePresignedUrls } from "@/app/(dashboard)/dashboard/upload/action";
+import { Progress } from "@/components/ui/progress";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -43,6 +45,11 @@ interface DashboardLayoutProps {
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarFile, setSidebarFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStage, setUploadStage] = useState<
+    "idle" | "preparing" | "uploading" | "processing" | "complete" | "error"
+  >("idle");
   const pathname = usePathname();
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -75,16 +82,18 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const handleSidebarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSidebarFile(e.target.files[0]);
+      setUploadProgress(0);
+      setUploadStage("idle");
     }
   };
 
-  // Handle file upload
+  // Handle file upload with progress tracking
   const handleSidebarFileUpload = async () => {
     if (!sidebarFile) return;
-    
+
     if (!currentOrg || !currentOrg.id) {
       toast({
-        title: "Error", 
+        title: "Error",
         description: "No organization selected",
         variant: "destructive",
       });
@@ -92,18 +101,19 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     }
 
     try {
+      setIsUploading(true);
+      setUploadProgress(10);
+      setUploadStage("preparing");
+
       // Get userId from Supabase
       const supabase = await createClient();
       const userId = (await supabase.auth.getSession()).data.session?.user.id;
-      
+
       if (!userId) {
-        toast({
-          title: "Error",
-          description: "User not authenticated",
-          variant: "destructive",
-        });
-        return;
+        throw new Error("User not authenticated");
       }
+
+      setUploadProgress(20);
 
       // Generate presigned URL
       const presignedUrls = await generatePresignedUrls(
@@ -113,70 +123,117 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       );
 
       if (!presignedUrls[0]) {
-        toast({
-          title: "Error", 
-          description: "Error generating upload URL",
-          variant: "destructive",
-        });
-        return;
+        throw new Error("Error generating upload URL");
       }
 
-      // Upload file to presigned URL
-      const response = await fetch(presignedUrls[0], {
-        method: "PUT",
-        body: sidebarFile,
-        headers: {
-          "Content-Type": sidebarFile.type,
-        },
-      });
+      setUploadProgress(30);
+      setUploadStage("uploading");
 
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
+      // Upload file to presigned URL with progress tracking
+      await uploadWithProgress(presignedUrls[0], sidebarFile);
+
+      setUploadProgress(80);
+      setUploadStage("processing");
 
       // Extract the file URL from the presigned URL
-      const baseUrl = 'https://eszghbzdaorgzigavzkm.supabase.co/storage/v1/object/public';
-      const urlParts = presignedUrls[0].split('/');
-      const signIndex = urlParts.findIndex((part: string) => part === 'sign');
-      const relativePath = urlParts.slice(signIndex + 2).join('/').split('?')[0];
+      const baseUrl =
+        "https://eszghbzdaorgzigavzkm.supabase.co/storage/v1/object/public";
+      const urlParts = presignedUrls[0].split("/");
+      const signIndex = urlParts.findIndex((part: string) => part === "sign");
+      const relativePath = urlParts
+        .slice(signIndex + 2)
+        .join("/")
+        .split("?")[0];
       const fileUrl = `${baseUrl}/uploads/${relativePath}`;
 
       // Call the mutation with the file URL
       await uploadAssetMutation.mutateAsync({
         content: fileUrl,
         type: "FILE",
-        organisationId: currentOrg.id
+        organisationId: currentOrg.id,
       });
 
-      // Clear the file and show success message
-      setSidebarFile(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      setUploadProgress(100);
+      setUploadStage("complete");
 
+      // Show success message
       toast({
         title: "Success",
         description: "File uploaded successfully",
       });
 
+      // Short delay to show the completed state
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Clear the file and reset states
+      setSidebarFile(null);
+      setUploadProgress(0);
+      setUploadStage("idle");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
       // Redirect to dashboard
       router.push("/dashboard");
     } catch (error) {
       console.error("Upload error:", error);
+      setUploadStage("error");
       toast({
-        title: "Error", 
-        description: "Failed to upload file",
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to upload file",
         variant: "destructive",
       });
+    } finally {
+      setIsUploading(false);
     }
+  };
+
+  // Upload with progress tracking
+  const uploadWithProgress = async (url: string, file: File) => {
+    return new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.addEventListener("progress", (event) => {
+        if (event.lengthComputable) {
+          // Map upload progress to 30-80% of our total progress bar
+          const progressPercentage = (event.loaded / event.total) * 50;
+          setUploadProgress(30 + progressPercentage);
+        }
+      });
+
+      xhr.addEventListener("load", () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve();
+        } else {
+          reject(new Error(`Upload failed with status ${xhr.status}`));
+        }
+      });
+
+      xhr.addEventListener("error", () => {
+        reject(new Error("Network error during upload"));
+      });
+
+      xhr.addEventListener("abort", () => {
+        reject(new Error("Upload aborted"));
+      });
+
+      xhr.open("PUT", url);
+      xhr.setRequestHeader("Content-Type", file.type);
+      xhr.send(file);
+    });
   };
 
   // Handle file removal
   const handleRemoveFile = () => {
-    setSidebarFile(null);
-    // Reset the file input value
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    if (!isUploading) {
+      setSidebarFile(null);
+      setUploadProgress(0);
+      setUploadStage("idle");
+      // Reset the file input value
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -192,6 +249,24 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   if (isLoading) {
     return <DashboardLayoutSkeleton />;
   }
+
+  // Get stage message for progress bar
+  const getStageMessage = () => {
+    switch (uploadStage) {
+      case "preparing":
+        return "Preparing upload...";
+      case "uploading":
+        return "Uploading file...";
+      case "processing":
+        return "Processing file...";
+      case "complete":
+        return "Upload complete";
+      case "error":
+        return "Upload failed";
+      default:
+        return "";
+    }
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -252,26 +327,29 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                   Quick Upload
                 </div>
                 <div className="p-3 bg-navy-700 bg-opacity-50">
-                  <label
-                    htmlFor="sidebar-dropzone-file"
-                    className="flex flex-col items-center justify-center w-full h-24 border border-navy-600 border-dashed rounded-md cursor-pointer hover:bg-navy-700 transition-colors duration-200"
-                  >
-                    <div className="flex flex-col items-center justify-center p-2">
-                      <Upload className="h-5 w-5 text-gray-400 mb-1" />
-                      <p className="text-xs text-gray-300 text-center">
-                        <span className="font-medium">Click to upload</span> or
-                        drag files
-                      </p>
-                    </div>
-                    <input
-                      id="sidebar-dropzone-file"
-                      type="file"
-                      className="hidden"
-                      onChange={handleSidebarFileChange}
-                      ref={fileInputRef}
-                      accept=".txt,.pdf,.vtt,.doc,.docx"
-                    />
-                  </label>
+                  {!isUploading && !sidebarFile && (
+                    <label
+                      htmlFor="sidebar-dropzone-file"
+                      className="flex flex-col items-center justify-center w-full h-24 border border-navy-600 border-dashed rounded-md cursor-pointer hover:bg-navy-700 transition-colors duration-200"
+                    >
+                      <div className="flex flex-col items-center justify-center p-2">
+                        <Upload className="h-5 w-5 text-gray-400 mb-1" />
+                        <p className="text-xs text-gray-300 text-center">
+                          <span className="font-medium">Click to upload</span>{" "}
+                          or drag files
+                        </p>
+                      </div>
+                      <input
+                        id="sidebar-dropzone-file"
+                        type="file"
+                        className="hidden"
+                        onChange={handleSidebarFileChange}
+                        ref={fileInputRef}
+                        accept=".txt,.pdf,.vtt,.doc,.docx"
+                        disabled={isUploading}
+                      />
+                    </label>
+                  )}
 
                   {sidebarFile && (
                     <div className="mt-2">
@@ -282,24 +360,66 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                         >
                           {sidebarFile.name}
                         </span>
-                        <button
-                          onClick={handleRemoveFile}
-                          className="text-gray-400 hover:text-white flex-shrink-0"
-                          title="Remove file"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
+                        {!isUploading && (
+                          <button
+                            onClick={handleRemoveFile}
+                            className="text-gray-400 hover:text-white flex-shrink-0"
+                            title="Remove file"
+                            disabled={isUploading}
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        )}
                       </div>
+
+                      {uploadProgress > 0 && (
+                        <div className="mt-2 mb-2">
+                          <Progress
+                            value={uploadProgress}
+                            className="h-1.5 bg-navy-600"
+                            color={
+                              uploadStage === "error" ? "bg-red-500" : undefined
+                            }
+                          />
+                          <div className="flex justify-between mt-1">
+                            <span className="text-xs text-gray-400">
+                              {getStageMessage()}
+                            </span>
+                            {uploadStage === "complete" && (
+                              <span className="text-xs text-green-400">
+                                ✓ Done
+                              </span>
+                            )}
+                            {uploadStage === "error" && (
+                              <span className="text-xs text-red-400">
+                                ✗ Failed
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                       <div className="flex justify-between items-center mt-1">
                         <div className="text-xs text-gray-400">
                           {(sidebarFile.size / 1024).toFixed(1)} KB
                         </div>
-                        <button
-                          onClick={handleSidebarFileUpload}
-                          className="text-xs px-2 py-1 bg-[#0284c7] text-white rounded hover:bg-blue-600 transition-colors"
-                        >
-                          Upload
-                        </button>
+                        {!isUploading ? (
+                          <button
+                            onClick={handleSidebarFileUpload}
+                            className="text-xs px-2 py-1 bg-[#0284c7] text-white rounded hover:bg-blue-600 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed"
+                            disabled={isUploading}
+                          >
+                            Upload
+                          </button>
+                        ) : (
+                          <button
+                            className="text-xs px-2 py-1 bg-gray-600 text-white rounded flex items-center space-x-1 cursor-not-allowed"
+                            disabled
+                          >
+                            <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                            <span>Uploading</span>
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}
