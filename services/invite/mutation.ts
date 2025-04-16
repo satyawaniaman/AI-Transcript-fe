@@ -1,10 +1,11 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { inviteToOrganisation } from "./api";
 import { toast } from "react-hot-toast";
 import { Role } from "@/services/user/api";
 import { acceptInvite } from "./api";
 
 export function useInviteToOrganisationMutation() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
       email,
@@ -17,7 +18,8 @@ export function useInviteToOrganisationMutation() {
       organizationId: string;
       teamIds: string[];
     }) => inviteToOrganisation({ email, role, organizationId, teamIds }),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['organization', variables.organizationId] });
       toast.success("Invitation sent successfully");
     },
     onError: () => {
@@ -27,9 +29,12 @@ export function useInviteToOrganisationMutation() {
 }
 
 export function useAcceptInviteMutation() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ inviteId }: { inviteId: string }) => acceptInvite({ inviteId }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['organisations'] });
       toast.success("Invitation accepted successfully");
     },
     onError: () => {
