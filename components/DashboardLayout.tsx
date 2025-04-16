@@ -146,8 +146,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         .split("?")[0];
       const fileUrl = `${baseUrl}/uploads/${relativePath}`;
 
-      // Call the mutation with the file URL
-      await uploadAssetMutation.mutateAsync({
+      // Call the mutation with the file URL and get the response
+      const response = await uploadAssetMutation.mutateAsync({
         content: fileUrl,
         type: "FILE",
         organisationId: currentOrg.id,
@@ -173,8 +173,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         fileInputRef.current.value = "";
       }
 
-      // Redirect to dashboard
-      router.push("/dashboard");
+      // Redirect to the analysis page instead of dashboard
+      if (response?.asset?.id) {
+        router.push(`/dashboard/analysis/${response.asset.id}`);
+      } else {
+        // Fallback to dashboard if no asset ID
+        router.push("/dashboard");
+      }
     } catch (error) {
       console.error("Upload error:", error);
       setUploadStage("error");
