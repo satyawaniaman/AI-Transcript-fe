@@ -31,6 +31,10 @@ import { createClient } from "@/utils/supabase/client";
 import { useGetUser } from "@/services/user/query";
 import DashboardLayoutSkeleton from "@/components/DashboardLayoutSkeleton";
 import useCurrentOrg, { Organization } from "@/store/useCurrentOrg";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
+import { useUploadAsset } from "@/services/callasset/mutation";
+import { generatePresignedUrls } from "@/app/(dashboard)/dashboard/upload/action";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -46,6 +50,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const { data: user, isLoading } = useGetUser();
 
   const { currentOrg } = useCurrentOrg();
+  const { toast } = useToast();
+  const router = useRouter();
+  const uploadAssetMutation = useUploadAsset();
 
   // Add mock organization data
   const orgName = currentOrg?.name;
@@ -72,12 +79,95 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   };
 
   // Handle file upload
-  const handleSidebarFileUpload = () => {
-    if (sidebarFile) {
-      console.log("Uploading file:", sidebarFile);
-      // Add your upload logic here
-      // After successful upload, you might want to clear the state:
-      // setSidebarFile(null);
+  const handleSidebarFileUpload = async () => {
+    if (!sidebarFile) return;
+    
+    if (!currentOrg || !currentOrg.id) {
+      toast({
+        title: "Error", 
+        description: "No organization selected",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Get userId from Supabase
+      const supabase = await createClient();
+      const userId = (await supabase.auth.getSession()).data.session?.user.id;
+      
+      if (!userId) {
+        toast({
+          title: "Error",
+          description: "User not authenticated",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Generate presigned URL
+      const presignedUrls = await generatePresignedUrls(
+        [sidebarFile.name],
+        "application/octet-stream",
+        userId
+      );
+
+      if (!presignedUrls[0]) {
+        toast({
+          title: "Error", 
+          description: "Error generating upload URL",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Upload file to presigned URL
+      const response = await fetch(presignedUrls[0], {
+        method: "PUT",
+        body: sidebarFile,
+        headers: {
+          "Content-Type": sidebarFile.type,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      // Extract the file URL from the presigned URL
+      const baseUrl = 'https://eszghbzdaorgzigavzkm.supabase.co/storage/v1/object/public';
+      const urlParts = presignedUrls[0].split('/');
+      const signIndex = urlParts.findIndex((part: string) => part === 'sign');
+      const relativePath = urlParts.slice(signIndex + 2).join('/').split('?')[0];
+      const fileUrl = `${baseUrl}/uploads/${relativePath}`;
+
+      // Call the mutation with the file URL
+      await uploadAssetMutation.mutateAsync({
+        content: fileUrl,
+        type: "FILE",
+        organisationId: currentOrg.id
+      });
+
+      // Clear the file and show success message
+      setSidebarFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      toast({
+        title: "Success",
+        description: "File uploaded successfully",
+      });
+
+      // Redirect to dashboard
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast({
+        title: "Error", 
+        description: "Failed to upload file",
+        variant: "destructive",
+      });
     }
   };
 
