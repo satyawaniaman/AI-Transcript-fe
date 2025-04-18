@@ -50,6 +50,11 @@ export function CategoryTrendChart({
     endDate
   );
 
+  // Add debugging console log
+  React.useEffect(() => {
+    console.log("CategoryTrendChart data:", data);
+  }, [data]);
+
   // Calculate date range description for the chart header
   const getDateRangeDescription = () => {
     if (startDate && endDate) {
@@ -72,8 +77,19 @@ export function CategoryTrendChart({
   const processedData = React.useMemo(() => {
     if (!data || data.length === 0) return [];
     
-    // We'll filter out dates with zero objections to make the chart more readable
-    const nonEmptyData = data.filter(item => 
+    // Ensure all data points have the required properties
+    const mappedData = data.map(item => ({
+      date: item.date,
+      price: item.price || 0,
+      timing: item.timing || 0,
+      trust: item.trust || 0,
+      competition: item.competition || 0,
+      stakeholders: item.stakeholders || 0,
+      other: item.other || 0,
+    }));
+    
+    // Filter out dates with zero objections for better readability
+    const nonEmptyData = mappedData.filter(item => 
       item.price > 0 || 
       item.timing > 0 || 
       item.trust > 0 || 
@@ -82,7 +98,12 @@ export function CategoryTrendChart({
       item.other > 0
     );
     
-    // If we have more than 30 data points, let's sample to avoid overcrowding
+    // If there's no non-empty data, return the original mapped data
+    if (nonEmptyData.length === 0) {
+      return mappedData;
+    }
+    
+    // If we have more than 30 data points, sample to avoid overcrowding
     let dataToProcess = nonEmptyData;
     if (nonEmptyData.length > 30) {
       const step = Math.ceil(nonEmptyData.length / 30);
@@ -91,7 +112,7 @@ export function CategoryTrendChart({
     
     return dataToProcess.map(item => ({
       ...item,
-      // Convert ISO date to more readable format
+      // Format date for display
       date: new Date(item.date).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -147,7 +168,7 @@ export function CategoryTrendChart({
     if (!processedData || processedData.length === 0) {
       return (
         <div className="w-full h-64 flex items-center justify-center text-gray-500">
-          No objection category data available
+          No objection category data available for this time period
         </div>
       );
     }
@@ -166,7 +187,12 @@ export function CategoryTrendChart({
               axisLine={false}
               tickMargin={8}
             />
-            <YAxis tickLine={false} axisLine={false} />
+            <YAxis 
+              tickLine={false} 
+              axisLine={false} 
+              allowDecimals={false}
+              domain={[0, 'auto']}
+            />
             <Tooltip content={<CustomTooltip />} />
             <Legend />
             <Line
@@ -243,12 +269,12 @@ export function CategoryTrendChart({
     };
     
     data.forEach(item => {
-      totals.price += item.price;
-      totals.timing += item.timing;
-      totals.trust += item.trust;
-      totals.competition += item.competition;
-      totals.stakeholders += item.stakeholders;
-      totals.other += item.other;
+      totals.price += item.price || 0;
+      totals.timing += item.timing || 0;
+      totals.trust += item.trust || 0;
+      totals.competition += item.competition || 0;
+      totals.stakeholders += item.stakeholders || 0;
+      totals.other += item.other || 0;
     });
     
     return totals;
