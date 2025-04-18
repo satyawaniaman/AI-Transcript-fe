@@ -22,7 +22,7 @@ import {
   Upload,
 } from "lucide-react";
 import SentimentChart from "@/components/SentimentChart";
-import ObjectionsList from "@/components/ObjectionsList";
+import ObjectionsList, { CategoryObjection } from "@/components/ObjectionsList";
 import RecentTranscriptsList from "@/components/RecentTranscriptsList";
 import { useToast } from "@/components/ui/use-toast";
 import { useGetUser } from "@/services/user/query";
@@ -334,26 +334,27 @@ const Dashboard = () => {
 
             {/* Objections List */}
             <Card className="md:col-span-3">
-              <CardHeader>
-                <CardTitle>Common Objections</CardTitle>
-                <CardDescription>
-                  Objections you encountered most frequently
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {commonLoading ? (
-                  <p className="py-8 text-center text-gray-500">
-                    Loading objections...
-                  </p>
-                ) : commonObjections ? (
-                  <ObjectionsList objections={[]} /> // data={commonObjections}
-                ) : (
-                  <p className="py-8 text-center text-gray-500">
-                    No objection data available
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+  <CardHeader>
+    <CardTitle>Common Objections</CardTitle>
+    <CardDescription>
+      Objections you encountered most frequently
+    </CardDescription>
+  </CardHeader>
+  <CardContent>
+    {commonLoading ? (
+      <p className="py-8 text-center text-gray-500">
+        Loading objections...
+      </p>
+    ) : commonObjections ? (
+      // Direct pass-through of the entire response object
+      <ObjectionsList objections={commonObjections} />
+    ) : (
+      <p className="py-8 text-center text-gray-500">
+        No objection data available
+      </p>
+    )}
+  </CardContent>
+</Card>
           </div>
 
           {/* Recent Transcripts */}

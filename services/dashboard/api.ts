@@ -1,3 +1,4 @@
+import { CategoryObjection } from "@/components/ObjectionsList";
 import { api } from "@/utils/axios";
 
 // Types for dashboard data
@@ -213,7 +214,7 @@ const getSentimentTrends = async (orgId: string): Promise<SentimentTrendsRespons
  * @param orgId The organization ID
  * @returns Promise with common objection data
  */
-const getCommonObjections = async (orgId: string): Promise<CommonObjectionsResponse> => {
+const getCommonObjections = async (orgId: string): Promise<CategoryObjection> => {
   const response = await api.get('/api/dashboard/commonObjections', {
     params: { orgId }
   });

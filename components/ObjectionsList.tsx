@@ -5,9 +5,9 @@ import {
   Clock,
   ShieldCheck,
   Briefcase,
- Users
+  Users,
+  HelpCircle,
 } from 'lucide-react';
-import { Objection } from '@/services/objections/api';
 import Link from "next/link";
 
 interface AnalysisObjection {
@@ -21,7 +21,7 @@ interface AnalysisObjection {
 // Define a type for Lucide React icons
 type LucideIcon = React.ComponentType<React.SVGProps<SVGSVGElement>>;
 
-interface CategoryObjection {
+export interface CategoryObjection {
   id: number | string;
   type: string;
   count: number;
@@ -31,70 +31,76 @@ interface CategoryObjection {
   link: string;
 }
 
-interface ObjectionsListProps {
-  objections: Objection[];
+// Define a structure for the API response
+interface CommonObjectionsResponse {
+  types: {
+    PRICE: number;
+    TIMING: number;
+    TRUST_RISK: number;
+    COMPETITION: number;
+    STAKEHOLDERS: number;
+    OTHERS: number;
+    [key: string]: number;
+  };
+  topObjections: {
+    text: string;
+    count: number;
+    type: string;
+  }[];
 }
 
-const defaultObjections: CategoryObjection[] = [
-  {
-    id: 1,
+interface ObjectionsListProps {
+  objections: AnalysisObjection[] | CategoryObjection[] | CommonObjectionsResponse | any;
+}
+
+// Objection type mapping
+const objectionTypeMapping = {
+  PRICE: {
     type: "Price",
-    count: 15,
-    example: "Your product is too expensive compared to competitors.",
     icon: DollarSign,
     color: "bg-red-100 text-red-600",
-    link: "/objections/price",
+    link: "/dashboard/objections",
   },
-  {
-    id: 2,
+  TIMING: {
     type: "Timing",
-    count: 12,
-    example: "We're not ready to make a decision right now.",
     icon: Clock,
     color: "bg-orange-100 text-orange-600",
-    link: "/objections/timing",
+    link: "/dashboard/objections",
   },
-  {
-    id: 3,
+  TRUST_RISK: {
     type: "Trust/Risk",
-    count: 9,
-    example: "We're concerned about the implementation process.",
     icon: ShieldCheck,
     color: "bg-blue-100 text-blue-600",
-    link: "/objections/trust",
+    link: "/dashboard/objections",
   },
-  {
-    id: 4,
+  COMPETITION: {
     type: "Competition",
-    count: 8,
-    example: "We're already using another solution.",
     icon: Briefcase,
     color: "bg-purple-100 text-purple-600",
-    link: "/objections/competition",
+    link: "/dashboard/objections",
   },
-  {
-    id: 5,
+  STAKEHOLDERS: {
     type: "Stakeholders",
-    count: 6,
-    example: "I need to get approval from my team first.",
     icon: Users,
     color: "bg-green-100 text-green-600",
-    link: "/objections/stakeholders",
+    link: "/dashboard/objections",
   },
-];
+  OTHERS: {
+    type: "Other",
+    icon: HelpCircle,
+    color: "bg-gray-100 text-gray-600",
+    link: "/dashboard/objections",
+  }
+};
 
 const ObjectionsList: React.FC<ObjectionsListProps> = ({
-  objections = defaultObjections,
+  objections = [],
 }) => {
-  // Check if we're using the custom objections format or the default format
-  const isCustomFormat =
-    objections.length > 0 &&
-    Object.prototype.hasOwnProperty.call(objections[0], "text");
-
-  if (isCustomFormat) {
+  // Check if we're using the analysis objection format (with text field)
+  if (Array.isArray(objections) && objections.length > 0 && 'text' in objections[0]) {
     return (
       <div className="space-y-4">
-        {objections.map((objection, index) => (
+        {objections.map((objection: any, index: number) => (
           <div key={objection.id || index} className="border rounded-lg p-4">
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-start">
@@ -129,40 +135,84 @@ const ObjectionsList: React.FC<ObjectionsListProps> = ({
     );
   }
 
-  return (
-    <div className="space-y-4">
-      {objections.map((objection) => {
-        const typedObjection = objection as CategoryObjection;
-        return (
+  // Handle the API response format with types and topObjections
+  if (objections && 'types' in objections && 'topObjections' in objections) {
+    const typesData = objections.types;
+    const topObjections = objections.topObjections;
+    
+    // Transform the API response into the format expected by the component
+    const formattedObjections = Object.entries(typesData)
+      .filter(([_, count]) => (count as number) > 0) // Only show types with counts > 0
+      .map(([type, count], index) => {
+        const mappingKey = type as keyof typeof objectionTypeMapping;
+        const mapping = objectionTypeMapping[mappingKey];
+        
+        // Find example text for this objection type
+        // @ts-ignore
+        const exampleObj = topObjections.find(obj => obj.type === type);
+        const exampleText = exampleObj ? exampleObj.text : "";
+        
+        return {
+          id: index + 1,
+          type: mapping.type,
+          count: count as number,
+          example: exampleText,
+          icon: mapping.icon,
+          color: mapping.color,
+          link: mapping.link
+        };
+      })
+      .sort((a, b) => b.count - a.count); // Sort by count in descending order
+    
+    // If no data after filtering, show empty message
+    if (formattedObjections.length === 0) {
+      return (
+        <div className="py-8 text-center text-gray-500">
+          No objection data available
+        </div>
+      );
+    }
+    
+    // Render these formatted objections
+    return (
+      <div className="space-y-4">
+        {formattedObjections.map((objection) => (
           <Link
-            key={typedObjection.id}
-            href={typedObjection.link}
+            key={objection.id}
+            href={objection.link}
             className="block"
           >
             <div className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
               <div
-                className={`${typedObjection.color} h-10 w-10 rounded-full flex items-center justify-center mr-4 shrink-0`}
+                className={`${objection.color} h-10 w-10 rounded-full flex items-center justify-center mr-4 shrink-0`}
               >
-                <typedObjection.icon className="h-5 w-5" />
+                <objection.icon className="h-5 w-5" />
               </div>
               <div className="grow min-w-0">
                 <div className="flex justify-between items-center mb-1">
                   <p className="font-medium text-navy-800">
-                    {typedObjection.type}
+                    {objection.type}
                   </p>
                   <span className="text-sm bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full">
-                    {typedObjection.count}×
+                    {objection.count}×
                   </span>
                 </div>
                 <p className="text-sm text-gray-600 truncate">
-                  {typedObjection.example}
+                  {objection.example}
                 </p>
               </div>
-            <ChevronRight className="h-5 w-5 text-gray-400 ml-2 shrink-0" />
-          </div>
-        </Link>
-        );
-      })}
+              <ChevronRight className="h-5 w-5 text-gray-400 ml-2 shrink-0" />
+            </div>
+          </Link>
+        ))}
+      </div>
+    );
+  }
+
+  // Fallback for empty or invalid data - show empty state message
+  return (
+    <div className="py-8 text-center text-gray-500">
+      No objection data available
     </div>
   );
 };
