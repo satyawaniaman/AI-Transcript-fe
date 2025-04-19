@@ -7,7 +7,7 @@ import {
   Briefcase,
   Users,
   HelpCircle,
-} from 'lucide-react';
+} from "lucide-react";
 import Link from "next/link";
 
 interface AnalysisObjection {
@@ -50,7 +50,11 @@ interface CommonObjectionsResponse {
 }
 
 interface ObjectionsListProps {
-  objections: AnalysisObjection[] | CategoryObjection[] | CommonObjectionsResponse | any;
+  objections:
+    | AnalysisObjection[]
+    | CategoryObjection[]
+    | CommonObjectionsResponse
+    | any;
 }
 
 // Objection type mapping
@@ -90,14 +94,26 @@ const objectionTypeMapping = {
     icon: HelpCircle,
     color: "bg-gray-100 text-gray-600",
     link: "/dashboard/objections",
-  }
+  },
 };
 
-const ObjectionsList: React.FC<ObjectionsListProps> = ({
-  objections = [],
-}) => {
+const ObjectionsList: React.FC<ObjectionsListProps> = ({ objections = [] }) => {
+  // Guard against null or undefined objections
+  if (!objections) {
+    return (
+      <div className="py-8 text-center text-gray-500">
+        No objection data available
+      </div>
+    );
+  }
+
   // Check if we're using the analysis objection format (with text field)
-  if (Array.isArray(objections) && objections.length > 0 && 'text' in objections[0]) {
+  if (
+    Array.isArray(objections) &&
+    objections.length > 0 &&
+    objections[0] &&
+    "text" in objections[0]
+  ) {
     return (
       <div className="space-y-4">
         {objections.map((objection: any, index: number) => (
@@ -136,22 +152,35 @@ const ObjectionsList: React.FC<ObjectionsListProps> = ({
   }
 
   // Handle the API response format with types and topObjections
-  if (objections && 'types' in objections && 'topObjections' in objections) {
-    const typesData = objections.types;
-    const topObjections = objections.topObjections;
-    
+  if (
+    typeof objections === "object" &&
+    objections !== null &&
+    "types" in objections &&
+    "topObjections" in objections
+  ) {
+    const typesData = objections.types || {};
+    const topObjections = objections.topObjections || [];
+
     // Transform the API response into the format expected by the component
     const formattedObjections = Object.entries(typesData)
       .filter(([_, count]) => (count as number) > 0) // Only show types with counts > 0
       .map(([type, count], index) => {
+        // Safely check if the type exists in mapping
         const mappingKey = type as keyof typeof objectionTypeMapping;
-        const mapping = objectionTypeMapping[mappingKey];
-        
+        const mapping = objectionTypeMapping[mappingKey] || {
+          type: "Unknown",
+          icon: HelpCircle,
+          color: "bg-gray-100 text-gray-600",
+          link: "/dashboard/objections",
+        };
+
         // Find example text for this objection type
-        // @ts-ignore
-        const exampleObj = topObjections.find(obj => obj.type === type);
+        const exampleObj = topObjections.find(
+          (obj: { text: string; count: number; type: string }) =>
+            obj && obj.type === type
+        );
         const exampleText = exampleObj ? exampleObj.text : "";
-        
+
         return {
           id: index + 1,
           type: mapping.type,
@@ -159,11 +188,11 @@ const ObjectionsList: React.FC<ObjectionsListProps> = ({
           example: exampleText,
           icon: mapping.icon,
           color: mapping.color,
-          link: mapping.link
+          link: mapping.link,
         };
       })
       .sort((a, b) => b.count - a.count); // Sort by count in descending order
-    
+
     // If no data after filtering, show empty message
     if (formattedObjections.length === 0) {
       return (
@@ -172,16 +201,12 @@ const ObjectionsList: React.FC<ObjectionsListProps> = ({
         </div>
       );
     }
-    
+
     // Render these formatted objections
     return (
       <div className="space-y-4">
         {formattedObjections.map((objection) => (
-          <Link
-            key={objection.id}
-            href={objection.link}
-            className="block"
-          >
+          <Link key={objection.id} href={objection.link} className="block">
             <div className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
               <div
                 className={`${objection.color} h-10 w-10 rounded-full flex items-center justify-center mr-4 shrink-0`}
@@ -190,9 +215,7 @@ const ObjectionsList: React.FC<ObjectionsListProps> = ({
               </div>
               <div className="grow min-w-0">
                 <div className="flex justify-between items-center mb-1">
-                  <p className="font-medium text-navy-800">
-                    {objection.type}
-                  </p>
+                  <p className="font-medium text-navy-800">{objection.type}</p>
                   <span className="text-sm bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full">
                     {objection.count}×
                   </span>
@@ -209,7 +232,16 @@ const ObjectionsList: React.FC<ObjectionsListProps> = ({
     );
   }
 
-  // Fallback for empty or invalid data - show empty state message
+  // If it's an empty array
+  if (Array.isArray(objections) && objections.length === 0) {
+    return (
+      <div className="py-8 text-center text-gray-500">
+        No objection data available
+      </div>
+    );
+  }
+
+  // Fallback for other invalid data - show empty state message
   return (
     <div className="py-8 text-center text-gray-500">
       No objection data available
