@@ -303,7 +303,7 @@ const Dashboard = () => {
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
             {/* Main Chart */}
-            <Card className="md:col-span-4">
+            <Card className="md:col-span-4 h-full">
               <CardHeader>
                 <CardTitle>Sentiment Trends</CardTitle>
                 <CardDescription>
@@ -333,28 +333,27 @@ const Dashboard = () => {
             </Card>
 
             {/* Objections List */}
-            <Card className="md:col-span-3">
-  <CardHeader>
-    <CardTitle>Common Objections</CardTitle>
-    <CardDescription>
-      Objections you encountered most frequently
-    </CardDescription>
-  </CardHeader>
-  <CardContent>
-    {commonLoading ? (
-      <p className="py-8 text-center text-gray-500">
-        Loading objections...
-      </p>
-    ) : commonObjections ? (
-      // Direct pass-through of the entire response object
-      <ObjectionsList objections={commonObjections} />
-    ) : (
-      <p className="py-8 text-center text-gray-500">
-        No objection data available
-      </p>
-    )}
-  </CardContent>
-</Card>
+            <Card className="md:col-span-3 h-full flex flex-col">
+              <CardHeader>
+                <CardTitle>Common Objections</CardTitle>
+                <CardDescription>
+                  Objections you encountered most frequently
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex-grow overflow-hidden">
+                {commonLoading ? (
+                  <p className="py-8 text-center text-gray-500">
+                    Loading objections...
+                  </p>
+                ) : commonObjections ? (
+                  <ObjectionsList objections={commonObjections} />
+                ) : (
+                  <p className="py-8 text-center text-gray-500">
+                    No objection data available
+                  </p>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* Recent Transcripts */}

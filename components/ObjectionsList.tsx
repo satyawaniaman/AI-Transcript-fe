@@ -115,7 +115,7 @@ const ObjectionsList: React.FC<ObjectionsListProps> = ({ objections = [] }) => {
     "text" in objections[0]
   ) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
         {objections.map((objection: any, index: number) => (
           <div key={objection.id || index} className="border rounded-lg p-4">
             <div className="flex justify-between items-center mb-2">
@@ -204,7 +204,7 @@ const ObjectionsList: React.FC<ObjectionsListProps> = ({ objections = [] }) => {
 
     // Render these formatted objections
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
         {formattedObjections.map((objection) => (
           <Link key={objection.id} href={objection.link} className="block">
             <div className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
