@@ -45,6 +45,41 @@ interface User {
   }>;
 }
 
+export interface UserMetrics {
+  calls: number;
+  objections: number;
+  closingRate: number;
+  transcripts: number;
+}
+
+export interface PerformanceData {
+  date: string;
+  calls: number;
+  objections: number;
+  closingRate: number;
+}
+
+export interface Transcript {
+  id: string;
+  title: string;
+  date: string;
+  length: string;
+  objections: number;
+}
+
+export interface UserDetailResponse {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  avatarUrl: string;
+  bio: string | null;
+  joinDate: string;
+  metrics: UserMetrics;
+  performanceData: PerformanceData[];
+  transcripts: Transcript[];
+}
+
 export interface UpdateUserPayload {
   firstName?: string;
   lastName?: string | null;
@@ -60,4 +95,11 @@ const updateUser = async (payload: UpdateUserPayload): Promise<User> => {
   return response.data;
 };
 
-export { getUser, Role, updateUser };
+const getUserDetail = async (userId: string, orgId: string): Promise<UserDetailResponse> => {
+  const response = await api.get('/api/user/detail', {
+    params: { userId, orgId }
+  });
+  return response.data;
+};
+
+export { getUser, Role, updateUser, getUserDetail };

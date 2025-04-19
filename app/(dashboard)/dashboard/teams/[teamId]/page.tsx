@@ -27,7 +27,7 @@ const TeamDetailPage = () => {
   } = useGetTeamById(teamId);
 
   const handleNavigateToMember = (memberId: string) => {
-    router.push(`/dashboard/user/${memberId}?teamId=${teamId}`);
+    router.push(`/dashboard/user/${memberId}`);
   };
 
   const handleBack = () => {

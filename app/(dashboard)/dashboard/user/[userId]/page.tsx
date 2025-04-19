@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { useRouter, useParams, useSearchParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import {
   ChevronLeft,
   Phone,
@@ -32,279 +32,44 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-// TypeScript interfaces for our data
-interface UserData {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  avatarUrl: string;
-  metrics: {
-    calls: number;
-    objections: number;
-    closingRate: number;
-    transcripts: number;
-  };
-  performanceData: {
-    date: string;
-    calls: number;
-    objections: number;
-    closingRate: number;
-  }[];
-  bio?: string;
-  joinDate?: string;
-}
-
-interface Team {
-  id: string;
-  name: string;
-}
-
-interface Transcript {
-  id: string;
-  title: string;
-  date: string;
-  length: string;
-  objections: number;
-}
-
-// Mock data
-const MOCK_USERS: { [key: string]: UserData } = {
-  "user-1": {
-    id: "user-1",
-    name: "Alex Johnson",
-    email: "alex@example.com",
-    role: "Sales Rep",
-    avatarUrl: "/placeholder.svg",
-    bio: "Experienced sales representative with 5+ years in B2B software sales.",
-    joinDate: "2023-05-15",
-    metrics: {
-      calls: 48,
-      objections: 32,
-      closingRate: 67,
-      transcripts: 15,
-    },
-    performanceData: [
-      { date: "2025-01", calls: 42, objections: 28, closingRate: 65 },
-      { date: "2025-02", calls: 45, objections: 30, closingRate: 66 },
-      { date: "2025-03", calls: 48, objections: 32, closingRate: 67 },
-    ],
-  },
-  "user-2": {
-    id: "user-2",
-    name: "Sarah Miller",
-    email: "sarah@example.com",
-    role: "Sales Rep",
-    avatarUrl: "/placeholder.svg",
-    bio: "Top performing sales representative specializing in enterprise clients.",
-    joinDate: "2023-07-10",
-    metrics: {
-      calls: 52,
-      objections: 38,
-      closingRate: 73,
-      transcripts: 18,
-    },
-    performanceData: [
-      { date: "2025-01", calls: 45, objections: 30, closingRate: 67 },
-      { date: "2025-02", calls: 50, objections: 35, closingRate: 70 },
-      { date: "2025-03", calls: 52, objections: 38, closingRate: 73 },
-    ],
-  },
-  "user-3": {
-    id: "user-3",
-    name: "David Lee",
-    email: "david@example.com",
-    role: "Sales Rep",
-    avatarUrl: "/placeholder.svg",
-    bio: "SMB sales specialist with strong relationship building skills.",
-    joinDate: "2023-09-20",
-    metrics: {
-      calls: 38,
-      objections: 25,
-      closingRate: 62,
-      transcripts: 12,
-    },
-    performanceData: [
-      { date: "2025-01", calls: 35, objections: 22, closingRate: 58 },
-      { date: "2025-02", calls: 36, objections: 24, closingRate: 60 },
-      { date: "2025-03", calls: 38, objections: 25, closingRate: 62 },
-    ],
-  },
-  "user-4": {
-    id: "user-4",
-    name: "Emily Chen",
-    email: "emily@example.com",
-    role: "Sales Rep",
-    avatarUrl: "/placeholder.svg",
-    bio: "Mid-market sales representative focusing on healthcare and education sectors.",
-    joinDate: "2024-01-08",
-    metrics: {
-      calls: 45,
-      objections: 30,
-      closingRate: 68,
-      transcripts: 14,
-    },
-    performanceData: [
-      { date: "2025-01", calls: 40, objections: 26, closingRate: 65 },
-      { date: "2025-02", calls: 43, objections: 28, closingRate: 67 },
-      { date: "2025-03", calls: 45, objections: 30, closingRate: 68 },
-    ],
-  },
-};
-
-const MOCK_TEAMS: { [key: string]: Team } = {
-  "team-1": { id: "team-1", name: "Enterprise Sales" },
-  "team-2": { id: "team-2", name: "SMB Team" },
-  "team-3": { id: "team-3", name: "Mid-Market Team" },
-};
-
-// Mock transcripts
-const MOCK_TRANSCRIPTS: { [key: string]: Transcript[] } = {
-  "user-1": [
-    {
-      id: "tr-1",
-      title: "Enterprise Client Call",
-      date: "2025-03-15",
-      length: "32 min",
-      objections: 4,
-    },
-    {
-      id: "tr-2",
-      title: "Product Demo - Acme Corp",
-      date: "2025-03-10",
-      length: "45 min",
-      objections: 6,
-    },
-    {
-      id: "tr-3",
-      title: "Sales Follow-up",
-      date: "2025-03-05",
-      length: "18 min",
-      objections: 2,
-    },
-    {
-      id: "tr-4",
-      title: "Initial Consultation",
-      date: "2025-02-28",
-      length: "24 min",
-      objections: 3,
-    },
-  ],
-  "user-2": [
-    {
-      id: "tr-5",
-      title: "Enterprise Pitch",
-      date: "2025-03-18",
-      length: "41 min",
-      objections: 5,
-    },
-    {
-      id: "tr-6",
-      title: "Contract Negotiation",
-      date: "2025-03-12",
-      length: "36 min",
-      objections: 7,
-    },
-    {
-      id: "tr-7",
-      title: "Product Walkthrough",
-      date: "2025-03-07",
-      length: "28 min",
-      objections: 3,
-    },
-  ],
-  "user-3": [
-    {
-      id: "tr-8",
-      title: "SMB Client Onboarding",
-      date: "2025-03-14",
-      length: "22 min",
-      objections: 2,
-    },
-    {
-      id: "tr-9",
-      title: "Feature Overview",
-      date: "2025-03-09",
-      length: "18 min",
-      objections: 1,
-    },
-  ],
-  "user-4": [
-    {
-      id: "tr-10",
-      title: "Healthcare Client Demo",
-      date: "2025-03-17",
-      length: "38 min",
-      objections: 4,
-    },
-    {
-      id: "tr-11",
-      title: "Education Sector Pitch",
-      date: "2025-03-11",
-      length: "26 min",
-      objections: 3,
-    },
-    {
-      id: "tr-12",
-      title: "Mid-market Strategy Call",
-      date: "2025-03-03",
-      length: "31 min",
-      objections: 5,
-    },
-  ],
-};
+import useCurrentOrg from "@/store/useCurrentOrg";
+import { useGetUserDetail } from "@/services/user/query"; // Import our query hook
 
 const UserDetailPage = () => {
   const router = useRouter();
   const params = useParams();
-  const searchParams = useSearchParams();
-
+  const { currentOrg } = useCurrentOrg(); // Get current org from Zustand store
+  
   const userId = params.userId as string;
-  const teamId = searchParams.get("teamId");
+  const orgId = currentOrg?.id;
 
-  const [user, setUser] = useState<UserData | null>(null);
-  const [team, setTeam] = useState<Team | null>(null);
-  const [transcripts, setTranscripts] = useState<Transcript[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Fetch user data
-  useEffect(() => {
-    // Simulate API call
-    setLoading(true);
-    setTimeout(() => {
-      if (MOCK_USERS[userId]) {
-        setUser(MOCK_USERS[userId]);
-        setTranscripts(MOCK_TRANSCRIPTS[userId] || []);
-
-        if (teamId && MOCK_TEAMS[teamId]) {
-          setTeam(MOCK_TEAMS[teamId]);
-        }
-
-        setError(null);
-      } else {
-        setError("User not found");
-      }
-      setLoading(false);
-    }, 500);
-  }, [userId, teamId]);
+  // Use react-query to fetch user data
+  const { 
+    data: user, 
+    isLoading, 
+    isError, 
+    error 
+  } = useGetUserDetail(userId, orgId || '');
 
   const handleBack = () => {
-    if (teamId) {
-      router.push(`/dashboard/teams/${teamId}`);
-    } else {
-      router.push("/dashboard/teams");
-    }
+    router.push("/dashboard/teams");
   };
 
   const handleViewTranscript = (transcriptId: string) => {
-    // In a real app, this would navigate to the transcript detail page
-    console.log(`View transcript: ${transcriptId}`);
+    router.push(`/dashboard/transcripts/${transcriptId}`);
   };
 
-  if (loading) {
+  if (!orgId) {
+    return (
+      <div className="container mx-auto p-8 text-center">
+        <p>No organization selected. Please select an organization first.</p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
     return (
       <div className="container mx-auto p-8 text-center">
         <p>Loading user details...</p>
@@ -312,7 +77,7 @@ const UserDetailPage = () => {
     );
   }
 
-  if (error || !user) {
+  if (isError || !user) {
     return (
       <div className="container mx-auto p-8">
         <Button
@@ -324,9 +89,11 @@ const UserDetailPage = () => {
           Back
         </Button>
         <div className="text-center py-10">
-          <h3 className="text-xl font-medium text-gray-900">Error: {error}</h3>
+          <h3 className="text-xl font-medium text-gray-900">
+            Error: {isError ? (error as any).message || 'Could not fetch user details' : 'User not found'}
+          </h3>
           <p className="mt-2 text-gray-600">
-            We couldnt find the user youre looking for.
+            We couldn't find the user you're looking for.
           </p>
           <Button onClick={handleBack} className="mt-4">
             Go Back
@@ -350,7 +117,7 @@ const UserDetailPage = () => {
           onClick={handleBack}
         >
           <ChevronLeft className="h-4 w-4 mr-2" />
-          {team ? `Back to ${team.name}` : "Back"}
+          Back to Teams
         </Button>
 
         <div className="flex items-start md:items-center flex-col md:flex-row md:justify-between">
@@ -370,12 +137,6 @@ const UserDetailPage = () => {
                 <p className="text-gray-600">{user.email}</p>
                 <span className="text-gray-400">•</span>
                 <Badge variant="outline">{user.role}</Badge>
-                {team && (
-                  <>
-                    <span className="text-gray-400">•</span>
-                    <Badge variant="secondary">{team.name}</Badge>
-                  </>
-                )}
               </div>
               {user.joinDate && (
                 <p className="text-sm text-gray-500 mt-1">
@@ -460,38 +221,44 @@ const UserDetailPage = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={user.performanceData}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="calls"
-                    stroke="#3b82f6"
-                    name="Calls"
-                    strokeWidth={2}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="objections"
-                    stroke="#f59e0b"
-                    name="Objections"
-                    strokeWidth={2}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="closingRate"
-                    stroke="#10b981"
-                    name="Closing Rate %"
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              {user.performanceData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={user.performanceData}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line
+                      type="monotone"
+                      dataKey="calls"
+                      stroke="#3b82f6"
+                      name="Calls"
+                      strokeWidth={2}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="objections"
+                      stroke="#f59e0b"
+                      name="Objections"
+                      strokeWidth={2}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="closingRate"
+                      stroke="#10b981"
+                      name="Closing Rate %"
+                      strokeWidth={2}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  No performance data available
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -501,24 +268,30 @@ const UserDetailPage = () => {
                 <CardTitle>Recent Activity</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {transcripts.slice(0, 3).map((transcript) => (
-                    <div key={transcript.id} className="flex items-start">
-                      <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 mt-1">
-                        <Phone className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{transcript.title}</p>
-                        <div className="flex items-center text-sm text-gray-500 mt-1">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          <span className="mr-2">{transcript.date}</span>
-                          <Clock className="h-3 w-3 mr-1" />
-                          <span>{transcript.length}</span>
+                {user.transcripts && user.transcripts.length > 0 ? (
+                  <div className="space-y-4">
+                    {user.transcripts.slice(0, 3).map((transcript) => (
+                      <div key={transcript.id} className="flex items-start">
+                        <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 mt-1">
+                          <Phone className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{transcript.title}</p>
+                          <div className="flex items-center text-sm text-gray-500 mt-1">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            <span className="mr-2">{transcript.date}</span>
+                            <Clock className="h-3 w-3 mr-1" />
+                            <span>{transcript.length}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-gray-500">
+                    No recent activity
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -533,10 +306,9 @@ const UserDetailPage = () => {
                       <Star className="h-4 w-4 text-green-600" />
                     </div>
                     <div>
-                      <p className="font-medium">Above Average Closing Rate</p>
+                      <p className="font-medium">Closing Rate</p>
                       <p className="text-sm text-gray-600 mt-1">
-                        {user.metrics.closingRate}% compared to team average of
-                        65%.
+                        {user.metrics.closingRate}% success rate on objection handling.
                       </p>
                     </div>
                   </div>
@@ -546,10 +318,9 @@ const UserDetailPage = () => {
                       <BarChart4 className="h-4 w-4 text-blue-600" />
                     </div>
                     <div>
-                      <p className="font-medium">Consistent Improvement</p>
+                      <p className="font-medium">Call Activity</p>
                       <p className="text-sm text-gray-600 mt-1">
-                        Monthly call volume has increased by 14% over the last
-                        quarter.
+                        {user.metrics.calls} total calls with {user.metrics.transcripts} analyzed.
                       </p>
                     </div>
                   </div>
@@ -561,13 +332,10 @@ const UserDetailPage = () => {
                     <div>
                       <p className="font-medium">Objection Handling</p>
                       <p className="text-sm text-gray-600 mt-1">
-                        Successfully addresses an average of{" "}
-                        {transcripts.length > 0
-                          ? (
-                              user.metrics.objections / transcripts.length
-                            ).toFixed(1)
-                          : "0"}{" "}
-                        objections per call.
+                        Successfully addressed a total of {user.metrics.objections} objections
+                        {user.transcripts && user.transcripts.length > 0 ? 
+                          ` (avg. ${(user.metrics.objections / user.transcripts.length).toFixed(1)} per call).` : 
+                          '.'}
                       </p>
                     </div>
                   </div>
@@ -644,38 +412,44 @@ const UserDetailPage = () => {
               <CardTitle>Performance Over Time</CardTitle>
             </CardHeader>
             <CardContent className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={user.performanceData}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="calls"
-                    stroke="#3b82f6"
-                    name="Calls"
-                    strokeWidth={2}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="objections"
-                    stroke="#f59e0b"
-                    name="Objections"
-                    strokeWidth={2}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="closingRate"
-                    stroke="#10b981"
-                    name="Closing Rate %"
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              {user.performanceData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={user.performanceData}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line
+                      type="monotone"
+                      dataKey="calls"
+                      stroke="#3b82f6"
+                      name="Calls"
+                      strokeWidth={2}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="objections"
+                      stroke="#f59e0b"
+                      name="Objections"
+                      strokeWidth={2}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="closingRate"
+                      stroke="#10b981"
+                      name="Closing Rate %"
+                      strokeWidth={2}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  No performance data available
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -684,9 +458,9 @@ const UserDetailPage = () => {
           <h2 className="text-xl font-semibold text-gray-900">
             Call Transcripts
           </h2>
-          {transcripts.length > 0 ? (
+          {user.transcripts && user.transcripts.length > 0 ? (
             <div className="space-y-4">
-              {transcripts.map((transcript) => (
+              {user.transcripts.map((transcript) => (
                 <Card key={transcript.id}>
                   <CardContent className="p-4">
                     <div className="flex justify-between items-center">
