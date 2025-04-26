@@ -46,12 +46,6 @@ const DashboardSkeleton = () => {
             <TabsTrigger value="transcripts" className="opacity-50">
               Transcripts
             </TabsTrigger>
-            <TabsTrigger value="objections" className="opacity-50">
-              Objections
-            </TabsTrigger>
-            <TabsTrigger value="insights" className="opacity-50">
-              Insights
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -127,8 +121,6 @@ const DashboardSkeleton = () => {
 
           {/* Other tab skeletons would be similar, but we'll keep them empty */}
           <TabsContent value="transcripts"></TabsContent>
-          <TabsContent value="objections"></TabsContent>
-          <TabsContent value="insights"></TabsContent>
         </Tabs>
       </div>
     </div>
