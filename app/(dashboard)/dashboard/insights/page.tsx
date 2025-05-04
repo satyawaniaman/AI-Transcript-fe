@@ -29,10 +29,14 @@ import {
   useGetSentimentTrends,
 } from "@/services/dashboard/query";
 import useCurrentOrg from "@/store/useCurrentOrg";
+import { useToast } from "@/components/ui/use-toast";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 const InsightsPage: React.FC = () => {
   const { currentOrg } = useCurrentOrg();
   const orgId = currentOrg?.id || "";
+  const { toast } = useToast();
 
   // Calculate date range for charts
   const getDateRange = () => {
@@ -59,6 +63,207 @@ const InsightsPage: React.FC = () => {
     useGetObjectionsHandled(orgId);
   const { data: sentimentTrends, isLoading: sentimentLoading } =
     useGetSentimentTrends(orgId);
+
+  // Check if any data is still loading
+  const isLoading =
+    questionsLoading ||
+    topicLoading ||
+    talkRatioLoading ||
+    objectionsLoading ||
+    sentimentLoading;
+
+  const handleExport = async () => {
+    try {
+      const element = document.getElementById("insights-content");
+      if (!element) return;
+
+      // Create a temporary container for the PDF content
+      const tempContainer = document.createElement("div");
+      tempContainer.style.width = "800px";
+      tempContainer.style.padding = "20px";
+      tempContainer.style.backgroundColor = "white";
+      tempContainer.style.position = "absolute";
+      tempContainer.style.left = "-9999px";
+      tempContainer.style.top = "-9999px";
+      tempContainer.style.visibility = "hidden";
+
+      // Clone the content
+      const content = element.cloneNode(true) as HTMLElement;
+
+      // Function to convert any color to RGB
+      const convertToRGB = (color: string): string => {
+        if (
+          color.includes("oklch") ||
+          color.includes("hsl") ||
+          color.includes("hwb")
+        ) {
+          return "#000000"; // Default to black for text
+        }
+        return color;
+      };
+
+      // Make all text selectable and fix color issues
+      content.querySelectorAll("*").forEach((el) => {
+        if (el instanceof HTMLElement) {
+          el.style.userSelect = "text";
+          el.style.webkitUserSelect = "text";
+
+          // Convert all colors to RGB
+          const computedStyle = window.getComputedStyle(el);
+
+          // Handle background colors
+          const bgColor = computedStyle.backgroundColor;
+          if (
+            bgColor &&
+            bgColor !== "transparent" &&
+            bgColor !== "rgba(0, 0, 0, 0)"
+          ) {
+            el.style.backgroundColor = convertToRGB(bgColor);
+          } else {
+            el.style.backgroundColor = "#ffffff";
+          }
+
+          // Handle text colors
+          const textColor = computedStyle.color;
+          if (textColor) {
+            el.style.color = convertToRGB(textColor);
+          }
+
+          // Handle border colors
+          const borderColor = computedStyle.borderColor;
+          if (borderColor && borderColor !== "transparent") {
+            el.style.borderColor = convertToRGB(borderColor);
+          }
+        }
+      });
+
+      // Remove loading skeletons and disabled states
+      content.querySelectorAll(".animate-pulse").forEach((el) => el.remove());
+      content.querySelectorAll("[disabled]").forEach((el) => {
+        if (el instanceof HTMLElement) {
+          el.removeAttribute("disabled");
+        }
+      });
+
+      // Remove any elements that might cause issues
+      content
+        .querySelectorAll("script, style, link, svg, path, g")
+        .forEach((el) => el.remove());
+
+      // Remove any inline styles that might cause issues
+      content.querySelectorAll('[style*="oklch"]').forEach((el) => {
+        if (el instanceof HTMLElement) {
+          el.removeAttribute("style");
+        }
+      });
+
+      tempContainer.appendChild(content);
+
+      // Add to document temporarily
+      document.body.appendChild(tempContainer);
+
+      // Wait for images to load
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Convert to canvas with higher quality
+      const canvas = await html2canvas(tempContainer, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+        allowTaint: true,
+        removeContainer: true,
+        onclone: (clonedDoc) => {
+          // Additional cleanup on the cloned document
+          const clonedContent = clonedDoc.getElementById("insights-content");
+          if (clonedContent) {
+            clonedContent.querySelectorAll("*").forEach((el) => {
+              if (el instanceof HTMLElement) {
+                // Remove any remaining problematic styles
+                el.style.removeProperty("background");
+                el.style.removeProperty("background-color");
+                el.style.removeProperty("color");
+                el.style.removeProperty("border-color");
+                // Set basic styles
+                el.style.backgroundColor = "#ffffff";
+                el.style.color = "#000000";
+              }
+            });
+          }
+        },
+      });
+
+      // Ensure the temporary container is removed
+      if (tempContainer.parentNode) {
+        tempContainer.parentNode.removeChild(tempContainer);
+      }
+
+      // Create PDF with better quality
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgData = canvas.toDataURL("image/png", 1.0);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      // Add title and date
+      pdf.setFontSize(20);
+      pdf.text("Sales Insights Report", 20, 20);
+      pdf.setFontSize(12);
+      pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 30);
+
+      // Calculate dimensions
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+      const pageHeight = pdfHeight - 40; // Leave space for header
+      const totalPages = Math.ceil(imgHeight / pageHeight);
+
+      // Add content to each page
+      for (let i = 0; i < totalPages; i++) {
+        if (i > 0) {
+          pdf.addPage();
+        }
+
+        const sourceY = i * pageHeight;
+        const sourceHeight = Math.min(pageHeight, imgHeight - sourceY);
+
+        // Calculate the height to maintain aspect ratio
+        const height = (sourceHeight * imgWidth) / canvas.width;
+
+        // Add the image to the PDF
+        pdf.addImage(
+          imgData,
+          "PNG",
+          0,
+          40,
+          imgWidth,
+          height,
+          undefined,
+          "FAST"
+        );
+      }
+
+      // Add page numbers
+      for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i);
+        pdf.setFontSize(10);
+        pdf.text(`Page ${i} of ${totalPages}`, pdfWidth - 30, pdfHeight - 10);
+      }
+
+      // Save the PDF
+      pdf.save("sales-insights.pdf");
+
+      toast({
+        title: "Export Successful",
+        description: "Your insights have been exported to PDF",
+      });
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+      toast({
+        title: "Export Failed",
+        description: "There was an error exporting your insights",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Prepare sentiment data for the chart
   const sentimentChartData = React.useMemo(() => {
@@ -179,12 +384,21 @@ const InsightsPage: React.FC = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            disabled={isLoading}
+          >
             <ListFilter className="h-4 w-4" />
             Filter
             <ChevronDown className="h-4 w-4" />
           </Button>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={handleExport}
+            disabled={isLoading}
+          >
             <Download className="h-4 w-4" />
             Export
           </Button>
@@ -192,6 +406,7 @@ const InsightsPage: React.FC = () => {
       </div>
 
       <motion.div
+        id="insights-content"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
