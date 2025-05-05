@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-
+import Image from "next/image";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -12,11 +12,21 @@ const Navbar = () => {
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and brand */}
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center">
-              <span className="text-xl font-bold text-navy-800">
-                SalesCoach<span className="text-[#0284c7]">.guru</span>
-              </span>
+          <div className="flex items-center h-full">
+            <Link href="/" className="flex items-center gap-2 h-full">
+              <Image
+                src="/logo.png"
+                alt="CloseDash Logo"
+                width={60}
+                height={60}
+              />
+              <Image
+                src="/closedash_1.png"
+                alt="CloseDash Brand Name"
+                width={200}
+                height={40}
+                className="h-full object-contain"
+              />
             </Link>
           </div>
 

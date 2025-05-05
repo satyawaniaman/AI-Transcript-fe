@@ -1,81 +1,70 @@
-
-import React from 'react';
-import Link  from 'next/link';
-import { Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import React from "react";
+import Image from "next/image";
+import { Mail, ArrowRight } from "lucide-react"; // Import icons
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
+  const mailtoLink = "mailto:shimmy@closedash.io";
+
   return (
     <footer className="bg-navy-800 text-white pt-16 pb-8 px-4 sm:px-6 lg:px-8">
       <div className="container mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+        <div className="flex flex-col items-center text-center space-y-6 mb-12">
           {/* Brand */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold">SalesCoach<span className="text-accent">.guru</span></h3>
-            <p className="text-gray-300">
-              AI-powered sales coaching to help you close more deals.
-            </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                <Facebook size={20} />
-              </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                <Twitter size={20} />
-              </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                <Instagram size={20} />
-              </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                <Linkedin size={20} />
-              </a>
+          <div className="relative">
+            <Image
+              src="/closedash_full.jpeg"
+              alt="CloseDash Logo"
+              width={240}
+              height={100}
+              className="mb-4 rounded-lg shadow-blur"
+            />
+          </div>
+
+          <p className="text-gray-300 text-lg">
+            Be among the first to experience AI-driven sales coaching that
+            actually feels human.
+          </p>
+
+          {/* Enhanced Support Email Section */}
+          <div className="bg-navy-700 rounded-xl p-6 w-full max-w-md shadow-lg border border-gray-700 mt-4">
+            <div className="flex items-center justify-center mb-3">
+              <Mail className="text-blue-400 mr-2" size={20} />
+              <h3 className="text-lg font-medium text-white">Need Support?</h3>
             </div>
-          </div>
 
-          {/* Product */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Product</h3>
-            <ul className="space-y-3">
-              <li><Link href="/features" className="text-gray-300 hover:text-white transition-colors">Features</Link></li>
-              <li><Link href="/pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</Link></li>
-              <li><Link href="/testimonials" className="text-gray-300 hover:text-white transition-colors">Testimonials</Link></li>
-              <li><Link href="/roadmap" className="text-gray-300 hover:text-white transition-colors">Roadmap</Link></li>
-            </ul>
-          </div>
+            <p className="text-gray-300 mb-4">
+              Our team is ready to help with any questions or issues you might
+              have.
+            </p>
 
-          {/* Resources */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Resources</h3>
-            <ul className="space-y-3">
-              <li><Link href="/blog" className="text-gray-300 hover:text-white transition-colors">Blog</Link></li>
-              <li><Link href="/guides" className="text-gray-300 hover:text-white transition-colors">Guides</Link></li>
-              <li><Link href="/support" className="text-gray-300 hover:text-white transition-colors">Support</Link></li>
-              <li><Link href="/api" className="text-gray-300 hover:text-white transition-colors">API</Link></li>
-            </ul>
-          </div>
+            <a
+              href={mailtoLink}
+              className="group flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-3 px-5 rounded-lg transition-all duration-300 shadow-md hover:shadow-xl"
+            >
+              <span>Contact Support</span>
+              <ArrowRight
+                className="ml-2 group-hover:translate-x-1 transition-transform"
+                size={18}
+              />
+            </a>
 
-          {/* Company */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Company</h3>
-            <ul className="space-y-3">
-              <li><Link href="/about" className="text-gray-300 hover:text-white transition-colors">About</Link></li>
-              <li><Link href="/careers" className="text-gray-300 hover:text-white transition-colors">Careers</Link></li>
-              <li><Link href="/privacy" className="text-gray-300 hover:text-white transition-colors">Privacy</Link></li>
-              <li><Link href="/terms" className="text-gray-300 hover:text-white transition-colors">Terms</Link></li>
-            </ul>
+            <p className="text-gray-400 text-sm mt-3">
+              Or email us directly at{" "}
+              <a
+                href="mailto:shimmy@closedash.io"
+                className="text-blue-400 hover:text-blue-300 underline transition-colors"
+              >
+                shimmy@closedash.io
+              </a>
+            </p>
           </div>
         </div>
 
         <div className="border-t border-gray-700 pt-8 mt-8 text-gray-400">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p>&copy; {currentYear} SalesCoach.guru. All rights reserved.</p>
-            <div className="mt-4 md:mt-0">
-              <ul className="flex space-x-6">
-                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
-                <li><Link href="/cookies" className="hover:text-white transition-colors">Cookie Policy</Link></li>
-              </ul>
-            </div>
+            <p>&copy; {currentYear} CloseDash. All rights reserved.</p>
           </div>
         </div>
       </div>
