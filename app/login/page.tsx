@@ -57,9 +57,7 @@ const Login = () => {
       if (response.error) {
         toast.error(response.message);
       } else {
-        toast.success(
-          "Logged in successfully! Welcome back to SalesCoach.guru."
-        );
+        toast.success("Logged in successfully! Welcome back to CloseDash.");
         // Redirect to dashboard
         navigate.push("/dashboard");
       }
@@ -100,9 +98,7 @@ const Login = () => {
             <h1 className="text-2xl font-bold text-navy-800 mb-2">
               Welcome back
             </h1>
-            <p className="text-gray-600">
-              Log in to your SalesCoach.guru account.
-            </p>
+            <p className="text-gray-600">Log in to your CloseDash account.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

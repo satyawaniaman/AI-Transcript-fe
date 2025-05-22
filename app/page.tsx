@@ -137,7 +137,7 @@ const Index = () => {
               Powerful Sales Coaching at Your Fingertips
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              SalesCoach.guru helps you improve your sales calls with AI-powered
+              CloseDash helps you improve your sales calls with AI-powered
               insights and personalized coaching.
             </p>
           </div>
@@ -226,8 +226,7 @@ const Index = () => {
               How It Works
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Getting started with SalesCoach.guru is simple and takes just
-              minutes.
+              Getting started with CloseDash is simple and takes just minutes.
             </p>
           </div>
 
@@ -461,13 +460,13 @@ const Index = () => {
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Join hundreds of sales professionals who are improving their calls
-              with SalesCoach.guru.
+              with CloseDash.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <TestimonialCard
-              quote="The objection handling advice alone is worth the price. I've seen a 15% increase in my close rate since using SalesCoach.guru."
+              quote="The objection handling advice alone is worth the price. I've seen a 15% increase in my close rate since using CloseDash."
               name="Sarah Johnson"
               title="Account Executive, TechCorp"
               gradientFrom="blue-500"

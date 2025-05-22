@@ -282,7 +282,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div className="flex items-center h-16 shrink-0 px-4 border-b border-navy-700">
             <Link href="/" className="flex items-center">
               <span className="text-xl font-bold text-white">
-                SalesCoach<span className="text-[#0284c7]">.guru</span>
+                CloseDash<span className="text-[#0284c7]">.io</span>
               </span>
             </Link>
           </div>
@@ -514,7 +514,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div className="flex items-center h-16 shrink-0 px-4 border-b border-navy-700">
             <Link href="/" className="flex items-center">
               <span className="text-xl font-bold text-white">
-                SalesCoach<span className="text-[#0284c7]">.guru</span>
+                CloseDash<span className="text-[#0284c7]">.io</span>
               </span>
             </Link>
           </div>
@@ -626,7 +626,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             <div className="flex-1 flex">
               <Link href="/" className="flex items-center">
                 <span className="text-xl font-bold text-navy-800">
-                  SalesCoach<span className="text-[#0284c7]">.guru</span>
+                  CloseDash<span className="text-[#0284c7]">.io</span>
                 </span>
               </Link>
             </div>

@@ -29,12 +29,10 @@ const Help = () => {
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-8">
             <HelpCircle className="h-12 w-12 mx-auto mb-4 text-blue-600" />
-            <h1 className="text-3xl font-bold mb-4">
-              SalesCoach.guru Help Center
-            </h1>
+            <h1 className="text-3xl font-bold mb-4">CloseDash Help Center</h1>
             <p className="text-gray-600 mb-6">
               Find answers to common questions and learn how to get the most out
-              of SalesCoach.guru
+              of CloseDash
             </p>
             <div className="relative max-w-md mx-auto">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -200,7 +198,7 @@ const Help = () => {
                 className="border-blue-600 text-blue-600"
               >
                 <Link
-                  href="mailto:support@salescoach.guru"
+                  href="mailto:shimmy@closedash.io"
                   className="flex items-center gap-2"
                 >
                   <Mail className="h-4 w-4" />

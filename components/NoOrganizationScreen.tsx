@@ -19,7 +19,7 @@ const NoOrganizationScreen = () => {
           No Organization Found
         </h1>
         <p className="text-gray-600 mb-8">
-          To get started with SalesCoach.guru, you need to create or join an
+          To get started with CloseDash, you need to create or join an
           organization. Create your organization now to start analyzing your
           sales conversations.
         </p>

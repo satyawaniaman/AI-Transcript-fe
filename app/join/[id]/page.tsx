@@ -17,18 +17,18 @@ import { useInviteFlow, useInviteValidity } from "../hook";
 const JoinPage = () => {
   const params = useParams();
   const inviteId = params.id as string;
-  
+
   // Use our custom hooks for invitation handling
-  const { 
-    inviteDetails, 
-    isLoggedIn, 
-    isLoadingInvite, 
-    inviteError, 
+  const {
+    inviteDetails,
+    isLoggedIn,
+    isLoadingInvite,
+    inviteError,
     isProcessing,
     handleAuthSuccess,
-    setIsLoggedIn
+    setIsLoggedIn,
   } = useInviteFlow(inviteId);
-  
+
   // Check if invitation is valid
   const { isValid, isExpired } = useInviteValidity(inviteId);
 
@@ -53,10 +53,12 @@ const JoinPage = () => {
         <Navbar />
         <div className="grow flex items-center justify-center">
           <div className="flex flex-col items-center space-y-4 max-w-md text-center">
-            <div className="text-red-500 text-lg font-semibold">Invitation Error</div>
+            <div className="text-red-500 text-lg font-semibold">
+              Invitation Error
+            </div>
             <p>
-              {isExpired 
-                ? "This invitation has expired or has already been accepted." 
+              {isExpired
+                ? "This invitation has expired or has already been accepted."
                 : "There was a problem loading this invitation. It may have been revoked."}
             </p>
             <Button asChild>
@@ -88,7 +90,8 @@ const JoinPage = () => {
               {inviteDetails && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h2 className="text-lg font-semibold text-navy-800 mb-3">
-                    You've been invited to join {inviteDetails.organizationName || "SalesCoach.guru"}
+                    You've been invited to join{" "}
+                    {inviteDetails.organizationName || "CloseDash"}
                   </h2>
 
                   <div className="flex items-start space-x-2 mb-2">
@@ -123,7 +126,9 @@ const JoinPage = () => {
                           Teams
                         </p>
                         <p className="text-gray-600 text-sm">
-                        {inviteDetails.teams.map((team: { name: string }) => team.name).join(", ")}
+                          {inviteDetails.teams
+                            .map((team: { name: string }) => team.name)
+                            .join(", ")}
                         </p>
                       </div>
                     </div>
@@ -197,7 +202,7 @@ interface FormProps {
 const LoginForm: React.FC<FormProps> = ({
   inviteDetails,
   onSuccess,
-  isDisabled
+  isDisabled,
 }) => {
   const schema = z.object({
     email: z.string().email("Please enter a valid email address"),
@@ -232,7 +237,9 @@ const LoginForm: React.FC<FormProps> = ({
       const response = await login(formData);
 
       if (response.error) {
-        toast.error(response.message || "Login failed. Please check your credentials.");
+        toast.error(
+          response.message || "Login failed. Please check your credentials."
+        );
       } else {
         toast.success("Logged in successfully!");
         onSuccess(response.user);
@@ -270,10 +277,10 @@ const LoginForm: React.FC<FormProps> = ({
         <div className="space-y-3">
           <div className="space-y-1">
             <Label htmlFor="email">Email address</Label>
-            <Input 
-              id="email" 
-              type="email" 
-              required 
+            <Input
+              id="email"
+              type="email"
+              required
               defaultValue={inviteDetails?.email || ""}
               disabled={isDisabled}
             />
@@ -292,11 +299,11 @@ const LoginForm: React.FC<FormProps> = ({
                 Forgot?
               </Link>
             </div>
-            <Input 
-              id="password" 
-              type="password" 
-              required 
-              disabled={isDisabled} 
+            <Input
+              id="password"
+              type="password"
+              required
+              disabled={isDisabled}
             />
             {errors.password && (
               <p className="text-xs text-red-500">{errors.password}</p>
@@ -304,9 +311,9 @@ const LoginForm: React.FC<FormProps> = ({
           </div>
         </div>
 
-        <Button 
-          type="submit" 
-          className="w-full" 
+        <Button
+          type="submit"
+          className="w-full"
           disabled={isLoading || isDisabled}
         >
           {isLoading ? (
@@ -342,7 +349,7 @@ const LoginForm: React.FC<FormProps> = ({
 const SignupForm: React.FC<FormProps> = ({
   inviteDetails,
   onSuccess,
-  isDisabled
+  isDisabled,
 }) => {
   const schema = z.object({
     firstName: z.string().min(1, "First name is required"),
@@ -391,12 +398,14 @@ const SignupForm: React.FC<FormProps> = ({
       const response = await registerUser(formData);
 
       if (response.error) {
-        toast.error(response.message || "Registration failed. Please try again.");
+        toast.error(
+          response.message || "Registration failed. Please try again."
+        );
       } else {
         toast.success(response.message || "Account created successfully!");
         onSuccess({
           id: response.user?.id,
-          email: formData.email
+          email: formData.email,
         });
       }
     } catch (error) {
@@ -431,7 +440,7 @@ const SignupForm: React.FC<FormProps> = ({
       <div className="mb-4">
         <h1 className="text-xl font-bold text-navy-800 mb-1">Create account</h1>
         <p className="text-gray-600 text-sm">
-          Join {inviteDetails?.organizationName || "SalesCoach.guru"}
+          Join {inviteDetails?.organizationName || "CloseDash"}
         </p>
       </div>
 
@@ -442,10 +451,10 @@ const SignupForm: React.FC<FormProps> = ({
               <Label htmlFor="firstName" className="text-sm">
                 First name
               </Label>
-              <Input 
-                id="firstName" 
-                required 
-                className="h-9" 
+              <Input
+                id="firstName"
+                required
+                className="h-9"
                 disabled={isDisabled}
               />
               {errors.firstName && (
@@ -456,10 +465,10 @@ const SignupForm: React.FC<FormProps> = ({
               <Label htmlFor="lastName" className="text-sm">
                 Last name
               </Label>
-              <Input 
-                id="lastName" 
-                required 
-                className="h-9" 
+              <Input
+                id="lastName"
+                required
+                className="h-9"
                 disabled={isDisabled}
               />
               {errors.lastName && (
@@ -472,11 +481,11 @@ const SignupForm: React.FC<FormProps> = ({
             <Label htmlFor="email" className="text-sm">
               Email address
             </Label>
-            <Input 
-              id="email" 
-              type="email" 
-              required 
-              className="h-9" 
+            <Input
+              id="email"
+              type="email"
+              required
+              className="h-9"
               defaultValue={inviteDetails?.email || ""}
               readOnly={!!inviteDetails?.email}
               disabled={isDisabled || !!inviteDetails?.email}
@@ -490,10 +499,10 @@ const SignupForm: React.FC<FormProps> = ({
             <Label htmlFor="password" className="text-sm">
               Password
             </Label>
-            <Input 
-              id="password" 
-              type="password" 
-              required 
+            <Input
+              id="password"
+              type="password"
+              required
               className="h-9"
               disabled={isDisabled}
             />
@@ -506,9 +515,9 @@ const SignupForm: React.FC<FormProps> = ({
           </div>
         </div>
 
-        <Button 
-          type="submit" 
-          className="w-full" 
+        <Button
+          type="submit"
+          className="w-full"
           disabled={isLoading || isDisabled}
         >
           {isLoading ? (
@@ -562,14 +571,14 @@ const login = async ({
 }) => {
   // This is a placeholder that would call your server action
   try {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ email, password }),
     });
-    
+
     return await response.json();
   } catch (error) {
     return {
@@ -592,14 +601,14 @@ const registerUser = async ({
 }) => {
   // This is a placeholder that would call your server action
   try {
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
+    const response = await fetch("/api/auth/register", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ email, password, firstName, lastName }),
     });
-    
+
     return await response.json();
   } catch (error) {
     return {

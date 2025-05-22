@@ -83,7 +83,7 @@ const CreateOrganizationPage = () => {
             Create Organization
           </h1>
           <p className="text-gray-600 mt-2">
-            Set up your organization to start using SalesCoach.guru
+            Set up your organization to start using CloseDash
           </p>
         </div>
 

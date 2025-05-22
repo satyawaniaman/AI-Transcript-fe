@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SalesCoach",
+  title: "CloseDash",
   description: "Transform Your Sales Calls Into Coaching Insights",
 };
 
