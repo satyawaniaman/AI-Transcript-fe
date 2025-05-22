@@ -11,7 +11,6 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-
 import {
   Card,
   CardContent,
@@ -20,10 +19,39 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Settings, Calendar, ChevronDown } from "lucide-react";
 import { useGetObjectionCategoriesTrend } from "@/services/dashboard/query";
 
-// Define colors for the categories
-const categoryColors = {
+type CategoryKey =
+  | "price"
+  | "timing"
+  | "trust"
+  | "competition"
+  | "stakeholders"
+  | "other";
+
+interface CategoryData {
+  date: string;
+  price: number;
+  timing: number;
+  trust: number;
+  competition: number;
+  stakeholders: number;
+  other: number;
+}
+
+interface CategoryTotals {
+  price: number;
+  timing: number;
+  trust: number;
+  competition: number;
+  stakeholders: number;
+  other: number;
+}
+
+const categoryColors: Record<CategoryKey, string> = {
   price: "#ff6384",
   timing: "#36a2eb",
   trust: "#ffce56",
@@ -31,6 +59,22 @@ const categoryColors = {
   stakeholders: "#9966ff",
   other: "#ff9f40",
 };
+
+const categoryLabels: Record<CategoryKey, string> = {
+  price: "Price",
+  timing: "Timing",
+  trust: "Trust/Risk",
+  competition: "Competition",
+  stakeholders: "Stakeholders",
+  other: "Other",
+};
+
+const dateRangeOptions = [
+  { label: "Last 7 days", value: 7 },
+  { label: "Last 15 days", value: 15 },
+  { label: "Last month", value: 30 },
+  { label: "Last 3 months", value: 90 },
+];
 
 interface CategoryTrendChartProps {
   organizationId: string;
@@ -43,84 +87,111 @@ export function CategoryTrendChart({
   startDate,
   endDate,
 }: CategoryTrendChartProps) {
-  // Fetch objection categories trend data from API
+  // State for selected categories (Price selected by default)
+  const [selectedCategories, setSelectedCategories] = React.useState<
+    Set<CategoryKey>
+  >(new Set(["price"]));
+
+  // State for date range
+  const [selectedDateRange, setSelectedDateRange] = React.useState(90); // Default to 3 months
+
+  // State for dropdown visibility
+  const [showCategoryDropdown, setShowCategoryDropdown] = React.useState(false);
+  const [showDateDropdown, setShowDateDropdown] = React.useState(false);
+
+  const { calculatedStartDate, calculatedEndDate } = React.useMemo(() => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - selectedDateRange);
+
+    return {
+      calculatedStartDate: startDate.toISOString().split("T")[0],
+      calculatedEndDate: endDate.toISOString().split("T")[0],
+    };
+  }, [selectedDateRange]);
+
   const { data, isLoading, error } = useGetObjectionCategoriesTrend(
     organizationId,
-    startDate,
-    endDate
+    startDate || calculatedStartDate,
+    endDate || calculatedEndDate
   );
 
-  // Add debugging console log
-  React.useEffect(() => {
-    console.log("CategoryTrendChart data:", data);
-  }, [data]);
+  const filteredData = React.useMemo(() => {
+    if (!data) return [];
 
-  // Calculate date range description for the chart header
-  const getDateRangeDescription = () => {
-    if (startDate && endDate) {
-      const start = new Date(startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-      const end = new Date(endDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-      return start === end ? start : `${start} - ${end}`;
-    }
-    
-    // Default to last 3 months if no dates specified
-    const end = new Date();
-    const start = new Date();
-    start.setMonth(start.getMonth() - 3);
-    
-    const startStr = start.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    const endStr = end.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    return startStr === endStr ? startStr : `${startStr} - ${endStr}`;
-  };
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - selectedDateRange);
 
-  // Process the API data for the chart - format dates and handle sparse data
+    return data.filter((item) => new Date(item.date) >= cutoffDate);
+  }, [data, selectedDateRange]);
+
+  // Process the data for chart display
   const processedData = React.useMemo(() => {
-    if (!data || data.length === 0) return [];
-    
-    // Ensure all data points have the required properties
-    const mappedData = data.map(item => ({
-      date: item.date,
-      price: item.price || 0,
-      timing: item.timing || 0,
-      trust: item.trust || 0,
-      competition: item.competition || 0,
-      stakeholders: item.stakeholders || 0,
-      other: item.other || 0,
-    }));
-    
-    // Filter out dates with zero objections for better readability
-    const nonEmptyData = mappedData.filter(item => 
-      item.price > 0 || 
-      item.timing > 0 || 
-      item.trust > 0 || 
-      item.competition > 0 || 
-      item.stakeholders > 0 || 
-      item.other > 0
-    );
-    
-    // If there's no non-empty data, return the original mapped data
-    if (nonEmptyData.length === 0) {
-      return mappedData;
-    }
-    
-    // If we have more than 30 data points, sample to avoid overcrowding
-    let dataToProcess = nonEmptyData;
-    if (nonEmptyData.length > 30) {
-      const step = Math.ceil(nonEmptyData.length / 30);
-      dataToProcess = nonEmptyData.filter((_, index) => index % step === 0);
-    }
-    
-    return dataToProcess.map(item => ({
+    if (!filteredData || filteredData.length === 0) return [];
+
+    return filteredData.map((item) => ({
       ...item,
-      // Format date for display
-      date: new Date(item.date).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
+      date: new Date(item.date).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
       }),
     }));
+  }, [filteredData]);
+
+  // Calculate totals for selected categories
+  const categoryTotals = React.useMemo((): CategoryTotals => {
+    if (!data || data.length === 0) {
+      return {
+        price: 0,
+        timing: 0,
+        trust: 0,
+        competition: 0,
+        stakeholders: 0,
+        other: 0,
+      };
+    }
+
+    const totals: CategoryTotals = {
+      price: 0,
+      timing: 0,
+      trust: 0,
+      competition: 0,
+      stakeholders: 0,
+      other: 0,
+    };
+
+    data.forEach((item) => {
+      (Object.keys(totals) as CategoryKey[]).forEach((key) => {
+        totals[key] += item[key] || 0;
+      });
+    });
+
+    return totals;
   }, [data]);
 
-  // Define tooltip props interface
+  // Handle category toggle
+  const toggleCategory = (category: CategoryKey) => {
+    const newSelected = new Set(selectedCategories);
+    if (newSelected.has(category)) {
+      // Don't allow deselecting all categories
+      if (newSelected.size > 1) {
+        newSelected.delete(category);
+      }
+    } else {
+      newSelected.add(category);
+    }
+    setSelectedCategories(newSelected);
+  };
+
+  // Get date range description
+  const getDateRangeDescription = () => {
+    const option = dateRangeOptions.find(
+      (opt) => opt.value === selectedDateRange
+    );
+    return option?.label || "Custom range";
+  };
+
+  // Custom tooltip
   interface TooltipProps {
     active?: boolean;
     payload?: Array<{
@@ -131,12 +202,12 @@ export function CategoryTrendChart({
     label?: string;
   }
 
-  // Custom tooltip for the chart
   const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     if (active && payload && payload.length) {
-      // Sort payload by value in descending order for better readability
-      const sortedPayload = [...payload].sort((a, b) => (b.value || 0) - (a.value || 0));
-      
+      const sortedPayload = [...payload].sort(
+        (a, b) => (b.value || 0) - (a.value || 0)
+      );
+
       return (
         <div className="p-3 bg-white border rounded-lg shadow-lg">
           <p className="text-gray-600 font-medium">{label}</p>
@@ -151,7 +222,7 @@ export function CategoryTrendChart({
     return null;
   };
 
-  // Render appropriate content based on loading/error state
+  // Render chart content
   const renderContent = () => {
     if (isLoading) {
       return <Skeleton className="w-full h-64" />;
@@ -187,132 +258,209 @@ export function CategoryTrendChart({
               axisLine={false}
               tickMargin={8}
             />
-            <YAxis 
-              tickLine={false} 
-              axisLine={false} 
+            <YAxis
+              tickLine={false}
+              axisLine={false}
               allowDecimals={false}
-              domain={[0, 'auto']}
+              domain={[0, "auto"]}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend />
-            <Line
-              type="monotone"
-              dataKey="price"
-              name="Price"
-              stroke={categoryColors.price}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="timing"
-              name="Timing"
-              stroke={categoryColors.timing}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="trust"
-              name="Trust/Risk"
-              stroke={categoryColors.trust}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="competition"
-              name="Competition"
-              stroke={categoryColors.competition}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="stakeholders"
-              name="Stakeholders"
-              stroke={categoryColors.stakeholders}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="other"
-              name="Other"
-              stroke={categoryColors.other}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 6 }}
-            />
+
+            {/* Render lines only for selected categories */}
+            {selectedCategories.has("price") && (
+              <Line
+                type="monotone"
+                dataKey="price"
+                name="Price"
+                stroke={categoryColors.price}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 6 }}
+              />
+            )}
+            {selectedCategories.has("timing") && (
+              <Line
+                type="monotone"
+                dataKey="timing"
+                name="Timing"
+                stroke={categoryColors.timing}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 6 }}
+              />
+            )}
+            {selectedCategories.has("trust") && (
+              <Line
+                type="monotone"
+                dataKey="trust"
+                name="Trust/Risk"
+                stroke={categoryColors.trust}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 6 }}
+              />
+            )}
+            {selectedCategories.has("competition") && (
+              <Line
+                type="monotone"
+                dataKey="competition"
+                name="Competition"
+                stroke={categoryColors.competition}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 6 }}
+              />
+            )}
+            {selectedCategories.has("stakeholders") && (
+              <Line
+                type="monotone"
+                dataKey="stakeholders"
+                name="Stakeholders"
+                stroke={categoryColors.stakeholders}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 6 }}
+              />
+            )}
+            {selectedCategories.has("other") && (
+              <Line
+                type="monotone"
+                dataKey="other"
+                name="Other"
+                stroke={categoryColors.other}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 6 }}
+              />
+            )}
           </LineChart>
         </ResponsiveContainer>
       </div>
     );
   };
 
-  // Calculate total objections by type to show in the header
-  const getTotalsByCategory = () => {
-    if (!data || data.length === 0) return null;
-    
-    const totals = {
-      price: 0,
-      timing: 0,
-      trust: 0,
-      competition: 0,
-      stakeholders: 0,
-      other: 0
-    };
-    
-    data.forEach(item => {
-      totals.price += item.price || 0;
-      totals.timing += item.timing || 0;
-      totals.trust += item.trust || 0;
-      totals.competition += item.competition || 0;
-      totals.stakeholders += item.stakeholders || 0;
-      totals.other += item.other || 0;
-    });
-    
-    return totals;
-  };
-  
-  const totals = getTotalsByCategory();
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sales Objection Categories</CardTitle>
-        <CardDescription>{getDateRangeDescription()}</CardDescription>
-        {!isLoading && totals && (
-          <div className="flex flex-wrap gap-2 mt-2 text-xs">
-            <span style={{ color: categoryColors.price }}>
-              Price: {totals.price}
-            </span>
-            <span style={{ color: categoryColors.timing }}>
-              Timing: {totals.timing}
-            </span>
-            <span style={{ color: categoryColors.trust }}>
-              Trust: {totals.trust}
-            </span>
-            <span style={{ color: categoryColors.competition }}>
-              Competition: {totals.competition}
-            </span>
-            <span style={{ color: categoryColors.stakeholders }}>
-              Stakeholders: {totals.stakeholders}
-            </span>
-            <span style={{ color: categoryColors.other }}>
-              Other: {totals.other}
-            </span>
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <CardTitle>Sales Objection Categories</CardTitle>
+            <CardDescription>{getDateRangeDescription()}</CardDescription>
+
+            {/* Display totals for selected categories only */}
+            {!isLoading && categoryTotals && (
+              <div className="flex flex-wrap gap-2 mt-2 text-xs">
+                {Array.from(selectedCategories).map((category) => (
+                  <span
+                    key={category}
+                    style={{ color: categoryColors[category] }}
+                    className="font-medium"
+                  >
+                    {categoryLabels[category]}: {categoryTotals[category]}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Controls in top-right corner */}
+          <div className="flex gap-2">
+            {/* Date Range Filter */}
+            <div className="relative">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8"
+                onClick={() => {
+                  setShowDateDropdown(!showDateDropdown);
+                  setShowCategoryDropdown(false);
+                }}
+              >
+                <Calendar className="h-4 w-4 mr-1" />
+                {selectedDateRange}d
+                <ChevronDown className="h-3 w-3 ml-1" />
+              </Button>
+              {showDateDropdown && (
+                <div className="absolute right-0 top-full mt-1 w-48 bg-white border rounded-md shadow-lg z-10">
+                  <div className="p-2 space-y-1">
+                    <div className="font-medium text-sm p-2">Date Range</div>
+                    {dateRangeOptions.map((option) => (
+                      <Button
+                        key={option.value}
+                        variant={
+                          selectedDateRange === option.value
+                            ? "default"
+                            : "ghost"
+                        }
+                        size="sm"
+                        className="w-full justify-start"
+                        onClick={() => {
+                          setSelectedDateRange(option.value);
+                          setShowDateDropdown(false);
+                        }}
+                      >
+                        {option.label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Category Selection */}
+            <div className="relative">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8"
+                onClick={() => {
+                  setShowCategoryDropdown(!showCategoryDropdown);
+                  setShowDateDropdown(false);
+                }}
+              >
+                <Settings className="h-4 w-4 mr-1" />
+                Categories
+                <ChevronDown className="h-3 w-3 ml-1" />
+              </Button>
+              {showCategoryDropdown && (
+                <div className="absolute right-0 top-full mt-1 w-56 bg-white border rounded-md shadow-lg z-10">
+                  <div className="p-3 space-y-3">
+                    <div className="font-medium text-sm">Show Categories</div>
+                    {(Object.keys(categoryColors) as CategoryKey[]).map(
+                      (category) => (
+                        <div
+                          key={category}
+                          className="flex items-center space-x-2"
+                        >
+                          <Checkbox
+                            id={category}
+                            checked={selectedCategories.has(category)}
+                            onCheckedChange={() => toggleCategory(category)}
+                          />
+                          <label
+                            htmlFor={category}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                          >
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{
+                                backgroundColor: categoryColors[category],
+                              }}
+                            />
+                            {categoryLabels[category]}
+                          </label>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent>
-        {renderContent()}
-      </CardContent>
+      <CardContent>{renderContent()}</CardContent>
     </Card>
   );
 }
