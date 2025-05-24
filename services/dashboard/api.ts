@@ -69,7 +69,13 @@ interface Objection {
   time: string;
   response: string;
   effectiveness: number;
-  type: 'PRICE' | 'TIMING' | 'TRUST_RISK' | 'COMPETITION' | 'STAKEHOLDERS' | 'OTHERS';
+  type:
+    | "PRICE"
+    | "TIMING"
+    | "TRUST_RISK"
+    | "COMPETITION"
+    | "STAKEHOLDERS"
+    | "OTHERS";
   success: boolean;
   createdAt: string;
   updatedAt: string;
@@ -94,9 +100,9 @@ interface User {
 interface CallAsset {
   id: string;
   content: string;
-  type: 'FILE' | 'TEXT';
+  type: "FILE" | "TEXT";
   name: string | null;
-  status: 'PENDING' | 'SUCCESS' | 'FAIL';
+  status: "PENDING" | "SUCCESS" | "FAIL";
   createdAt: string;
   updatedAt: string;
   userId: string;
@@ -138,7 +144,7 @@ interface CommonObjectionsResponse {
 
 // Type for the objection categories trend data
 interface ObjectionCategoryTrendItem {
-  date: string;  // ISO date string YYYY-MM-DD
+  date: string; // ISO date string YYYY-MM-DD
   price: number; // Count of PRICE objections on this date
   timing: number; // Count of TIMING objections on this date
   trust: number; // Count of TRUST_RISK objections on this date
@@ -154,9 +160,11 @@ type ObjectionCategoriesTrendResponse = ObjectionCategoryTrendItem[];
  * @param orgId The organization ID
  * @returns Promise with the count of transcripts
  */
-const getTranscriptsCount = async (orgId: string): Promise<TranscriptsCountResponse> => {
-  const response = await api.get('/api/dashboard/transcriptsCount', {
-    params: { orgId }
+const getTranscriptsCount = async (
+  orgId: string
+): Promise<TranscriptsCountResponse> => {
+  const response = await api.get("/api/dashboard/transcriptsCount", {
+    params: { orgId },
   });
   return response.data;
 };
@@ -166,9 +174,11 @@ const getTranscriptsCount = async (orgId: string): Promise<TranscriptsCountRespo
  * @param orgId The organization ID
  * @returns Promise with the average sentiment percentage
  */
-const getAverageSentiment = async (orgId: string): Promise<AverageSentimentResponse> => {
-  const response = await api.get('/api/dashboard/averageSentiment', {
-    params: { orgId }
+const getAverageSentiment = async (
+  orgId: string
+): Promise<AverageSentimentResponse> => {
+  const response = await api.get("/api/dashboard/averageSentiment", {
+    params: { orgId },
   });
   return response.data;
 };
@@ -178,9 +188,11 @@ const getAverageSentiment = async (orgId: string): Promise<AverageSentimentRespo
  * @param orgId The organization ID
  * @returns Promise with objection statistics
  */
-const getObjectionsHandled = async (orgId: string): Promise<ObjectionsHandledResponse> => {
-  const response = await api.get('/api/dashboard/objectionsHandled', {
-    params: { orgId }
+const getObjectionsHandled = async (
+  orgId: string
+): Promise<ObjectionsHandledResponse> => {
+  const response = await api.get("/api/dashboard/objectionsHandled", {
+    params: { orgId },
   });
   return response.data;
 };
@@ -191,8 +203,8 @@ const getObjectionsHandled = async (orgId: string): Promise<ObjectionsHandledRes
  * @returns Promise with the talk ratio percentage
  */
 const getTalkRatio = async (orgId: string): Promise<TalkRatioResponse> => {
-  const response = await api.get('/api/dashboard/talkRatio', {
-    params: { orgId }
+  const response = await api.get("/api/dashboard/talkRatio", {
+    params: { orgId },
   });
   return response.data;
 };
@@ -202,9 +214,11 @@ const getTalkRatio = async (orgId: string): Promise<TalkRatioResponse> => {
  * @param orgId The organization ID
  * @returns Promise with sentiment trend data
  */
-const getSentimentTrends = async (orgId: string): Promise<SentimentTrendsResponse> => {
-  const response = await api.get('/api/dashboard/sentimentTrends', {
-    params: { orgId }
+const getSentimentTrends = async (
+  orgId: string
+): Promise<SentimentTrendsResponse> => {
+  const response = await api.get("/api/dashboard/sentimentTrends", {
+    params: { orgId },
   });
   return response.data;
 };
@@ -214,9 +228,11 @@ const getSentimentTrends = async (orgId: string): Promise<SentimentTrendsRespons
  * @param orgId The organization ID
  * @returns Promise with common objection data
  */
-const getCommonObjections = async (orgId: string): Promise<CategoryObjection> => {
-  const response = await api.get('/api/dashboard/commonObjections', {
-    params: { orgId }
+const getCommonObjections = async (
+  orgId: string
+): Promise<CategoryObjection> => {
+  const response = await api.get("/api/dashboard/commonObjections", {
+    params: { orgId },
   });
   return response.data;
 };
@@ -229,12 +245,12 @@ const getCommonObjections = async (orgId: string): Promise<CategoryObjection> =>
  * @returns Promise with paginated transcript data
  */
 const getTranscripts = async (
-  orgId: string, 
-  page: number = 1, 
+  orgId: string,
+  page: number = 1,
   limit: number = 10
 ): Promise<TranscriptsResponse> => {
-  const response = await api.get('/api/dashboard/transcripts', {
-    params: { orgId, page, limit }
+  const response = await api.get("/api/dashboard/transcripts", {
+    params: { orgId, page, limit },
   });
   return response.data;
 };
@@ -244,9 +260,11 @@ const getTranscripts = async (
  * @param orgId The organization ID
  * @returns Promise with questions rate data
  */
-const getQuestionsRate = async (orgId: string): Promise<QuestionsRateResponse> => {
-  const response = await api.get('/api/dashboard/questionsRate', {
-    params: { orgId }
+const getQuestionsRate = async (
+  orgId: string
+): Promise<QuestionsRateResponse> => {
+  const response = await api.get("/api/dashboard/questionsRate", {
+    params: { orgId },
   });
   return response.data;
 };
@@ -256,9 +274,11 @@ const getQuestionsRate = async (orgId: string): Promise<QuestionsRateResponse> =
  * @param orgId The organization ID
  * @returns Promise with topic coherence data
  */
-const getTopicCoherence = async (orgId: string): Promise<TopicCoherenceResponse> => {
-  const response = await api.get('/api/dashboard/topicCoherence', {
-    params: { orgId }
+const getTopicCoherence = async (
+  orgId: string
+): Promise<TopicCoherenceResponse> => {
+  const response = await api.get("/api/dashboard/topicCoherence", {
+    params: { orgId },
   });
   return response.data;
 };
@@ -275,12 +295,12 @@ const getObjectionCategoriesTrend = async (
   startDate?: string,
   endDate?: string
 ): Promise<ObjectionCategoriesTrendResponse> => {
-  const response = await api.get('/api/dashboard/objectionCategoriesTrend', {
-    params: { 
+  const response = await api.get("/api/dashboard/objectionCategoriesTrend", {
+    params: {
       orgId,
       ...(startDate && { startDate }),
-      ...(endDate && { endDate })
-    }
+      ...(endDate && { endDate }),
+    },
   });
   return response.data;
 };
@@ -313,5 +333,5 @@ export {
   type Analysis,
   type Objection,
   type SentimentEntry,
-  type PaginationInfo
+  type PaginationInfo,
 };
