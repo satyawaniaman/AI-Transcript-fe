@@ -2,6 +2,24 @@ import { CategoryObjection } from "@/components/ObjectionsList";
 import { api } from "@/utils/axios";
 
 // Types for dashboard data
+type DashboardMetrics = {
+  transcripts: {
+    count: number;
+  };
+  sentiment: {
+    average: number;
+  };
+  objections: {
+    total: number;
+    successful: number;
+    successRate: number;
+  };
+  talkRatio: {
+    average: number;
+    callsAnalyzed: number;
+  };
+};
+
 interface TranscriptsCountResponse {
   count: number;
 }
@@ -155,57 +173,21 @@ interface ObjectionCategoryTrendItem {
 
 type ObjectionCategoriesTrendResponse = ObjectionCategoryTrendItem[];
 
-/**
- * Fetches the total count of transcripts based on user role and organization
- * @param orgId The organization ID
- * @returns Promise with the count of transcripts
- */
-const getTranscriptsCount = async (
-  orgId: string
-): Promise<TranscriptsCountResponse> => {
-  const response = await api.get("/api/dashboard/transcriptsCount", {
-    params: { orgId },
-  });
-  return response.data;
-};
+export const getDashboardMetrics = async (
+  orgId: string,
+  dateFilter?: string
+): Promise<DashboardMetrics> => {
+  const params: { orgId: string; dateFilter?: string } = { orgId };
 
-/**
- * Fetches the average sentiment percentage for calls in an organization
- * @param orgId The organization ID
- * @returns Promise with the average sentiment percentage
- */
-const getAverageSentiment = async (
-  orgId: string
-): Promise<AverageSentimentResponse> => {
-  const response = await api.get("/api/dashboard/averageSentiment", {
-    params: { orgId },
-  });
-  return response.data;
-};
+  // Only add dateFilter to params if it exists and is not an empty string
+  if (dateFilter) {
+    params.dateFilter = dateFilter;
+  }
 
-/**
- * Fetches statistics about objections handled in an organization
- * @param orgId The organization ID
- * @returns Promise with objection statistics
- */
-const getObjectionsHandled = async (
-  orgId: string
-): Promise<ObjectionsHandledResponse> => {
-  const response = await api.get("/api/dashboard/objectionsHandled", {
-    params: { orgId },
+  const response = await api.get("/api/dashboard/metrics", {
+    params: params,
   });
-  return response.data;
-};
 
-/**
- * Fetches the talk ratio (percentage of time the sales rep speaks)
- * @param orgId The organization ID
- * @returns Promise with the talk ratio percentage
- */
-const getTalkRatio = async (orgId: string): Promise<TalkRatioResponse> => {
-  const response = await api.get("/api/dashboard/talkRatio", {
-    params: { orgId },
-  });
   return response.data;
 };
 
@@ -306,10 +288,6 @@ const getObjectionCategoriesTrend = async (
 };
 
 export {
-  getTranscriptsCount,
-  getAverageSentiment,
-  getObjectionsHandled,
-  getTalkRatio,
   getSentimentTrends,
   getCommonObjections,
   getTranscripts,
