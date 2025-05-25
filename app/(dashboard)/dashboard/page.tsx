@@ -42,6 +42,7 @@ import {
   Filter,
   Sparkles,
   X,
+  RefreshCw,
 } from "lucide-react";
 import SentimentChart from "@/components/SentimentChart";
 import ObjectionsList from "@/components/ObjectionsList";
@@ -77,6 +78,7 @@ const Dashboard = () => {
   const limit = 5;
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
   const [dateFilter, setDateFilter] = useState<string>("all");
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   // Setup listener for analysis complete events
   useEffect(() => {
@@ -177,6 +179,27 @@ const Dashboard = () => {
     }
   }, [
     refreshTrigger,
+    orgId,
+    refetchDashboardMetrics,
+    refetchTrends,
+    refetchCommon,
+    refetchTranscripts,
+    refetchQuestionsRate,
+    refetchTopicCoherence,
+  ]);
+
+  // trigger refresh
+  useEffect(() => {
+    if (orgId) {
+      // Auto-refresh all data when component mounts
+      refetchDashboardMetrics();
+      refetchTrends();
+      refetchCommon();
+      refetchTranscripts();
+      refetchQuestionsRate();
+      refetchTopicCoherence();
+    }
+  }, [
     orgId,
     refetchDashboardMetrics,
     refetchTrends,
@@ -297,94 +320,6 @@ const Dashboard = () => {
             </p>
           </CardContent>
         </Card>
-
-        {/* Questions Rate */}
-        <Card className="border-0 shadow-md bg-gradient-to-br from-indigo-50 to-indigo-100/50 hover:shadow-lg transition-all duration-200">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <div className="space-y-1">
-              <CardTitle className="text-sm font-medium text-indigo-700">
-                Questions Rate
-              </CardTitle>
-              <Badge variant="secondary" className="text-xs px-2 py-0.5">
-                Per Call
-              </Badge>
-            </div>
-
-            {dateFilter !== "all" && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleFilterChange("all")}
-                className="gap-2 text-blue-600 border-blue-200 hover:bg-blue-50"
-              >
-                <X className="h-3 w-3" />
-                Clear Filter
-              </Button>
-            )}
-            <div className="p-2 bg-indigo-100 rounded-lg">
-              <MessageSquare className="h-5 w-5 text-indigo-600" />
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            {questionsLoading ? (
-              <SkeletonLoader height="h-8" width="w-16" />
-            ) : (
-              <div className="space-y-2">
-                <div className="text-3xl font-bold text-indigo-900">
-                  {questionsRate?.averageQuestionsPerCall?.toFixed(1) || 0}
-                </div>
-                <div className="flex items-center gap-1 text-xs text-indigo-600">
-                  <Activity className="h-3 w-3" />
-                  <span>From {questionsRate?.totalCalls || 0} calls</span>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Topic Coherence */}
-        <Card className="border-0 shadow-md bg-gradient-to-br from-teal-50 to-teal-100/50 hover:shadow-lg transition-all duration-200">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <div className="space-y-1">
-              <CardTitle className="text-sm font-medium text-teal-700">
-                Topic Coherence
-              </CardTitle>
-              <Badge
-                className={`text-xs px-2 py-0.5 ${
-                  (topicCoherence?.averageCoherence || 0) >= 0.7
-                    ? "bg-green-100 text-green-700"
-                    : (topicCoherence?.averageCoherence || 0) >= 0.5
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-red-100 text-red-700"
-                } border-0`}
-              >
-                {(topicCoherence?.averageCoherence || 0) >= 0.7
-                  ? "Excellent"
-                  : (topicCoherence?.averageCoherence || 0) >= 0.5
-                  ? "Good"
-                  : "Needs Work"}
-              </Badge>
-            </div>
-            <div className="p-2 bg-teal-100 rounded-lg">
-              <Target className="h-5 w-5 text-teal-600" />
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            {coherenceLoading ? (
-              <SkeletonLoader height="h-8" width="w-16" />
-            ) : (
-              <div className="space-y-2">
-                <div className="text-3xl font-bold text-teal-900">
-                  {((topicCoherence?.averageCoherence || 0) * 100).toFixed(1)}%
-                </div>
-                <div className="flex items-center gap-1 text-xs text-teal-600">
-                  <Sparkles className="h-3 w-3" />
-                  <span>Conversation focus</span>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
     );
   }
@@ -393,6 +328,47 @@ const Dashboard = () => {
   const sentimentStatus = getSentimentStatus(sentimentScore);
   const objectionRate = objections?.successRate || 0;
   const objectionStatus = getSentimentStatus(objectionRate);
+
+  // Function to handle refresh all data
+  const handleRefreshAll = async () => {
+    if (!orgId) return;
+
+    setRefreshTrigger((prev) => prev + 1); // Trigger loading states
+
+    try {
+      await Promise.all([
+        refetchDashboardMetrics(),
+        refetchTrends(),
+        refetchCommon(),
+        refetchTranscripts(),
+        refetchQuestionsRate(),
+        refetchTopicCoherence(),
+      ]);
+
+      setLastUpdated(new Date()); // Update timestamp
+
+      toast({
+        title: "Data Refreshed! ✨",
+        description:
+          "All dashboard data has been updated with the latest information.",
+      });
+    } catch (error) {
+      toast({
+        title: "Refresh Failed",
+        description: "Unable to refresh data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Add loading state
+  const isRefreshing =
+    dashboardMetricsLoading ||
+    trendsLoading ||
+    commonLoading ||
+    transcriptsLoading ||
+    questionsLoading ||
+    coherenceLoading;
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -426,6 +402,9 @@ const Dashboard = () => {
                   Filtered for: {getFilterDisplayName(dateFilter)}
                 </span>
               )}
+              <span className="ml-2 text-xs text-gray-500">
+                Last updated: {lastUpdated.toLocaleTimeString()}
+              </span>
             </p>
           </div>
         </div>
@@ -495,6 +474,19 @@ const Dashboard = () => {
               </div>
             )}
           </div>
+
+          {/* New Refresh Button */}
+          <Button
+            onClick={handleRefreshAll}
+            disabled={isRefreshing}
+            variant="outline"
+            className="gap-2"
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+            />
+            {isRefreshing ? "Refreshing..." : "Refresh Data"}
+          </Button>
 
           <Button
             asChild
