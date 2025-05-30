@@ -302,8 +302,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                       group flex items-center px-2 py-2 text-sm font-medium rounded-md 
                       ${
                         isActive
-                          ? "bg-[#1B2D41]/30 text-white"
-                          : "text-gray-300 hover:bg-[#1B2D41]/30 hover:text-white"
+                          ? "bg-[#1B2D41]/20 text-white"
+                          : "text-gray-300 hover:bg-[#1B2D41]/20 hover:text-white"
                       }
                     `}
                     >
@@ -328,14 +328,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           {user && user?.organizations?.length > 0 && (
             <div className="p-4 border-t border-[#1B2D41]/20">
               <div className="rounded-md overflow-hidden">
-                <div className="px-3 py-2 bg-[#1B2D41]/30 text-white text-sm font-medium">
+                <div className="px-3 py-2 bg-[#1B2D41]/20 text-white text-sm font-medium">
                   Quick Upload
                 </div>
                 <div className="p-3 bg-[#1B2D41]/10">
                   {!isUploading && !sidebarFile && (
                     <label
                       htmlFor="sidebar-dropzone-file"
-                      className="flex flex-col items-center justify-center w-full h-24 border border-[#1B2D41]/20 border-dashed rounded-md cursor-pointer hover:bg-[#1B2D41]/30 transition-colors duration-200"
+                      className="flex flex-col items-center justify-center w-full h-24 border border-[#1B2D41]/20 border-dashed rounded-md cursor-pointer hover:bg-[#1B2D41]/20 transition-colors duration-200"
                     >
                       <div className="flex flex-col items-center justify-center p-2">
                         <Upload className="h-5 w-5 text-[#E1766E] mb-1" />
@@ -420,7 +420,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                           </button>
                         ) : (
                           <button
-                            className="text-xs px-2 py-1 bg-[#1B2D41]/30 text-white rounded flex items-center space-x-1 cursor-not-allowed"
+                            className="text-xs px-2 py-1 bg-[#1B2D41]/20 text-white rounded flex items-center space-x-1 cursor-not-allowed"
                             disabled
                           >
                             <Loader2 className="h-3 w-3 animate-spin mr-1" />
@@ -440,7 +440,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             <div className="rounded-md">
               <Link
                 href="/help"
-                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-[#1B2D41]/30 hover:text-white"
+                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-[#1B2D41]/20 hover:text-white"
               >
                 <HelpCircle className="mr-3 shrink-0 h-6 w-6 text-[#E1766E] group-hover:text-[#E1766E]" />
                 Help & Support
@@ -452,14 +452,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           {user && user?.organizations?.length > 0 && (
             <div className="p-4 border-t border-[#1B2D41]/20 mt-auto">
               <Link href="/dashboard/organisation">
-                <div className="rounded-md bg-[#1B2D41]/10 p-3 hover:bg-[#1B2D41]/30 transition-colors duration-200 cursor-pointer">
+                <div className="rounded-md bg-[#1B2D41]/10 p-3 hover:bg-[#1B2D41]/20 transition-colors duration-200 cursor-pointer">
                   <div className="flex items-center">
                     <Avatar className="h-10 w-10 mr-3">
                       <AvatarImage
                         src={orgLogo || "/placeholder-org.svg"}
                         alt={`${orgName} Logo`}
                       />
-                      <AvatarFallback className="bg-[#1B2D41]/30 text-white">
+                      <AvatarFallback className="bg-[#1B2D41]/20 text-white">
                         {orgName ? orgName.charAt(0).toUpperCase() : "O"}
                       </AvatarFallback>
                     </Avatar>
