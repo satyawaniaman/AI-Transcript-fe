@@ -36,16 +36,18 @@ const PricingCard: React.FC<PricingCardProps> = ({
       <div
         className={`bg-white rounded-2xl shadow-xl border ${
           isPopular
-            ? "border-blue-200 ring-2 ring-blue-500/20"
+            ? "border-[#E1766E]/20 ring-2 ring-[#E1766E]/20"
             : "border-gray-200"
         } overflow-hidden h-full flex flex-col transition-transform duration-300 hover:scale-105 hover:shadow-2xl`}
       >
         <div className="p-8">
-          <h3 className="text-xl font-bold text-gray-900">{name}</h3>
+          <h3 className="text-xl font-bold text-[#1B2D41] font-playfair">
+            {name}
+          </h3>
           <p className="text-gray-500 mt-2 min-h-12">{description}</p>
 
           <div className="mt-6">
-            <span className="text-4xl font-bold text-gray-900">{price}</span>
+            <span className="text-4xl font-bold text-[#1B2D41]">{price}</span>
             <span className="text-gray-500 ml-1">{period}</span>
           </div>
         </div>
@@ -55,7 +57,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
             <ul className="space-y-4">
               {features.map((feature, index) => (
                 <li key={index} className="flex items-start">
-                  <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <Check className="h-5 w-5 text-[#E1766E] mr-3 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-600">{feature}</span>
                 </li>
               ))}
@@ -66,8 +68,8 @@ const PricingCard: React.FC<PricingCardProps> = ({
             onClick={onClick}
             className={`w-full py-6 ${
               isPopular
-                ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-                : "border-2 border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
+                ? "bg-[#E1766E] hover:bg-[#E1766E]/90 text-white"
+                : "border-2 border-[#1B2D41]/20 bg-white text-[#1B2D41] hover:bg-[#1B2D41]/5"
             }`}
           >
             {buttonText}

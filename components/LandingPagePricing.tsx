@@ -146,23 +146,23 @@ const LandingPagePricing = () => {
       className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
     >
       {/* Decorative background elements */}
-      <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-full blur-3xl transform -translate-y-1/2"></div>
-      <div className="absolute bottom-0 right-0 w-full h-64 bg-gradient-to-l from-purple-500/10 to-pink-500/10 rounded-full blur-3xl transform translate-y-1/2"></div>
+      <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-r from-[#1B2D41]/10 to-[#E1766E]/10 rounded-full blur-3xl transform -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-0 w-full h-64 bg-gradient-to-l from-[#E1766E]/10 to-[#1B2D41]/10 rounded-full blur-3xl transform translate-y-1/2"></div>
 
       <div className="container mx-auto max-w-7xl relative z-10">
         <div className="text-center mb-16">
           <div className="inline-block mb-6">
-            <span className="bg-blue-100 text-blue-800 text-sm font-medium px-4 py-1.5 rounded-full">
+            <span className="bg-[#1B2D41]/10 text-[#1B2D41] text-sm font-medium px-4 py-1.5 rounded-full">
               Transparent Pricing
             </span>
           </div>
 
-          <h2 className="text-4xl font-bold text-navy-800 mb-4 tracking-tight">
+          <h2 className="text-4xl font-bold text-[#1B2D41] mb-4 tracking-tight font-playfair">
             Simple, Transparent Pricing
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Choose the plan that&apos;s right for you. All plans include a{" "}
-            <span className="font-semibold text-blue-600">
+            <span className="font-semibold text-[#E1766E]">
               14-day free trial
             </span>
             .
@@ -189,7 +189,7 @@ const LandingPagePricing = () => {
                   className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm"
                 >
                   Annual{" "}
-                  <span className="ml-1.5 text-xs font-medium text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full">
+                  <span className="ml-1.5 text-xs font-medium text-[#E1766E] bg-[#E1766E]/10 px-1.5 py-0.5 rounded-full">
                     Save 20%
                   </span>
                 </TabsTrigger>
@@ -211,7 +211,7 @@ const LandingPagePricing = () => {
               isPopular={plan.isPopular}
               badge={
                 plan.isPopular ? (
-                  <span className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium px-4 py-1 rounded-full flex items-center">
+                  <span className="bg-[#E1766E] text-white text-sm font-medium px-4 py-1 rounded-full flex items-center">
                     <Sparkles className="h-3.5 w-3.5 mr-1" />
                     Most Popular
                   </span>
@@ -225,7 +225,7 @@ const LandingPagePricing = () => {
         <div className="mt-10 text-center">
           <Link
             href="/pricing"
-            className="text-blue-600 font-medium hover:text-blue-700 transition-colors flex items-center justify-center mx-auto"
+            className="text-[#1B2D41] font-medium hover:text-[#E1766E] transition-colors flex items-center justify-center mx-auto"
           >
             <span>View full details and compare all features</span>
             <ArrowRight className="ml-1 h-4 w-4" />

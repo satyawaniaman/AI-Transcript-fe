@@ -37,9 +37,9 @@ const LeadMagnetForm = () => {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-navy-600/50 shadow-2xl">
+    <div className="relative overflow-hidden rounded-xl border border-[#1B2D41]/20 shadow-2xl">
       {/* Enhanced background with gradients and patterns */}
-      <div className="absolute inset-0 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-700 z-0">
+      <div className="absolute inset-0 bg-gradient-to-br from-[#1B2D41] via-[#1B2D41]/90 to-[#1B2D41]/80 z-0">
         <div className="absolute inset-0 opacity-30">
           {/* Decorative dots pattern */}
           <div
@@ -52,16 +52,16 @@ const LeadMagnetForm = () => {
           ></div>
 
           {/* Glowing orbs */}
-          <div className="absolute top-0 left-0 w-64 h-64 bg-blue-500 rounded-full blur-3xl opacity-10 transform -translate-y-1/2 -translate-x-1/2"></div>
-          <div className="absolute bottom-0 right-0 w-80 h-80 bg-indigo-500 rounded-full blur-3xl opacity-10 transform translate-y-1/2 translate-x-1/2"></div>
+          <div className="absolute top-0 left-0 w-64 h-64 bg-[#E1766E] rounded-full blur-3xl opacity-10 transform -translate-y-1/2 -translate-x-1/2"></div>
+          <div className="absolute bottom-0 right-0 w-80 h-80 bg-[#1B2D41] rounded-full blur-3xl opacity-10 transform translate-y-1/2 translate-x-1/2"></div>
         </div>
       </div>
 
       {/* Content with glass effect */}
-      <div className="relative z-10 p-8 backdrop-blur-sm bg-navy-800/50">
+      <div className="relative z-10 p-8 backdrop-blur-sm bg-[#1B2D41]/50">
         <div className="absolute top-0 right-0 w-20 h-20">
           <svg
-            className="w-full h-full text-blue-500/10"
+            className="w-full h-full text-[#E1766E]/10"
             viewBox="0 0 200 200"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -74,35 +74,35 @@ const LeadMagnetForm = () => {
         </div>
 
         <div className="mb-6">
-          <div className="inline-flex items-center px-3 py-1 mb-3 bg-blue-500/20 rounded-full border border-blue-400/20">
-            <Sparkles className="h-3.5 w-3.5 mr-1.5 text-blue-400" />
-            <span className="text-xs font-medium text-blue-300">
+          <div className="inline-flex items-center px-3 py-1 mb-3 bg-[#E1766E]/20 rounded-full border border-[#E1766E]/20">
+            <Sparkles className="h-3.5 w-3.5 mr-1.5 text-[#E1766E]" />
+            <span className="text-xs font-medium text-[#E1766E]">
               AI-Powered Analysis
             </span>
           </div>
-          <h2 className="text-xl font-bold text-white mb-2">
-            Sales Objection Analyzer
+          <h2 className="text-xl font-bold text-white mb-2 font-playfair">
+            Get Your Free Sales Call Analysis
           </h2>
           <p className="text-gray-300 text-sm">
-            Get instant insights on how to handle customer objections
-            effectively
+            Upload a sales call transcript and get instant insights on how to
+            improve your performance
           </p>
         </div>
 
         {!result ? (
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="bg-navy-700/50 rounded-lg p-4 border border-navy-600/50">
+            <div className="bg-[#1B2D41]/50 rounded-lg p-4 border border-[#1B2D41]/50">
               <label
                 htmlFor="objection"
                 className="flex items-center text-sm font-medium mb-2 text-gray-200"
               >
-                <MessageSquare className="h-4 w-4 mr-2 text-blue-400" />
-                Paste your sales call objection
+                <MessageSquare className="h-4 w-4 mr-2 text-[#E1766E]" />
+                Paste your sales call transcript
               </label>
               <Textarea
                 id="objection"
-                placeholder="Example: I think your product is too expensive compared to other options we're looking at."
-                className="bg-navy-600/70 border-navy-500/70 text-white placeholder:text-gray-400 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                placeholder="Paste your sales call transcript here..."
+                className="bg-[#1B2D41]/70 border-[#1B2D41]/70 text-white placeholder:text-gray-400 focus:ring-[#E1766E] focus:border-[#E1766E] transition-all"
                 rows={4}
                 value={objectionText}
                 onChange={(e) => setObjectionText(e.target.value)}
@@ -110,32 +110,34 @@ const LeadMagnetForm = () => {
               />
             </div>
 
-            <div className="bg-navy-700/50 rounded-lg p-4 border border-navy-600/50">
+            <div className="bg-[#1B2D41]/50 rounded-lg p-4 border border-[#1B2D41]/50">
               <label
                 htmlFor="email"
                 className="flex items-center text-sm font-medium mb-2 text-gray-200"
               >
-                <Mail className="h-4 w-4 mr-2 text-blue-400" />
+                <Mail className="h-4 w-4 mr-2 text-[#E1766E]" />
                 Email address
               </label>
               <Input
                 id="email"
                 type="email"
                 placeholder="you@example.com"
-                className="bg-navy-600/70 border-navy-500/70 text-white placeholder:text-gray-400 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="bg-[#1B2D41]/70 border-[#1B2D41]/70 text-white placeholder:text-gray-400 focus:ring-[#E1766E] focus:border-[#E1766E] transition-all"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
               <p className="text-xs text-gray-400 mt-2 ml-6">
-                We&apos;ll email you the analysis and tips for handling similar
-                objections.
+                We'll email you the analysis and personalized coaching tips.
+              </p>
+              <p className="text-xs text-gray-400 mt-1 ml-6">
+                No spam. No commitments. Just clarity.
               </p>
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 py-5 font-medium text-white shadow-lg shadow-blue-900/30 mt-6 border border-blue-500/20"
+              className="w-full bg-[#E1766E] hover:bg-[#E1766E]/90 transition-all duration-300 py-5 font-medium text-white shadow-lg shadow-[#E1766E]/30 mt-6 border border-[#E1766E]/20"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -145,7 +147,7 @@ const LeadMagnetForm = () => {
                 </>
               ) : (
                 <>
-                  Analyze Objection
+                  Get Free Analysis
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </>
               )}
@@ -154,13 +156,13 @@ const LeadMagnetForm = () => {
         ) : (
           <div className="space-y-5">
             <h3 className="font-semibold text-lg text-white flex items-center">
-              <MessageSquare className="h-5 w-5 mr-2 text-blue-400" />
-              Objection Analysis
+              <MessageSquare className="h-5 w-5 mr-2 text-[#E1766E]" />
+              Analysis Results
             </h3>
-            <div className="bg-navy-600/70 backdrop-blur-md rounded-lg p-5 text-white border border-navy-500/70">
+            <div className="bg-[#1B2D41]/70 backdrop-blur-md rounded-lg p-5 text-white border border-[#1B2D41]/70">
               {result}
             </div>
-            <div className="text-sm text-gray-300 mt-4 bg-blue-900/30 backdrop-blur-sm p-4 rounded-lg border border-blue-800/30">
+            <div className="text-sm text-gray-300 mt-4 bg-[#E1766E]/30 backdrop-blur-sm p-4 rounded-lg border border-[#E1766E]/30">
               <p className="font-medium mb-1">Want more insights like this?</p>
               <p className="text-gray-400">
                 Sign up for a free trial to access our premium analysis tools!
@@ -168,7 +170,7 @@ const LeadMagnetForm = () => {
             </div>
             <Button
               asChild
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 py-5 font-medium text-white shadow-lg shadow-blue-900/30 border border-blue-500/20"
+              className="w-full bg-[#E1766E] hover:bg-[#E1766E]/90 transition-all duration-300 py-5 font-medium text-white shadow-lg shadow-[#E1766E]/30 border border-[#E1766E]/20"
             >
               <Link href="/signup">
                 Sign Up for Free Trial
