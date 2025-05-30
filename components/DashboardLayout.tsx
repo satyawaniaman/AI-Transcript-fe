@@ -302,8 +302,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                       group flex items-center px-2 py-2 text-sm font-medium rounded-md 
                       ${
                         isActive
-                          ? "bg-[#1B2D41]/20 text-white"
-                          : "text-gray-300 hover:bg-[#1B2D41]/20 hover:text-white"
+                          ? "bg-[#1B2D41]/30 text-white"
+                          : "text-gray-300 hover:bg-[#1B2D41]/30 hover:text-white"
                       }
                     `}
                     >
@@ -313,7 +313,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                         ${
                           isActive
                             ? "text-[#E1766E]"
-                            : "text-gray-400 group-hover:text-gray-300"
+                            : "text-gray-400 group-hover:text-[#E1766E]"
                         }
                       `}
                       />
@@ -328,14 +328,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           {user && user?.organizations?.length > 0 && (
             <div className="p-4 border-t border-[#1B2D41]/20">
               <div className="rounded-md overflow-hidden">
-                <div className="px-3 py-2 bg-[#1B2D41]/20 text-white text-sm font-medium">
+                <div className="px-3 py-2 bg-[#1B2D41]/30 text-white text-sm font-medium">
                   Quick Upload
                 </div>
                 <div className="p-3 bg-[#1B2D41]/10">
                   {!isUploading && !sidebarFile && (
                     <label
                       htmlFor="sidebar-dropzone-file"
-                      className="flex flex-col items-center justify-center w-full h-24 border border-[#1B2D41]/20 border-dashed rounded-md cursor-pointer hover:bg-[#1B2D41]/20 transition-colors duration-200"
+                      className="flex flex-col items-center justify-center w-full h-24 border border-[#1B2D41]/20 border-dashed rounded-md cursor-pointer hover:bg-[#1B2D41]/30 transition-colors duration-200"
                     >
                       <div className="flex flex-col items-center justify-center p-2">
                         <Upload className="h-5 w-5 text-[#E1766E] mb-1" />
@@ -368,7 +368,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                         {!isUploading && (
                           <button
                             onClick={handleRemoveFile}
-                            className="text-gray-400 hover:text-white flex-shrink-0"
+                            className="text-gray-400 hover:text-[#E1766E] flex-shrink-0"
                             title="Remove file"
                             disabled={isUploading}
                           >
@@ -383,7 +383,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                             value={uploadProgress}
                             className="h-1.5 bg-[#1B2D41]/20"
                             color={
-                              uploadStage === "error" ? "bg-red-500" : undefined
+                              uploadStage === "error"
+                                ? "bg-red-500"
+                                : "bg-[#E1766E]"
                             }
                           />
                           <div className="flex justify-between mt-1">
@@ -418,7 +420,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                           </button>
                         ) : (
                           <button
-                            className="text-xs px-2 py-1 bg-[#1B2D41]/20 text-white rounded flex items-center space-x-1 cursor-not-allowed"
+                            className="text-xs px-2 py-1 bg-[#1B2D41]/30 text-white rounded flex items-center space-x-1 cursor-not-allowed"
                             disabled
                           >
                             <Loader2 className="h-3 w-3 animate-spin mr-1" />
@@ -438,7 +440,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             <div className="rounded-md">
               <Link
                 href="/help"
-                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-[#1B2D41]/20 hover:text-white"
+                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-[#1B2D41]/30 hover:text-white"
               >
                 <HelpCircle className="mr-3 shrink-0 h-6 w-6 text-[#E1766E] group-hover:text-[#E1766E]" />
                 Help & Support
@@ -450,14 +452,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           {user && user?.organizations?.length > 0 && (
             <div className="p-4 border-t border-[#1B2D41]/20 mt-auto">
               <Link href="/dashboard/organisation">
-                <div className="rounded-md bg-[#1B2D41]/10 p-3 hover:bg-[#1B2D41]/20 transition-colors duration-200 cursor-pointer">
+                <div className="rounded-md bg-[#1B2D41]/10 p-3 hover:bg-[#1B2D41]/30 transition-colors duration-200 cursor-pointer">
                   <div className="flex items-center">
                     <Avatar className="h-10 w-10 mr-3">
                       <AvatarImage
                         src={orgLogo || "/placeholder-org.svg"}
                         alt={`${orgName} Logo`}
                       />
-                      <AvatarFallback className="bg-[#1B2D41]/20 text-white">
+                      <AvatarFallback className="bg-[#1B2D41]/30 text-white">
                         {orgName ? orgName.charAt(0).toUpperCase() : "O"}
                       </AvatarFallback>
                     </Avatar>
@@ -666,13 +668,13 @@ const UserMenu = () => {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="relative h-8 w-8 rounded-full border-gray-200 bg-white hover:bg-sky-100 hover:border-sky-300 transition-all duration-200"
+          className="relative h-8 w-8 rounded-full border-[#1B2D41]/10 bg-white hover:bg-[#1B2D41]/5 hover:border-[#1B2D41]/20 transition-all duration-200"
         >
           <Avatar className="h-8 w-8">
             <AvatarImage
-              src={`https://ui-avatars.com/api/?name=${user?.firstName}+${user?.lastName}&color=fff&background=102E50`}
+              src={`https://ui-avatars.com/api/?name=${user?.firstName}+${user?.lastName}&color=fff&background=1B2D41`}
             />
-            <AvatarFallback className="bg-navy-700 text-white">
+            <AvatarFallback className="bg-[#1B2D41]/30 text-white">
               {isLoading
                 ? "..."
                 : (user?.firstName?.charAt(0).toUpperCase() || "") +
@@ -682,14 +684,14 @@ const UserMenu = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="text-gray-900">
+        <DropdownMenuLabel className="text-[#1B2D41]">
           My Account
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="p-0 focus:bg-transparent focus:text-inherit">
           <Link
             href="/dashboard/settings"
-            className="flex w-full items-center px-2 py-1.5 text-sm rounded-sm text-navy-800 hover:text-navy-900 hover:bg-sky-100 transition-colors"
+            className="flex w-full items-center px-2 py-1.5 text-sm rounded-sm text-[#1B2D41] hover:text-[#1B2D41] hover:bg-[#1B2D41]/5 transition-colors"
           >
             <User className="mr-2 h-4 w-4" />
             Profile
@@ -698,7 +700,7 @@ const UserMenu = () => {
         <DropdownMenuItem className="p-0 focus:bg-transparent focus:text-inherit">
           <Link
             href="/settings"
-            className="flex w-full items-center px-2 py-1.5 text-sm rounded-sm text-navy-800 hover:text-navy-900 hover:bg-sky-100 transition-colors"
+            className="flex w-full items-center px-2 py-1.5 text-sm rounded-sm text-[#1B2D41] hover:text-[#1B2D41] hover:bg-[#1B2D41]/5 transition-colors"
           >
             <Settings className="mr-2 h-4 w-4" />
             Settings
@@ -707,7 +709,7 @@ const UserMenu = () => {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleLogout}
-          className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 focus:text-red-700 focus:bg-red-50 transition-colors"
+          className="cursor-pointer text-[#E1766E] hover:text-[#E1766E]/90 hover:bg-[#E1766E]/5 focus:text-[#E1766E]/90 focus:bg-[#E1766E]/5 transition-colors"
         >
           <LogOut className="mr-2 h-4 w-4" />
           Log out
