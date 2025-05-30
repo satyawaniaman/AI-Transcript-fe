@@ -145,7 +145,7 @@ const Index = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Before */}
-            <div className="bg-white rounded-xl shadow-lg shadow-blue-100/60 border border-gray-200 overflow-hidden group hover:-translate-y-2 transition-all duration-300">
+            <div className="bg-white rounded-xl shadow-lg shadow-blue-100/60 border border-gray-200 overflow-hidden group hover:-translate-y-2 transition-all duration-300 relative">
               <div className="p-8">
                 <div className="h-14 w-14 bg-[#1B2D41] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <X className="h-7 w-7 text-white" />
@@ -176,7 +176,7 @@ const Index = () => {
                   </li>
                 </ul>
               </div>
-              <div className="h-2 bg-linear-to-r from-[#1B2D41] to-[#1B2D41]/80"></div>
+              <div className="absolute bottom-0 left-0 right-0 rounded-b-xl h-2 bg-gradient-to-r from-[#1B2D41] to-[#1B2D41]/80"></div>
             </div>
 
             {/* After */}
@@ -212,7 +212,7 @@ const Index = () => {
                   </li>
                 </ul>
               </div>
-              <div className="h-2 bg-linear-to-r from-[#E1766E] to-[#E1766E]/80"></div>
+              <div className="h-2 bg-gradient-to-r from-[#E1766E] to-[#E1766E]/80"></div>
             </div>
           </div>
         </div>
@@ -258,7 +258,7 @@ const Index = () => {
                 <h3 className="text-xl font-semibold text-[#1B2D41] mb-3 font-playfair">
                   Upload One Call
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 min-h-[5.5rem]">
                   Send us a sales call transcript (we'll handle the formatting).
                   No integrations. No setup.
                 </p>
