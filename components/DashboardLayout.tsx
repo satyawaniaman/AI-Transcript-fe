@@ -277,12 +277,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     <div className="min-h-screen flex">
       {/* Sidebar for desktop */}
       <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 z-20">
-        <div className="flex flex-col h-full bg-navy-800 overflow-y-auto">
+        <div className="flex flex-col h-full bg-[#1B2D41] overflow-y-auto">
           {/* Sidebar header */}
-          <div className="flex items-center h-16 shrink-0 px-4 border-b border-navy-700">
+          <div className="flex items-center h-16 shrink-0 px-4 border-b border-[#1B2D41]/20">
             <Link href="/" className="flex items-center">
               <span className="text-xl font-bold text-white">
-                CloseDash<span className="text-[#0284c7]">.io</span>
+                CloseDash<span className="text-[#E1766E]">.io</span>
               </span>
             </Link>
           </div>
@@ -302,8 +302,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                       group flex items-center px-2 py-2 text-sm font-medium rounded-md 
                       ${
                         isActive
-                          ? "bg-navy-700 text-white"
-                          : "text-gray-300 hover:bg-navy-700 hover:text-white"
+                          ? "bg-[#1B2D41]/20 text-white"
+                          : "text-gray-300 hover:bg-[#1B2D41]/20 hover:text-white"
                       }
                     `}
                     >
@@ -312,7 +312,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                         mr-3 shrink-0 h-6 w-6 
                         ${
                           isActive
-                            ? "text-white"
+                            ? "text-[#E1766E]"
                             : "text-gray-400 group-hover:text-gray-300"
                         }
                       `}
@@ -326,19 +326,19 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
           {/* Upload section */}
           {user && user?.organizations?.length > 0 && (
-            <div className="p-4 border-t border-navy-700">
+            <div className="p-4 border-t border-[#1B2D41]/20">
               <div className="rounded-md overflow-hidden">
-                <div className="px-3 py-2 bg-navy-700 text-white text-sm font-medium">
+                <div className="px-3 py-2 bg-[#1B2D41]/20 text-white text-sm font-medium">
                   Quick Upload
                 </div>
-                <div className="p-3 bg-navy-700 bg-opacity-50">
+                <div className="p-3 bg-[#1B2D41]/10">
                   {!isUploading && !sidebarFile && (
                     <label
                       htmlFor="sidebar-dropzone-file"
-                      className="flex flex-col items-center justify-center w-full h-24 border border-navy-600 border-dashed rounded-md cursor-pointer hover:bg-navy-700 transition-colors duration-200"
+                      className="flex flex-col items-center justify-center w-full h-24 border border-[#1B2D41]/20 border-dashed rounded-md cursor-pointer hover:bg-[#1B2D41]/20 transition-colors duration-200"
                     >
                       <div className="flex flex-col items-center justify-center p-2">
-                        <Upload className="h-5 w-5 text-gray-400 mb-1" />
+                        <Upload className="h-5 w-5 text-[#E1766E] mb-1" />
                         <p className="text-xs text-gray-300 text-center">
                           <span className="font-medium">Click to upload</span>{" "}
                           or drag files
@@ -381,7 +381,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                         <div className="mt-2 mb-2">
                           <Progress
                             value={uploadProgress}
-                            className="h-1.5 bg-navy-600"
+                            className="h-1.5 bg-[#1B2D41]/20"
                             color={
                               uploadStage === "error" ? "bg-red-500" : undefined
                             }
@@ -411,14 +411,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                         {!isUploading ? (
                           <button
                             onClick={handleSidebarFileUpload}
-                            className="text-xs px-2 py-1 bg-[#0284c7] text-white rounded hover:bg-blue-600 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed"
+                            className="text-xs px-2 py-1 bg-[#E1766E] text-white rounded hover:bg-[#E1766E]/90 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed"
                             disabled={isUploading}
                           >
                             Upload
                           </button>
                         ) : (
                           <button
-                            className="text-xs px-2 py-1 bg-gray-600 text-white rounded flex items-center space-x-1 cursor-not-allowed"
+                            className="text-xs px-2 py-1 bg-[#1B2D41]/20 text-white rounded flex items-center space-x-1 cursor-not-allowed"
                             disabled
                           >
                             <Loader2 className="h-3 w-3 animate-spin mr-1" />
@@ -434,13 +434,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           )}
 
           {/* Help section */}
-          <div className="p-4 border-t border-navy-700">
+          <div className="p-4 border-t border-[#1B2D41]/20">
             <div className="rounded-md">
               <Link
                 href="/help"
-                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-navy-700 hover:text-white"
+                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-[#1B2D41]/20 hover:text-white"
               >
-                <HelpCircle className="mr-3 shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-300" />
+                <HelpCircle className="mr-3 shrink-0 h-6 w-6 text-[#E1766E] group-hover:text-[#E1766E]" />
                 Help & Support
               </Link>
             </div>
@@ -448,16 +448,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
           {/* Organization section - Desktop */}
           {user && user?.organizations?.length > 0 && (
-            <div className="p-4 border-t border-navy-700 mt-auto">
+            <div className="p-4 border-t border-[#1B2D41]/20 mt-auto">
               <Link href="/dashboard/organisation">
-                <div className="rounded-md bg-navy-700 bg-opacity-50 p-3 hover:bg-navy-600 transition-colors duration-200 cursor-pointer">
+                <div className="rounded-md bg-[#1B2D41]/10 p-3 hover:bg-[#1B2D41]/20 transition-colors duration-200 cursor-pointer">
                   <div className="flex items-center">
                     <Avatar className="h-10 w-10 mr-3">
                       <AvatarImage
                         src={orgLogo || "/placeholder-org.svg"}
                         alt={`${orgName} Logo`}
                       />
-                      <AvatarFallback className="bg-navy-600 text-white">
+                      <AvatarFallback className="bg-[#1B2D41]/20 text-white">
                         {orgName ? orgName.charAt(0).toUpperCase() : "O"}
                       </AvatarFallback>
                     </Avatar>
@@ -486,7 +486,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       >
         {/* Overlay */}
         <div
-          className={`fixed inset-0 bg-navy-900 bg-opacity-75 transition-opacity duration-300
+          className={`fixed inset-0 bg-[#1B2D41] bg-opacity-75 transition-opacity duration-300
             ${sidebarOpen ? "opacity-100" : "opacity-0"}
           `}
           onClick={() => setSidebarOpen(false)}
@@ -495,7 +495,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         {/* Sidebar */}
         <div
           className={`
-          relative flex-1 flex flex-col max-w-xs w-full bg-navy-800 transform transition duration-300 ease-in-out
+          relative flex-1 flex flex-col max-w-xs w-full bg-[#1B2D41] transform transition duration-300 ease-in-out
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         `}
         >
@@ -511,10 +511,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           </div>
 
           {/* Logo */}
-          <div className="flex items-center h-16 shrink-0 px-4 border-b border-navy-700">
+          <div className="flex items-center h-16 shrink-0 px-4 border-b border-[#1B2D41]/20">
             <Link href="/" className="flex items-center">
               <span className="text-xl font-bold text-white">
-                CloseDash<span className="text-[#0284c7]">.io</span>
+                CloseDash<span className="text-[#E1766E]">.io</span>
               </span>
             </Link>
           </div>
@@ -533,8 +533,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                       group flex items-center px-2 py-2 text-sm font-medium rounded-md
                       ${
                         isActive
-                          ? "bg-navy-700 text-white"
-                          : "text-gray-300 hover:bg-navy-700 hover:text-white"
+                          ? "bg-[#1B2D41]/20 text-white"
+                          : "text-gray-300 hover:bg-[#1B2D41]/20 hover:text-white"
                       }
                     `}
                       onClick={() => setSidebarOpen(false)}
@@ -544,7 +544,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                         mr-3 shrink-0 h-6 w-6
                         ${
                           isActive
-                            ? "text-white"
+                            ? "text-[#E1766E]"
                             : "text-gray-400 group-hover:text-gray-300"
                         }
                       `}
@@ -559,13 +559,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
           {/* Help */}
           {user && user?.organizations?.length > 0 && (
-            <div className="p-4 border-t border-navy-700">
+            <div className="p-4 border-t border-[#1B2D41]/20">
               <Link
                 href="/help"
-                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-navy-700 hover:text-white"
+                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-[#1B2D41]/20 hover:text-white"
                 onClick={() => setSidebarOpen(false)}
               >
-                <HelpCircle className="mr-3 shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-300" />
+                <HelpCircle className="mr-3 shrink-0 h-6 w-6 text-[#E1766E] group-hover:text-[#E1766E]" />
                 Help & Support
               </Link>
             </div>
@@ -573,19 +573,19 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
           {/* Organization section - Mobile */}
           {user && user?.organizations?.length > 0 && (
-            <div className="p-4 border-t border-navy-700 mt-auto">
+            <div className="p-4 border-t border-[#1B2D41]/20 mt-auto">
               <Link
                 href="/dashboard/organisation"
                 onClick={() => setSidebarOpen(false)}
               >
-                <div className="rounded-md bg-navy-700 bg-opacity-50 p-3 hover:bg-navy-600 transition-colors duration-200 cursor-pointer">
+                <div className="rounded-md bg-[#1B2D41]/10 p-3 hover:bg-[#1B2D41]/20 transition-colors duration-200 cursor-pointer">
                   <div className="flex items-center">
                     <Avatar className="h-10 w-10 mr-3">
                       <AvatarImage
                         src={orgLogo || "/placeholder-org.svg"}
                         alt={`${orgName} Logo`}
                       />
-                      <AvatarFallback className="bg-navy-600 text-white">
+                      <AvatarFallback className="bg-[#1B2D41]/20 text-white">
                         {orgName ? orgName.charAt(0).toUpperCase() : "O"}
                       </AvatarFallback>
                     </Avatar>
@@ -612,10 +612,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       {/* Main content */}
       <div className="md:pl-64 flex flex-col flex-1 relative w-full">
         {/* Top navigation */}
-        <div className="sticky top-0 z-10 md:hidden shrink-0 flex h-16 bg-white border-b border-gray-200">
+        <div className="sticky top-0 z-10 md:hidden shrink-0 flex h-16 bg-[#FDFBF9] border-b border-[#1B2D41]/10">
           <button
             type="button"
-            className="px-4 text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-navy-500 md:hidden"
+            className="px-4 text-[#1B2D41] focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-[#1B2D41] md:hidden"
             onClick={() => setSidebarOpen(true)}
           >
             <span className="sr-only">Open sidebar</span>
@@ -625,8 +625,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div className="flex-1 flex justify-between items-center px-4">
             <div className="flex-1 flex">
               <Link href="/" className="flex items-center">
-                <span className="text-xl font-bold text-navy-800">
-                  CloseDash<span className="text-[#0284c7]">.io</span>
+                <span className="text-xl font-bold text-[#1B2D41]">
+                  CloseDash<span className="text-[#E1766E]">.io</span>
                 </span>
               </Link>
             </div>
@@ -637,7 +637,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </div>
 
         {/* Top bar desktop */}
-        <div className="hidden md:flex sticky top-0 z-10 shrink-0 h-16 bg-white border-b border-gray-200">
+        <div className="hidden md:flex sticky top-0 z-10 shrink-0 h-16 bg-[#FDFBF9] border-b border-[#1B2D41]/10">
           <div className="flex-1 flex justify-end px-4">
             <div className="ml-4 flex items-center">
               <UserMenu />
@@ -646,7 +646,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </div>
 
         {/* Main content */}
-        <main className="flex-1 p-6 overflow-x-auto">
+        <main className="flex-1 p-6 overflow-x-auto bg-[#FDFBF9]">
           <div className="max-w-full">{children}</div>
         </main>
       </div>
